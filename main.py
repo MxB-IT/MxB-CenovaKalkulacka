@@ -18,7 +18,10 @@ def toggle_relevant(boolean_var : tk.BooleanVar, widgets : list) -> None:
             widget[1].grid_forget()
 
 def calculate_total() -> None:
-
+    """
+    calculates and displays the total price for the client based on data filled into the GUI
+    :return: None, updates a label
+    """
     print("Calculating...")
     total = 0
 
@@ -29,10 +32,42 @@ def calculate_total() -> None:
             total += int(executions_tuple[1].get()) * 880
 
         if accounting_bool.get():
+
+            total += int(create_VFA[1].get()) * 50
+            total += int(bank_amt[1].get()) * 10
+
+            if import_only_bool.get():
+                total += int(import_only[1].get())
+
             if evidence_bool.get():
-                pass
-            else:
-                pass
+                total += int(by_hand[1].get()) * 25
+                total += int(PFA_amt[1].get()) * 25
+                total += int(view_amt[1].get()) * 25
+
+            if ucto_bool.get():
+                total += int(by_hand[1].get()) * 35
+                total += int(PFA_amt[1].get()) * 35
+                total += int(view_amt[1].get()) * 35
+
+            if tax_check_bool.get():
+
+                if int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(view_amt[1].get()) + int(
+                        bank_amt[1].get()) < 300:
+                    total += 500
+                elif 300 <= int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(view_amt[1].get()) + int(
+                        bank_amt[1].get()) < 500:
+                    total += 700
+                elif 500 <= int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(view_amt[1].get()) + int(
+                        bank_amt[1].get()) < 1000:
+                    total += 1000
+                else:
+                    total += 2000
+
+            if send_docs_bool.get():
+                total += 300
+
+        total = total * 7 / 6
+
     except ValueError:
         pass
 
@@ -78,23 +113,34 @@ if __name__ == '__main__':
                              ttk.Checkbutton(master = root, text = "Účto", variable = ucto_bool))
     accounting_widgets.append(accounting_checkboxes)
     accounting_widgets.append(VFA_header)
-    import_only = ttk.Checkbutton(master = root, text = "1x import"), ttk.Combobox(master = root)
+
+    import_only_bool = tk.BooleanVar()
+    import_only = ttk.Checkbutton(master = root, text = "1x import", variable = import_only_bool), ttk.Combobox(master = root)
     import_only[1].set(1000)
     accounting_widgets.append(import_only)
+
     by_hand = ttk.Label(master = root, text = "Počet ručně"), ttk.Spinbox(master = root)
     accounting_widgets.append(by_hand)
+
     create_VFA = ttk.Label(master = root, text = "Počet VFA k vystavení"), ttk.Spinbox(master = root)
     accounting_widgets.append(create_VFA)
+
     accounting_widgets.append(PFA_header)
     PFA_amt = ttk.Label(master = root, text = "Počet PFA k vystavení"), ttk.Spinbox(master = root)
     accounting_widgets.append(PFA_amt)
+
     view_amt = ttk.Label(master = root, text = "Počet pohledů(?) k vystavení"), ttk.Spinbox(master = root)
     accounting_widgets.append(view_amt)
-    package_amt = ttk.Label(master = root, text = "Baulici(?)"), ttk.Spinbox(master = root)
-    accounting_widgets.append(package_amt)
-    tax_check = ttk.Checkbutton(master = root, text = "Kontrola DPH"), ttk.Label(master = root, text = "")
+
+    bank_amt = ttk.Label(master = root, text ="Počet bankovních výpisů"), ttk.Spinbox(master = root)
+    accounting_widgets.append(bank_amt)
+
+    tax_check_bool = tk.BooleanVar()
+    tax_check = ttk.Checkbutton(master = root, text = "Kontrola DPH", variable = tax_check_bool), ttk.Label(master = root, text = "")
     accounting_widgets.append(tax_check)
-    send_docs = ttk.Checkbutton(master = root, text = "Odeslání DPH, KH"), ttk.Label(master = root, text = "")
+
+    send_docs_bool = tk.BooleanVar()
+    send_docs = ttk.Checkbutton(master = root, text = "Odeslání DPH, KH", variable = send_docs_bool), ttk.Label(master = root, text = "")
     accounting_widgets.append(send_docs)
 
     accounting_widgets.append(total_price_tuple)
