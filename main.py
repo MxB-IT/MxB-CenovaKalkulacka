@@ -65,17 +65,18 @@ class Spinbox(CTkFrame):
         self.entry.delete(0, "end")
         self.entry.insert(0, str(int(value)))
 
-def toggle_relevant(boolean_var : tk.BooleanVar, widgets : list) -> None:
+def toggle_relevant(boolean_var : bool, widgets : list) -> None:
     """
     toggles the relevant widgets depending on what button has been clicked
     :param boolean_var: represents the state of the button pressed
     :param widgets: all the widgets to either show or hide
     :return: None
     """
-    if boolean_var.get():
+    if boolean_var:
         for widget in widgets:
             widget[0].grid(row = root.grid_size()[1], column = 0)
             widget[1].grid(row = root.grid_size()[1] - 1, column = 1)
+            root.rowconfigure(root.grid_size()[1], weight=1)
     else:
         for widget in widgets:
             widget[0].grid_forget()
@@ -96,40 +97,57 @@ def calculate_total() -> None:
 
         if accounting_bool.get():
 
-            total += int(create_VFA[1].get()) * 50
-            total += int(bank_amt[1].get()) * 10
+            if not DPH_pay_bool.get():
 
-            if import_only_bool.get():
-                total += int(import_only[1].get())
+                if import_only_bool.get():
+                    total += int(import_only[1].get())
 
-            if evidence_bool.get():
-                total += int(by_hand[1].get()) * 25
-                total += int(PFA_amt[1].get()) * 25
-                total += int(credit_card_amt[1].get()) * 35
-                total += int(view_amt[1].get()) * 25
+                total += int(create_VFA[1].get()) * 20
+                total += int(credit_card_amt[1].get()) * 20
+                total += int(register_amt[1].get()) * 20
+                total += int(bank_amt[1].get()) * 10
 
-            if ucto_bool.get():
-                total += int(by_hand[1].get()) * 35
-                total += int(PFA_amt[1].get()) * 35
-                total += int(credit_card_amt[1].get()) * 35
-                total += int(view_amt[1].get()) * 35
+                if DPPODPFO_bool.get():
+                    total += 1500
 
-            if tax_check_bool.get():
+                return
 
-                if int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(view_amt[1].get()) + int(
-                        bank_amt[1].get()) < 300:
-                    total += 500
-                elif 300 <= int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(view_amt[1].get()) + int(
-                        bank_amt[1].get()) < 500:
-                    total += 700
-                elif 500 <= int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(view_amt[1].get()) + int(
-                        bank_amt[1].get()) < 1000:
-                    total += 1000
-                else:
-                    total += 2000
+            else:
 
-            if send_docs_bool.get():
-                total += 300
+                total += int(create_VFA[1].get()) * 50
+                total += int(bank_amt[1].get()) * 10
+
+                if import_only_bool.get():
+                    total += int(import_only[1].get())
+
+                if evidence_bool.get():
+                    total += int(by_hand[1].get()) * 25
+                    total += int(PFA_amt[1].get()) * 25
+                    total += int(credit_card_amt[1].get()) * 35
+                    total += int(register_amt[1].get()) * 25
+
+                if ucto_bool.get():
+                    total += int(by_hand[1].get()) * 35
+                    total += int(PFA_amt[1].get()) * 35
+                    total += int(credit_card_amt[1].get()) * 35
+                    total += int(register_amt[1].get()) * 35
+
+                if tax_check_bool.get():
+
+                    if int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(register_amt[1].get()) + int(
+                            bank_amt[1].get()) < 300:
+                        total += 500
+                    elif 300 <= int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(register_amt[1].get()) + int(
+                            bank_amt[1].get()) < 500:
+                        total += 700
+                    elif 500 <= int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(register_amt[1].get()) + int(
+                            bank_amt[1].get()) < 1000:
+                        total += 1000
+                    else:
+                        total += 2000
+
+                if send_docs_bool.get():
+                    total += 300
 
         total = total * 7 / 6
 
@@ -140,6 +158,14 @@ def calculate_total() -> None:
 
     root.after(100, calculate_total)
 
+def toggle_decider(dph_boolean : tk.BooleanVar, dph_widgets : list, no_dph_widgets : list) -> None:
+    if dph_boolean.get():
+        toggle_relevant(False, no_dph_widgets)
+        toggle_relevant(True, dph_widgets)
+    else:
+        toggle_relevant(False, dph_widgets)
+        toggle_relevant(True, no_dph_widgets)
+
 if __name__ == '__main__':
 
     root = CTk()
@@ -149,12 +175,12 @@ if __name__ == '__main__':
     PFA_header = CTkLabel(master=root, text="Přijaté faktury"), CTkLabel(master=root, text="Přijaté faktury")
     total_price_tuple = CTkLabel(master=root, text="Cena celkem:"), CTkLabel(master=root, text="")
 
-    payrolls_bool = tk.BooleanVar()
+    payrolls_bool = tk.BooleanVar(value = False)
     payrolls_checkbox = CTkCheckBox(master = root, text = "Mzdy", variable = payrolls_bool,
-                                    command = lambda : toggle_relevant(payrolls_bool, payrolls_widgets))
-    accounting_bool = tk.BooleanVar()
+                                    command = lambda : toggle_relevant(payrolls_bool.get(), payrolls_widgets))
+    accounting_bool = tk.BooleanVar(value = False)
     accounting_checkbox = CTkCheckBox(master = root, text = "Účetnictví", variable = accounting_bool,
-                                      command = lambda : toggle_relevant(accounting_bool, accounting_widgets))
+                                      command = lambda : toggle_relevant(accounting_bool.get(), accounting_widgets))
 
 
     payrolls_widgets = []
@@ -179,31 +205,33 @@ if __name__ == '__main__':
     executions_tuple[1].set(str(0))
     payrolls_widgets.append(executions_tuple)
 
+    DPH_widgets = list()
+    DPPO_widgets = list()
     accounting_widgets = list()
+    pre_accounting_widgets = list()
 
-    DPH_pay_bool = tk.BooleanVar()
-    evidence_bool = tk.BooleanVar()
-    ucto_bool = tk.BooleanVar()
+    DPH_pay_bool = tk.BooleanVar(value = False)
+    evidence_bool = tk.BooleanVar(value = False)
+    ucto_bool = tk.BooleanVar(value = False)
 
-    DPH_pay = (CTkCheckBox(master=root, text="Plátce DPH", variable=DPH_pay_bool),
+    DPH_pay = (CTkCheckBox(master=root, text="Plátce DPH", variable=DPH_pay_bool, command = lambda: toggle_decider(DPH_pay_bool, DPH_widgets, DPPO_widgets)),
                CTkLabel(master=root, text=""))
     accounting_widgets.append(DPH_pay)
 
     accounting_checkboxes = (CTkCheckBox(master = root, text = "Evidence", variable = evidence_bool),
                              CTkCheckBox(master = root, text = "Účto", variable = ucto_bool))
-    accounting_widgets.append(accounting_checkboxes)
+    DPH_widgets.append(accounting_checkboxes)
     accounting_widgets.append(VFA_header)
 
     import_only_bool = tk.BooleanVar()
     import_only = (CTkCheckBox(master = root, text = "1x import", variable = import_only_bool),
-                   CTkComboBox(master = root, values = sorted([str(1200), str(1400), str(1600), str(800)])))
+                   CTkComboBox(master = root, values = [str(800), str(1200), str(1400), str(1600)]))
     import_only[1].set(str(1000))
     accounting_widgets.append(import_only)
 
     by_hand = (CTkLabel(master = root, text = "Počet ručně"),
                Spinbox(master = root, width = 150))
     by_hand[1].set(0)
-    accounting_widgets.append(by_hand)
 
     create_VFA = (CTkLabel(master = root, text = "Počet vydaných faktur k vystavení"),
                   Spinbox(master = root, width = 150))
@@ -211,6 +239,7 @@ if __name__ == '__main__':
     accounting_widgets.append(create_VFA)
 
     accounting_widgets.append(PFA_header)
+
     PFA_amt = (CTkLabel(master = root, text = "Počet přijatých faktur k vystavení"),
                Spinbox(master = root, width = 150))
     PFA_amt[1].set(0)
@@ -221,32 +250,39 @@ if __name__ == '__main__':
     credit_card_amt[1].set(0)
     accounting_widgets.append(credit_card_amt)
 
-    view_amt = (CTkLabel(master = root, text = "Počet pokladen"),
-                Spinbox(master = root, width = 150))
-    view_amt[1].set(0)
-    accounting_widgets.append(view_amt)
+    register_amt = (CTkLabel(master = root, text ="Počet pokladen"),
+                    Spinbox(master = root, width = 150))
+    register_amt[1].set(0)
+    accounting_widgets.append(register_amt)
 
     bank_amt = (CTkLabel(master = root, text ="Počet bankovních výpisů"),
                 Spinbox(master = root, width = 150))
     bank_amt[1].set(0)
     accounting_widgets.append(bank_amt)
 
-    tax_check_bool = tk.BooleanVar()
+    tax_check_bool = tk.BooleanVar(value = False)
     tax_check = (CTkCheckBox(master = root, text = "Kontrola DPH", variable = tax_check_bool),
                  CTkLabel(master = root, text = ""))
-    accounting_widgets.append(tax_check)
+    DPH_widgets.append(tax_check)
 
-    send_docs_bool = tk.BooleanVar()
+    send_docs_bool = tk.BooleanVar(value = False)
     send_docs = (CTkCheckBox(master = root, text = "Odeslání DPH, KH", variable = send_docs_bool),
                  CTkLabel(master = root, text = ""))
-    accounting_widgets.append(send_docs)
+    DPH_widgets.append(send_docs)
 
-
+    DPPODPFO_bool = tk.BooleanVar(value = False)
+    create_DPPODPFO = (CTkCheckBox(master = root, text = "Zpracování DPPO/DPFO", variable = DPPODPFO_bool),
+                       CTkLabel(master = root, text = ""))
+    DPPO_widgets.append(create_DPPODPFO)
 
     total_price_tuple[0].grid(row = 0, column = 0)
     total_price_tuple[1].grid(row = 0, column = 1)
     payrolls_checkbox.grid(row = 1, column = 0)
     accounting_checkbox.grid(row = 1, column = 1)
+
+    root.rowconfigure(0, weight = 1)
+    root.columnconfigure(0, weight = 1)
+    root.columnconfigure(1, weight = 1)
 
     calculate_total()
 
