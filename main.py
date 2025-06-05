@@ -3,7 +3,6 @@ from typing import *
 from customtkinter import *
 from customtkinter import CTkCheckBox, CTkLabel
 
-
 class Spinbox(CTkFrame):
     def __init__(self, *args,
                  width: int = 100,
@@ -156,33 +155,59 @@ def calculate_total() -> None:
 
     total_price_tuple[1].configure(text=str(total))
 
+    #kind of inefficiently done every 100ms, should change to only be done whenever there is a change in parms
     root.after(100, calculate_total)
 
-def toggle_decider(dph_boolean : tk.BooleanVar, dph_widgets : list, no_dph_widgets : list) -> None:
-    if dph_boolean.get():
+def toggle_dph(dph_boolean : bool, dph_widgets : list, no_dph_widgets : list) -> None:
+    if dph_boolean:
         toggle_relevant(False, no_dph_widgets)
         toggle_relevant(True, dph_widgets)
     else:
         toggle_relevant(False, dph_widgets)
         toggle_relevant(True, no_dph_widgets)
 
+def accounting_wrapper(dph_boolean : bool, accounting_boolean : bool, widgets : list, dph_widgets : list, no_dph_widgets : list) -> None:
+    """
+    serves as a wrapper function for accounting toggle to turn dph widgets on or off along with accounting, since that's
+    what needs these widgets
+    :param dph_boolean: toggle for deciding whether dph widgets are on or off
+    :param accounting_boolean: toggle for turning accounting widgets on or off
+    :param widgets: widgets to either show or hide
+    :param dph_widgets: dph relevant widgets, to be shown when DPH is to be accounted for
+    :param no_dph_widgets: dph relevant widgets, to be shown when DPH is not to be accounted for
+    :return: None
+    """
+    toggle_relevant(accounting_boolean, widgets)
+    if accounting_boolean:
+        toggle_dph(dph_boolean, dph_widgets, no_dph_widgets)
+    else:
+        toggle_relevant(False, no_dph_widgets)
+        toggle_relevant(False, dph_widgets)
+
 if __name__ == '__main__':
 
+    #windows managed by customtkinter, looks nicer
     root = CTk()
     root.title("Cenová kalkulačka")
 
+    #all widgets are stored in tuples, philosophy being that loading can be made easier through this
+
+    #headers for VFA and PFA, separating these from all the other parms
     VFA_header = CTkLabel(master=root, text="Vydané faktury"), CTkLabel(master=root, text="Vydané faktury")
     PFA_header = CTkLabel(master=root, text="Přijaté faktury"), CTkLabel(master=root, text="Přijaté faktury")
+
+    #widget for total price display
     total_price_tuple = CTkLabel(master=root, text="Cena celkem:"), CTkLabel(master=root, text="")
 
+    #base checkboxes for determining the kind of widgets to display to the user
     payrolls_bool = tk.BooleanVar(value = False)
     payrolls_checkbox = CTkCheckBox(master = root, text = "Mzdy", variable = payrolls_bool,
                                     command = lambda : toggle_relevant(payrolls_bool.get(), payrolls_widgets))
     accounting_bool = tk.BooleanVar(value = False)
     accounting_checkbox = CTkCheckBox(master = root, text = "Účetnictví", variable = accounting_bool,
-                                      command = lambda : toggle_relevant(accounting_bool.get(), accounting_widgets))
+                                      command = lambda : accounting_wrapper(DPH_pay_bool.get(), accounting_bool.get(), accounting_widgets, DPH_widgets, DPPO_widgets))
 
-
+    #payroll widgets
     payrolls_widgets = []
 
     payrolls_amt_tuple = (CTkLabel(master = root, text = "Počet mezd"),
@@ -205,16 +230,16 @@ if __name__ == '__main__':
     executions_tuple[1].set(str(0))
     payrolls_widgets.append(executions_tuple)
 
+    #accounting widgets
     DPH_widgets = list()
     DPPO_widgets = list()
     accounting_widgets = list()
-    pre_accounting_widgets = list()
 
     DPH_pay_bool = tk.BooleanVar(value = False)
     evidence_bool = tk.BooleanVar(value = False)
     ucto_bool = tk.BooleanVar(value = False)
 
-    DPH_pay = (CTkCheckBox(master=root, text="Plátce DPH", variable=DPH_pay_bool, command = lambda: toggle_decider(DPH_pay_bool, DPH_widgets, DPPO_widgets)),
+    DPH_pay = (CTkCheckBox(master=root, text="Plátce DPH", variable=DPH_pay_bool, command = lambda: toggle_dph(DPH_pay_bool.get(), DPH_widgets, DPPO_widgets)),
                CTkLabel(master=root, text=""))
     accounting_widgets.append(DPH_pay)
 
@@ -275,11 +300,13 @@ if __name__ == '__main__':
                        CTkLabel(master = root, text = ""))
     DPPO_widgets.append(create_DPPODPFO)
 
+    #base widget rendering
     total_price_tuple[0].grid(row = 0, column = 0)
     total_price_tuple[1].grid(row = 0, column = 1)
     payrolls_checkbox.grid(row = 1, column = 0)
     accounting_checkbox.grid(row = 1, column = 1)
 
+    #column configures for base widgets
     root.rowconfigure(0, weight = 1)
     root.columnconfigure(0, weight = 1)
     root.columnconfigure(1, weight = 1)
