@@ -86,77 +86,96 @@ def calculate_total() -> None:
     calculates and displays the total price for the client based on data filled into the GUI
     :return: None, updates a label
     """
-    total = 0
+    payrolls_total = 0
+    accounting_total = 0
 
     try:
         if payrolls_bool.get():
-            total += int(payrolls_amt_tuple[1].get()) * int(payrolls_price_tuple[1].get())
-            total += int(signups_signoffs_tuple[1].get()) * 300
-            total += int(executions_tuple[1].get()) * 880
+            payrolls_total += int(payrolls_amt_tuple[1].get()) * int(payrolls_price_tuple[1].get())
+            payrolls_total += int(signups_signoffs_tuple[1].get()) * 300
+            payrolls_total += int(executions_tuple[1].get()) * 880
+
+            payrolls_total = payrolls_total * 7 / 6
 
         if accounting_bool.get():
 
             if not DPH_pay_bool.get():
 
                 if import_only_bool.get():
-                    total += int(import_only[1].get())
+                    accounting_total += int(import_only[1].get())
 
-                total += int(create_VFA[1].get()) * 20
-                total += int(credit_card_amt[1].get()) * 20
-                total += int(register_amt[1].get()) * 20
-                total += int(bank_amt[1].get()) * 10
+                accounting_total += int(by_hand[1].get()) * 20
+                accounting_total += int(create_VFA[1].get()) * 20
+                accounting_total += int(credit_card_amt[1].get()) * 20
+                accounting_total += int(register_amt[1].get()) * 20
+                accounting_total += int(bank_amt[1].get()) * 10
 
                 if DPPODPFO_bool.get():
-                    total += 1500
-
-                return
+                    accounting_total += 1500
 
             else:
 
-                total += int(create_VFA[1].get()) * 50
-                total += int(bank_amt[1].get()) * 10
+                accounting_total += int(create_VFA[1].get()) * 50
+                accounting_total += int(bank_amt[1].get()) * 10
 
                 if import_only_bool.get():
-                    total += int(import_only[1].get())
+                    accounting_total += int(import_only[1].get())
 
                 if evidence_bool.get():
-                    total += int(by_hand[1].get()) * 25
-                    total += int(PFA_amt[1].get()) * 25
-                    total += int(credit_card_amt[1].get()) * 35
-                    total += int(register_amt[1].get()) * 25
+                    accounting_total += int(by_hand[1].get()) * 25
+                    accounting_total += int(PFA_amt[1].get()) * 25
+                    accounting_total += int(credit_card_amt[1].get()) * 35
+                    accounting_total += int(register_amt[1].get()) * 25
 
                 if ucto_bool.get():
-                    total += int(by_hand[1].get()) * 35
-                    total += int(PFA_amt[1].get()) * 35
-                    total += int(credit_card_amt[1].get()) * 35
-                    total += int(register_amt[1].get()) * 35
+                    accounting_total += int(by_hand[1].get()) * 35
+                    accounting_total += int(PFA_amt[1].get()) * 35
+                    accounting_total += int(credit_card_amt[1].get()) * 35
+                    accounting_total += int(register_amt[1].get()) * 35
 
                 if tax_check_bool.get():
 
                     if int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(register_amt[1].get()) + int(
-                            bank_amt[1].get()) < 300:
-                        total += 500
+                            bank_amt[1].get()) + int(by_hand[1].get()) < 300:
+                        accounting_total += 500
                     elif 300 <= int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(register_amt[1].get()) + int(
-                            bank_amt[1].get()) < 500:
-                        total += 700
+                            bank_amt[1].get()) + int(by_hand[1].get()) < 500:
+                        accounting_total += 700
                     elif 500 <= int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(register_amt[1].get()) + int(
-                            bank_amt[1].get()) < 1000:
-                        total += 1000
+                            bank_amt[1].get()) + int(by_hand[1].get()) < 1000:
+                        accounting_total += 1000
                     else:
-                        total += 2000
+                        accounting_total += 2000
 
                 if send_docs_bool.get():
-                    total += 300
+                    accounting_total += 300
 
-        total = total * 7 / 6
+                accounting_total = accounting_total * 7 / 6
+
+        if centers_bool.get():
+            accounting_total = accounting_total * 1.1
+        if analytics_bool.get():
+            accounting_total = accounting_total * 1.1
+        if orders_bool.get():
+            accounting_total = accounting_total * 1.1
+        if warehouses_bool.get():
+            accounting_total = accounting_total * 1.2
 
     except ValueError:
         pass
 
-    total_price_tuple[1].configure(text=str(total))
+    finally:
 
-    #kind of inefficiently done every 100ms, should change to only be done whenever there is a change in parms
-    root.after(100, calculate_total)
+        total = "%.3f" % (accounting_total + payrolls_total)
+        accounting_total = "%.3f" % accounting_total
+        payrolls_total = "%.3f" % payrolls_total
+
+        accounting_price_tuple[1].configure(text = accounting_total)
+        payrolls_total_price_tuple[1].configure(text = payrolls_total)
+        total_price_tuple[1].configure(text = total)
+
+        #kind of inefficiently done every 100ms, should change to only be done whenever there is a change in parms
+        root.after(100, calculate_total)
 
 def toggle_dph(dph_boolean : bool, dph_widgets : list, no_dph_widgets : list) -> None:
     if dph_boolean:
@@ -192,12 +211,10 @@ if __name__ == '__main__':
 
     #all widgets are stored in tuples, philosophy being that loading can be made easier through this
 
-    #headers for VFA and PFA, separating these from all the other parms
-    VFA_header = CTkLabel(master=root, text="Vydané faktury"), CTkLabel(master=root, text="Vydané faktury")
-    PFA_header = CTkLabel(master=root, text="Přijaté faktury"), CTkLabel(master=root, text="Přijaté faktury")
-
-    #widget for total price display
-    total_price_tuple = CTkLabel(master=root, text="Cena celkem:"), CTkLabel(master=root, text="")
+    #widgets for price display
+    accounting_price_tuple = CTkLabel(master = root, text = "Cena za účto"), CTkLabel(master = root, text = "")
+    payrolls_total_price_tuple = CTkLabel(master=root, text="Cena za mzdy"), CTkLabel(master = root, text = "")
+    total_price_tuple = CTkLabel(master=root, text="Cena celkem:"), CTkLabel(master = root, text = "")
 
     #base checkboxes for determining the kind of widgets to display to the user
     payrolls_bool = tk.BooleanVar(value = False)
@@ -246,24 +263,22 @@ if __name__ == '__main__':
     accounting_checkboxes = (CTkCheckBox(master = root, text = "Evidence", variable = evidence_bool),
                              CTkCheckBox(master = root, text = "Účto", variable = ucto_bool))
     DPH_widgets.append(accounting_checkboxes)
-    accounting_widgets.append(VFA_header)
 
     import_only_bool = tk.BooleanVar()
-    import_only = (CTkCheckBox(master = root, text = "1x import", variable = import_only_bool),
-                   CTkComboBox(master = root, values = [str(800), str(1200), str(1400), str(1600)]))
+    import_only = (CTkCheckBox(master = root, text = "import", variable = import_only_bool),
+                   CTkComboBox(master = root, values = [str(800), str(1000), str(1200), str(1400), str(1600)]))
     import_only[1].set(str(1000))
     accounting_widgets.append(import_only)
 
-    by_hand = (CTkLabel(master = root, text = "Počet ručně"),
+    by_hand = (CTkLabel(master = root, text = "Počet vystavených faktur pro ruční zpracování"),
                Spinbox(master = root, width = 150))
     by_hand[1].set(0)
+    accounting_widgets.append(by_hand)
 
     create_VFA = (CTkLabel(master = root, text = "Počet vydaných faktur k vystavení"),
                   Spinbox(master = root, width = 150))
     create_VFA[1].set(0)
     accounting_widgets.append(create_VFA)
-
-    accounting_widgets.append(PFA_header)
 
     PFA_amt = (CTkLabel(master = root, text = "Počet přijatých faktur k vystavení"),
                Spinbox(master = root, width = 150))
@@ -285,6 +300,23 @@ if __name__ == '__main__':
     bank_amt[1].set(0)
     accounting_widgets.append(bank_amt)
 
+    centers_bool = tk.BooleanVar(value = False)
+    centers_tuple = (CTkCheckBox(master = root, text = "Střediska", variable = centers_bool),
+                     CTkLabel(master=root, text="x1,1"))
+    accounting_widgets.append(centers_tuple)
+    orders_bool = tk.BooleanVar(value = False)
+    orders_tuple = (CTkCheckBox(master = root, text = "Zakázky", variable = orders_bool),
+                     CTkLabel(master = root, text = "x1,1"))
+    accounting_widgets.append(orders_tuple)
+    analytics_bool = tk.BooleanVar(value = False)
+    analytics_tuple = (CTkCheckBox(master = root, text = "Analytické služby", variable = analytics_bool),
+                     CTkLabel(master = root, text = "x1,1"))
+    accounting_widgets.append(analytics_tuple)
+    warehouses_bool = tk.BooleanVar(value = False)
+    warehouses_tuple = (CTkCheckBox(master = root, text = "Sklady", variable = warehouses_bool),
+                     CTkLabel(master = root, text = "x1,2"))
+    accounting_widgets.append(warehouses_tuple)
+
     tax_check_bool = tk.BooleanVar(value = False)
     tax_check = (CTkCheckBox(master = root, text = "Kontrola DPH", variable = tax_check_bool),
                  CTkLabel(master = root, text = ""))
@@ -301,10 +333,14 @@ if __name__ == '__main__':
     DPPO_widgets.append(create_DPPODPFO)
 
     #base widget rendering
-    total_price_tuple[0].grid(row = 0, column = 0)
-    total_price_tuple[1].grid(row = 0, column = 1)
-    payrolls_checkbox.grid(row = 1, column = 0)
-    accounting_checkbox.grid(row = 1, column = 1)
+    payrolls_total_price_tuple[0].grid(row=0, column=0)
+    payrolls_total_price_tuple[1].grid(row=0, column=1)
+    accounting_price_tuple[0].grid(row=1, column=0)
+    accounting_price_tuple[1].grid(row=1, column=1)
+    total_price_tuple[0].grid(row = 2, column = 0)
+    total_price_tuple[1].grid(row = 2, column = 1)
+    payrolls_checkbox.grid(row = 3, column = 0)
+    accounting_checkbox.grid(row = 3, column = 1)
 
     #column configures for base widgets
     root.rowconfigure(0, weight = 1)
