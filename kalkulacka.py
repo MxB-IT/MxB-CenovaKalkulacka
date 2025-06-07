@@ -69,6 +69,7 @@ def toggle_relevant(boolean_var : bool, widgets : list, offset : int) -> None:
     toggles the relevant widgets depending on what button has been clicked
     :param boolean_var: represents the state of the button pressed
     :param widgets: all the widgets to either show or hide
+    :param offset: offset of the widgets, makes sure all the widgets always render in the same predetermined place
     :return: None
     """
     if boolean_var:
@@ -194,6 +195,8 @@ def accounting_wrapper(dph_boolean : bool, accounting_boolean : bool, widgets : 
     :param widgets: widgets to either show or hide
     :param dph_widgets: dph relevant widgets, to be shown when DPH is to be accounted for
     :param no_dph_widgets: dph relevant widgets, to be shown when DPH is not to be accounted for
+    :param accounting_offset: offset for accounting widgets
+    :param dph_offset: offset for dph widgets
     :return: None
     """
     toggle_relevant(accounting_boolean, widgets, accounting_offset)
