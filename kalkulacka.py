@@ -76,7 +76,8 @@ def toggle_relevant(boolean_var : bool, frame : CTkFrame, offset : int) -> None:
         frame.grid(row = offset,
                    column = 0,
                    columnspan = 2,
-                   sticky = "NSEW")
+                   padx = 10,
+                   pady = 10)
     else:
         frame.grid_forget()
 
@@ -177,45 +178,48 @@ def calculate_total() -> None:
         root.after(100, calculate_total)
 
 def toggle_dph(dph_boolean : bool, master : CTkFrame, dph_widgets : list, no_dph_widgets : list) -> None:
-    if dph_boolean:
-        for widget in no_dph_widgets:
-            widget.grid_forget()
-        for i in range(0, len(dph_widgets)):
-            for j in range(0, len(dph_widgets[i])):
-                dph_widgets[i][j].grid(row = i + master.grid_size()[1],
-                                       column = j)
-
-            master.rowconfigure(i, weight = 1)
-    else:
-        for widget in dph_widgets:
-            widget.grid_forget()
-        for i in range(0, len(no_dph_widgets)):
-            for j in range(0, len(no_dph_widgets[i])):
-                no_dph_widgets[i][j].grid(row = i + master.grid_size()[1],
-                                          column = j)
-
-            master.rowconfigure(i, weight=1)
-
-def accounting_wrapper(dph_boolean : bool, accounting_boolean : bool, inner_accounting_frame : CTkFrame, inner_dph_frame : CTkFrame) -> None:
     """
-    serves as a wrapper function for accounting toggle to turn dph widgets on or off along with accounting, since that's
-    what needs these widgets
-    :param dph_boolean: toggle for deciding whether dph widgets are on or off
-    :param accounting_boolean: toggle for turning accounting widgets on or off
+    toggles dph widgets on and off within the accounting frame
+    :param dph_boolean: decides which dph widgets should be toggled (False = no_dph, True = dph)
+    :param master: master for all the widgets
+    :param dph_widgets: widgets needed for calculation with DPH
+    :param no_dph_widgets: widgets needed for calculation with no DPH
     :return: None
     """
-    toggle_relevant(accounting_boolean, inner_accounting_frame, 2)
-    if accounting_boolean:
-        toggle_dph(dph_boolean, inner_dph_frame, 3)
+    if dph_boolean:
+        widgets_to_render = dph_widgets
+        widgets_to_forget = no_dph_widgets
     else:
-        toggle_relevant(False, inner_dph_frame, 3)
+        widgets_to_render = no_dph_widgets
+        widgets_to_forget = dph_widgets
+
+    for widget in widgets_to_forget:
+        for portion in widget:
+            portion.grid_forget()
+    for i in range(0, len(widgets_to_render)):
+        for j in range(0, len(widgets_to_render[i])):
+            widgets_to_render[i][j].grid(row=i + master.grid_size()[1],
+                                   column=j)
+
+        master.rowconfigure(i, weight=1)
 
 def arrange_widgets(master : CTkFrame, widgets : list) -> None:
+    """
+    prepares widgets within individual master frames, rendering them in the order they were placed into the list
+    :param master: master for all the widgets
+    :param widgets: list of all widgets to render within a given master frame
+    :return: None
+    """
     for i in range(0, len(widgets)):
         for j in range(0, len(widgets[i])):
-            widgets[i][j].grid(row = i, column = j)
-            master.columnconfigure(i, weight = 1)
-        master.rowconfigure(i, weight = 1)
+            widgets[i][j].grid(row = i,
+                               column = j,
+                               padx = 10,
+                               pady = 10)
+            master.columnconfigure(index = i,
+                                   weight = 1)
+        master.rowconfigure(index = i,
+                            weight = 1)
 
 
 if __name__ == '__main__':
@@ -224,15 +228,19 @@ if __name__ == '__main__':
     root = CTk()
     root.title("Cenová kalkulačka")
 
-    base_frame = CTkFrame(master = root,
+    scrollable_frame = CTkScrollableFrame(master = root)
+    scrollable_frame.pack(fill = "both",
+                          expand = True)
+
+    base_frame = CTkFrame(master = scrollable_frame,
                           fg_color = "#b34f4c",
                           border_color = "white",
                           border_width = 2)
 
     #all widgets are stored in tuples, philosophy being that loading can be made easier through this
 
-    totals_widgets = []
-    totals_frame = CTkFrame(master = root,
+    totals_widgets = list()
+    totals_frame = CTkFrame(master = scrollable_frame,
                             fg_color = "#b34f4c",
                             border_color = "white",
                             border_width = 2)
@@ -254,25 +262,29 @@ if __name__ == '__main__':
                                   text = ""))
     totals_widgets.append(total_price_tuple)
 
+    base_widgets = list()
+
     #base checkboxes for determining the kind of widgets to display to the user
     payrolls_bool = tk.BooleanVar(value = False)
-    payrolls_checkbox = CTkCheckBox(master = base_frame,
+    accounting_bool = tk.BooleanVar(value=False)
+    base_checkboxes = (CTkCheckBox(master = base_frame,
                                     text = "Mzdy",
                                     variable = payrolls_bool,
-                                    command = lambda : toggle_relevant(payrolls_bool.get(), payrolls_frame, 1))
-    accounting_bool = tk.BooleanVar(value = False)
-    accounting_checkbox = CTkCheckBox(master = base_frame,
-                                      text = "Účetnictví",
-                                      variable = accounting_bool,
-                                      command = lambda : accounting_wrapper())
+                                    command = lambda : toggle_relevant(payrolls_bool.get(), payrolls_frame, 1)),
+                       CTkCheckBox(master=base_frame,
+                                   text="Účetnictví",
+                                   variable=accounting_bool,
+                                   command=lambda: toggle_relevant(accounting_bool.get(), accounting_frame, 2))
+                       )
+    base_widgets.append(base_checkboxes)
 
-    payrolls_frame = CTkFrame(master = root,
+    payrolls_frame = CTkFrame(master = scrollable_frame,
                              fg_color = "#b34f4c",
                              border_color = "white",
                              border_width = 2)
 
-    #payroll widgets
-    payrolls_widgets = []
+    #payrolls widgets
+    payrolls_widgets = list()
 
     payrolls_amt_tuple = (CTkLabel(master = payrolls_frame,
                                    text = "Počet mezd"),
@@ -306,7 +318,7 @@ if __name__ == '__main__':
     DPPO_widgets = list()
     accounting_widgets = list()
 
-    accounting_frame = CTkFrame(master = root,
+    accounting_frame = CTkFrame(master = scrollable_frame,
                                 fg_color = "#b34f4c",
                                 border_color = "white",
                                 border_width = 2)
@@ -404,78 +416,58 @@ if __name__ == '__main__':
     DPH_pay = (CTkCheckBox(master = accounting_frame,
                            text = "Plátce DPH",
                            variable = DPH_pay_bool,
-                           command = lambda: toggle_dph(DPH_pay_bool.get(), DPH_widgets, DPPO_widgets, 4 + len(accounting_widgets) + len(payrolls_widgets))),
+                           command = lambda: toggle_dph(DPH_pay_bool.get(), accounting_frame, DPH_widgets, DPPO_widgets)),
                CTkLabel(master = accounting_frame,
                         text = ""))
     accounting_widgets.append(DPH_pay)
 
     tax_check_bool = tk.BooleanVar(value = False)
-    tax_check = (CTkCheckBox(master = root,
+    tax_check = (CTkCheckBox(master = accounting_frame,
                              text = "Kontrola DPH",
                              variable = tax_check_bool),
-                 CTkLabel(master = root,
+                 CTkLabel(master = accounting_frame,
                           text = ""))
     DPH_widgets.append(tax_check)
 
     send_docs_bool = tk.BooleanVar(value = False)
-    send_docs = (CTkCheckBox(master = root,
+    send_docs = (CTkCheckBox(master = accounting_frame,
                              text = "Odeslání DPH, KH",
                              variable = send_docs_bool),
-                 CTkLabel(master = root,
+                 CTkLabel(master = accounting_frame,
                           text = ""))
     DPH_widgets.append(send_docs)
 
     DPPODPFO_bool = tk.BooleanVar(value = False)
-    create_DPPODPFO = (CTkCheckBox(master = root,
+    create_DPPODPFO = (CTkCheckBox(master = accounting_frame,
                                    text = "Zpracování DPPO/DPFO",
                                    variable = DPPODPFO_bool),
-                       CTkLabel(master = root,
+                       CTkLabel(master = accounting_frame,
                                 text = ""))
     DPPO_widgets.append(create_DPPODPFO)
 
+    #arranging all widgets within their respective frames
+    arrange_widgets(base_frame, base_widgets)
     arrange_widgets(totals_frame, totals_widgets)
     arrange_widgets(payrolls_frame, payrolls_widgets)
-    arrange_widgets(accounting_frame, accounting_widgets)
+    arrange_widgets(accounting_frame, accounting_widgets + DPPO_widgets)
 
-    #base widget rendering
-    payrolls_total_price_tuple[0].grid(row = 0,
-                                       column = 0)
-    payrolls_total_price_tuple[1].grid(row = 0,
-                                       column = 1)
-    accounting_price_tuple[0].grid(row = 1,
-                                   column = 0)
-    accounting_price_tuple[1].grid(row = 1,
-                                   column = 1)
-    total_price_tuple[0].grid(row = 2,
-                              column = 0)
-    total_price_tuple[1].grid(row = 2,
-                              column = 1)
-    payrolls_checkbox.grid(row = 0,
-                           column = 0)
-    accounting_checkbox.grid(row = 0,
-                             column = 1)
-    base_frame.columnconfigure(0,
-                               weight = 1)
-    base_frame.columnconfigure(1,
-                               weight = 1)
-    base_frame.rowconfigure(0,
-                            weight = 1)
-
-
-    base_frame.grid(row=0,
-                    column=0,
-                    columnspan=2,
-                    sticky=NSEW)
-    totals_frame.grid(row=4,
-                      column=0,
-                      columnspan=2,
-                      sticky=NSEW)
+    #rendering base frames needed on startup
+    base_frame.grid(row = 0,
+                    column = 0,
+                    columnspan = 2,
+                    padx = 10,
+                    pady = 10)
+    totals_frame.grid(row = 3,
+                      column = 0,
+                      columnspan = 2,
+                      padx = 10,
+                      pady = 10)
 
     #column configures for base widgets
-    for i in range(0, root.grid_size()[1]):
-        root.rowconfigure(i, weight = 1)
-    for i in range(0, root.grid_size()[0]):
-        root.columnconfigure(i, weight = 1)
+    for i in range(0, scrollable_frame.grid_size()[1]):
+        scrollable_frame.rowconfigure(i, weight = 1)
+    for i in range(0, scrollable_frame.grid_size()[0]):
+        scrollable_frame.columnconfigure(i, weight = 1)
 
     calculate_total()
 
