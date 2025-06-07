@@ -64,7 +64,7 @@ class Spinbox(CTkFrame):
         self.entry.delete(0, "end")
         self.entry.insert(0, str(int(value)))
 
-def toggle_relevant(boolean_var : bool, widgets : list) -> None:
+def toggle_relevant(boolean_var : bool, widgets : list, offset : int) -> None:
     """
     toggles the relevant widgets depending on what button has been clicked
     :param boolean_var: represents the state of the button pressed
@@ -72,14 +72,14 @@ def toggle_relevant(boolean_var : bool, widgets : list) -> None:
     :return: None
     """
     if boolean_var:
-        for widget in widgets:
-            widget[0].grid(row = root.grid_size()[1], column = 0)
-            widget[1].grid(row = root.grid_size()[1] - 1, column = 1)
-            root.rowconfigure(root.grid_size()[1], weight=1)
+        for index in range(0, len(widgets)):
+            for portion in range(0, len(widgets[index])):
+                widgets[index][portion].grid(row = offset + 4 + index, column = portion)
+                root.rowconfigure(offset, weight=1)
     else:
         for widget in widgets:
-            widget[0].grid_forget()
-            widget[1].grid_forget()
+            for portion in range(0, len(widget)):
+                widget[portion].grid_forget()
 
 def calculate_total() -> None:
     """
@@ -177,15 +177,15 @@ def calculate_total() -> None:
         #kind of inefficiently done every 100ms, should change to only be done whenever there is a change in parms
         root.after(100, calculate_total)
 
-def toggle_dph(dph_boolean : bool, dph_widgets : list, no_dph_widgets : list) -> None:
+def toggle_dph(dph_boolean : bool, dph_widgets : list, no_dph_widgets : list, dph_offset : int) -> None:
     if dph_boolean:
-        toggle_relevant(False, no_dph_widgets)
-        toggle_relevant(True, dph_widgets)
+        toggle_relevant(False, no_dph_widgets, dph_offset)
+        toggle_relevant(True, dph_widgets, dph_offset)
     else:
-        toggle_relevant(False, dph_widgets)
-        toggle_relevant(True, no_dph_widgets)
+        toggle_relevant(False, dph_widgets, dph_offset)
+        toggle_relevant(True, no_dph_widgets, dph_offset)
 
-def accounting_wrapper(dph_boolean : bool, accounting_boolean : bool, widgets : list, dph_widgets : list, no_dph_widgets : list) -> None:
+def accounting_wrapper(dph_boolean : bool, accounting_boolean : bool, widgets : list, dph_widgets : list, no_dph_widgets : list, accounting_offset : int, dph_offset : int) -> None:
     """
     serves as a wrapper function for accounting toggle to turn dph widgets on or off along with accounting, since that's
     what needs these widgets
@@ -196,12 +196,12 @@ def accounting_wrapper(dph_boolean : bool, accounting_boolean : bool, widgets : 
     :param no_dph_widgets: dph relevant widgets, to be shown when DPH is not to be accounted for
     :return: None
     """
-    toggle_relevant(accounting_boolean, widgets)
+    toggle_relevant(accounting_boolean, widgets, accounting_offset)
     if accounting_boolean:
-        toggle_dph(dph_boolean, dph_widgets, no_dph_widgets)
+        toggle_dph(dph_boolean, dph_widgets, no_dph_widgets, dph_offset)
     else:
-        toggle_relevant(False, no_dph_widgets)
-        toggle_relevant(False, dph_widgets)
+        toggle_relevant(False, no_dph_widgets, dph_offset)
+        toggle_relevant(False, dph_widgets, dph_offset)
 
 if __name__ == '__main__':
 
@@ -219,10 +219,10 @@ if __name__ == '__main__':
     #base checkboxes for determining the kind of widgets to display to the user
     payrolls_bool = tk.BooleanVar(value = False)
     payrolls_checkbox = CTkCheckBox(master = root, text = "Mzdy", variable = payrolls_bool,
-                                    command = lambda : toggle_relevant(payrolls_bool.get(), payrolls_widgets))
+                                    command = lambda : toggle_relevant(payrolls_bool.get(), payrolls_widgets, 0))
     accounting_bool = tk.BooleanVar(value = False)
     accounting_checkbox = CTkCheckBox(master = root, text = "Účetnictví", variable = accounting_bool,
-                                      command = lambda : accounting_wrapper(DPH_pay_bool.get(), accounting_bool.get(), accounting_widgets, DPH_widgets, DPPO_widgets))
+                                      command = lambda : accounting_wrapper(DPH_pay_bool.get(), accounting_bool.get(), accounting_widgets, DPH_widgets, DPPO_widgets, len(payrolls_widgets) + len(DPH_widgets), 4 + len(payrolls_widgets) + len(accounting_widgets)))
 
     #payroll widgets
     payrolls_widgets = []
@@ -255,10 +255,6 @@ if __name__ == '__main__':
     DPH_pay_bool = tk.BooleanVar(value = False)
     evidence_bool = tk.BooleanVar(value = False)
     ucto_bool = tk.BooleanVar(value = False)
-
-    DPH_pay = (CTkCheckBox(master=root, text="Plátce DPH", variable=DPH_pay_bool, command = lambda: toggle_dph(DPH_pay_bool.get(), DPH_widgets, DPPO_widgets)),
-               CTkLabel(master=root, text=""))
-    accounting_widgets.append(DPH_pay)
 
     accounting_checkboxes = (CTkCheckBox(master = root, text = "Evidence", variable = evidence_bool),
                              CTkCheckBox(master = root, text = "Účto", variable = ucto_bool))
@@ -317,6 +313,12 @@ if __name__ == '__main__':
                      CTkLabel(master = root, text = "x1,2"))
     accounting_widgets.append(warehouses_tuple)
 
+    DPH_pay = (CTkCheckBox(master=root, text="Plátce DPH", variable=DPH_pay_bool,
+                           command=lambda: toggle_dph(DPH_pay_bool.get(), DPH_widgets, DPPO_widgets,
+                                                      4 + len(accounting_widgets) + len(payrolls_widgets))),
+               CTkLabel(master=root, text=""))
+    accounting_widgets.append(DPH_pay)
+
     tax_check_bool = tk.BooleanVar(value = False)
     tax_check = (CTkCheckBox(master = root, text = "Kontrola DPH", variable = tax_check_bool),
                  CTkLabel(master = root, text = ""))
@@ -343,9 +345,10 @@ if __name__ == '__main__':
     accounting_checkbox.grid(row = 3, column = 1)
 
     #column configures for base widgets
-    root.rowconfigure(0, weight = 1)
-    root.columnconfigure(0, weight = 1)
-    root.columnconfigure(1, weight = 1)
+    for i in range(0, root.grid_size()[1]):
+        root.rowconfigure(i, weight = 1)
+    for i in range(0, root.grid_size()[0]):
+        root.columnconfigure(i, weight = 1)
 
     calculate_total()
 
