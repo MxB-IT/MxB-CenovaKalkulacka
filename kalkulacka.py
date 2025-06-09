@@ -64,411 +64,401 @@ class Spinbox(CTkFrame):
         self.entry.delete(0, "end")
         self.entry.insert(0, str(int(value)))
 
-def toggle_relevant(boolean_var : bool, frame : CTkFrame, offset : int) -> None:
-    """
-    toggles the relevant widgets depending on what button has been clicked
-    :param boolean_var: represents the state of the button pressed
-    :param frame: frame to be toggled
-    :param offset: offset of the frame, makes sure all the widgets always render in the same predetermined place
-    :return: None
-    """
-    if boolean_var:
-        frame.grid(row = offset,
-                   column = 0,
-                   columnspan = 2,
-                   padx = 10,
-                   pady = 10)
-    else:
-        frame.grid_forget()
+class SectionBase:
+    def arrange_widgets(self, master : CTkFrame, widgets : List[Tuple[tk.Widget, tk.Widget]]):
+        for i, row in enumerate(widgets):
+            for j, widget in enumerate(row):
+                widget.grid(row=i,
+                            column=j,
+                            padx = 10,
+                            pady = 10)
+                master.columnconfigure(j, weight=1)
+            master.rowconfigure(i, weight=1)
 
-def calculate_total() -> None:
-    """
-    calculates and displays the total price for the client based on data filled into the GUI
-    :return: None, updates a label
-    """
-    payrolls_total = 0
-    accounting_total = 0
+class PayrollSection(SectionBase):
+    def __init__(self, master):
+        self.frame = CTkFrame(master = master,
+                              fg_color = "#b34f4c",
+                              border_color = "white",
+                              border_width = 2)
+        self.widgets = []
+        self.setup_widgets()
+        self.arrange_widgets(self.frame, self.widgets)
 
-    try:
-        if payrolls_bool.get():
-            payrolls_total += int(payrolls_amt_tuple[1].get()) * int(payrolls_price_tuple[1].get())
-            payrolls_total += int(signups_signoffs_tuple[1].get()) * 300
-            payrolls_total += int(executions_tuple[1].get()) * 880
+    def setup_widgets(self):
+        self.payrolls_amt = (CTkLabel(master = self.frame,
+                                      text = "Počet mezd"),
+                             Spinbox(master = self.frame,
+                                     width = 150))
+        self.payrolls_amt[1].set(0)
+        self.widgets.append(self.payrolls_amt)
 
-            payrolls_total = payrolls_total * 7 / 6
+        self.payrolls_price = (CTkLabel(master = self.frame,
+                                         text = "Cena za zpracování jedné"),
+                               Spinbox(master = self.frame,
+                                       width = 150))
+        self.payrolls_price[1].set(0)
+        self.widgets.append(self.payrolls_price)
 
-        if accounting_bool.get():
+        self.signups_signoffs = (CTkLabel(master = self.frame,
+                                       text = "Počet přihlášek/odhlášek"),
+                                 Spinbox(master = self.frame,
+                                         width=150))
+        self.signups_signoffs[1].set(0)
+        self.widgets.append(self.signups_signoffs)
 
-            if not DPH_pay_bool.get():
+        self.executions = (CTkLabel(master = self.frame,
+                                 text = "Exekuce"),
+                        CTkComboBox(master = self.frame))
+        self.executions[1].set(str(0))
+        self.widgets.append(self.executions)
 
-                if import_only_bool.get():
-                    accounting_total += int(import_only[1].get())
+    def get_total(self) -> float:
+        try:
+            total = int(self.payrolls_amt[1].get()) * int(self.payrolls_price[1].get())
+            total += int(self.signups_signoffs[1].get()) * 300
+            total += int(self.executions[1].get()) * 880
+            total *= 7/6
 
-                accounting_total += int(by_hand[1].get()) * 20
-                accounting_total += int(create_VFA[1].get()) * 20
-                accounting_total += int(credit_card_amt[1].get()) * 20
-                accounting_total += int(register_amt[1].get()) * 20
-                accounting_total += int(bank_amt[1].get()) * 10
+        except ValueError:
+            return 0.0
+        except TypeError:
+            return 0.0
 
-                if DPPODPFO_bool.get():
-                    accounting_total += 1500
+        return total
+
+class AccountingSection(SectionBase):
+    def __init__(self, master):
+        self.frame = CTkFrame(master=master,
+                              fg_color = "#b34f4c",
+                              border_color = "white",
+                              border_width = 2)
+
+        self.import_only_bool = tk.BooleanVar(value = False)
+        self.dph_pay_bool = tk.BooleanVar(value = False)
+        self.evidence_bool = tk.BooleanVar(value = False)
+        self.ucto_bool = tk.BooleanVar(value = False)
+        self.centers_bool = tk.BooleanVar(value = False)
+        self.orders_bool = tk.BooleanVar(value = False)
+        self.analysis_bool = tk.BooleanVar(value = False)
+        self.warehouses_bool = tk.BooleanVar(value = False)
+        self.send_docs_bool = tk.BooleanVar(value = False)
+        self.dppodpfo_bool = tk.BooleanVar(value = False)
+        self.tax_check_bool = tk.BooleanVar(value = False)
+
+        self.widgets = []
+        self.dph_widgets = []
+        self.no_dph_widgets = []
+        self.setup_widgets()
+
+        self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
+
+        self.total = 0
+
+    def setup_widgets(self):
+        self.checkboxes = (CTkCheckBox(master = self.frame,
+                                       text = "Evidence",
+                                       variable = self.evidence_bool),
+                            CTkCheckBox(master = self.frame,
+                                        text = "Účto",
+                                        variable = self.ucto_bool))
+        self.widgets.append(self.checkboxes)
+
+        self.dph_pay = (CTkCheckBox(master = self.frame,
+                                    text = "Plátce DPH",
+                                    variable = self.dph_pay_bool,
+                                    command = lambda: self.toggle_dph()),
+                   CTkLabel(master = self.frame,
+                            text = ""))
+        self.widgets.append(self.dph_pay)
+
+        self.import_only = (CTkCheckBox(master = self.frame,
+                                        text = "import",
+                                        variable = self.import_only_bool),
+                            CTkComboBox(master=self.frame,
+                                        values=[str(800), str(1000), str(1200), str(1400), str(1600)]))
+        self.import_only[1].set(str(1000))
+        self.widgets.append(self.import_only)
+
+        self.by_hand = (CTkLabel(master = self.frame,
+                                 text = "Počet vystavených faktur pro ruční zpracování"),
+                        Spinbox(master = self.frame,
+                                width = 150))
+        self.by_hand[1].set(0)
+        self.widgets.append(self.by_hand)
+
+        self.create_vfa = (CTkLabel(master = self.frame,
+                                    text = "Počet vydaných faktur k vystavení"),
+                           Spinbox(master = self.frame,
+                                    width = 150))
+        self.create_vfa[1].set(0)
+        self.widgets.append(self.create_vfa)
+
+        self.pfa_amt = (CTkLabel(master = self.frame,
+                                 text = "Počet přijatých faktur k vystavení"),
+                        Spinbox(master = self.frame,
+                                width = 150))
+        self.pfa_amt[1].set(0)
+        self.widgets.append(self.pfa_amt)
+
+        self.credit_card_amt = (CTkLabel(master = self.frame,
+                                         text = "Počet operací provedených platební kartou"),
+                                Spinbox(master = self.frame,
+                                        width = 150))
+        self.credit_card_amt[1].set(0)
+        self.widgets.append(self.credit_card_amt)
+
+        self.register_amt = (CTkLabel(master = self.frame,
+                                      text ="Počet pokladen"),
+                             Spinbox(master = self.frame,
+                                     width = 150))
+        self.register_amt[1].set(0)
+        self.widgets.append(self.register_amt)
+
+        self.bank_amt = (CTkLabel(master = self.frame,
+                                  text ="Počet bankovních výpisů"),
+                         Spinbox(master = self.frame,
+                                 width = 150))
+        self.bank_amt[1].set(0)
+        self.widgets.append(self.bank_amt)
+
+        self.centers = (CTkCheckBox(master = self.frame,
+                                    text = "Střediska",
+                                    variable = self.centers_bool),
+                        CTkLabel(master = self.frame,
+                                 text="x1,1"))
+        self.widgets.append(self.centers)
+
+        self.orders = (CTkCheckBox(master = self.frame,
+                                   text = "Zakázky",
+                                   variable = self.orders_bool),
+                       CTkLabel(master = self.frame,
+                                text = "x1,1"))
+        self.widgets.append(self.orders)
+
+        self.analysis = (CTkCheckBox(master = self.frame,
+                                     text = "Analytické služby",
+                                     variable = self.analysis_bool),
+                         CTkLabel(master = self.frame,
+                                  text = "x1,1"))
+        self.widgets.append(self.analysis)
+
+        self.warehouses = (CTkCheckBox(master = self.frame,
+                                       text = "Sklady",
+                                       variable = self.warehouses_bool),
+                           CTkLabel(master = self.frame,
+                                    text = "x1,2"))
+        self.widgets.append(self.warehouses)
+
+        self.tax_check = (CTkCheckBox(master=self.frame,
+                                      text="Kontrola DPH",
+                                      variable=self.tax_check_bool),
+                          CTkLabel(master=self.frame,
+                                   text=""))
+        self.dph_widgets.append(self.tax_check)
+
+        self.send_docs = (CTkCheckBox(master=self.frame,
+                                      text="Odeslání DPH, KH",
+                                      variable=self.send_docs_bool),
+                          CTkLabel(master=self.frame,
+                                   text=""))
+        self.dph_widgets.append(self.send_docs)
+
+        self.create_dppodpfo = (CTkCheckBox(master=self.frame,
+                                            text="Zpracování DPPO/DPFO",
+                                            variable=self.dppodpfo_bool),
+                                CTkLabel(master=self.frame,
+                                         text=""))
+        self.no_dph_widgets.append(self.create_dppodpfo)
+
+    def toggle_dph(self):
+        for widget in self.frame.grid_slaves():
+            widget.grid_forget()
+        if self.dph_pay_bool.get():
+            self.arrange_widgets(self.frame, self.widgets[:2] + self.dph_widgets + self.widgets[2:])
+        else:
+            self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
+
+    def get_total(self) -> float:
+        try:
+            if self.dph_pay_bool.get():
+
+                total = int(self.create_vfa[1].get()) * 50
+                total += int(self.bank_amt[1].get()) * 10
+
+                if self.import_only_bool.get():
+                    total += int(self.import_only[1].get())
+
+                if self.evidence_bool.get():
+                    total += int(self.by_hand[1].get()) * 25
+                    total += int(self.pfa_amt[1].get()) * 25
+                    total += int(self.credit_card_amt[1].get()) * 35
+                    total += int(self.register_amt[1].get()) * 25
+
+                if self.ucto_bool.get():
+                    total += int(self.by_hand[1].get()) * 35
+                    total += int(self.pfa_amt[1].get()) * 35
+                    total += int(self.credit_card_amt[1].get()) * 35
+                    total += int(self.register_amt[1].get()) * 35
+
+                if self.tax_check_bool.get():
+
+                    if int(self.create_vfa[1].get()) + int(self.pfa_amt[1].get()) + int(self.register_amt[1].get()) + int(
+                            self.bank_amt[1].get()) + int(self.by_hand[1].get()) < 300:
+                        total += 500
+                    elif 300 <= int(self.create_vfa[1].get()) + int(self.pfa_amt[1].get()) + int(self.register_amt[1].get()) + int(
+                            self.bank_amt[1].get()) + int(self.by_hand[1].get()) < 500:
+                        total += 700
+                    elif 500 <= int(self.create_vfa[1].get()) + int(self.pfa_amt[1].get()) + int(self.register_amt[1].get()) + int(
+                            self.bank_amt[1].get()) + int(self.by_hand[1].get()) < 1000:
+                        total += 1000
+                    else:
+                        total += 2000
+
+                if self.send_docs_bool.get():
+                    total += 300
+
+                total *= 7/6
 
             else:
+                total = int(self.by_hand[1].get()) * 20
+                total += int(self.create_vfa[1].get()) * 20
+                total += int(self.credit_card_amt[1].get()) * 20
+                total += int(self.register_amt[1].get()) * 20
+                total += int(self.bank_amt[1].get()) * 10
 
-                accounting_total += int(create_VFA[1].get()) * 50
-                accounting_total += int(bank_amt[1].get()) * 10
+                if self.import_only_bool.get():
+                    total += int(self.import_only[1].get())
 
-                if import_only_bool.get():
-                    accounting_total += int(import_only[1].get())
+                if self.dppodpfo_bool.get():
+                    total += 1500
 
-                if evidence_bool.get():
-                    accounting_total += int(by_hand[1].get()) * 25
-                    accounting_total += int(PFA_amt[1].get()) * 25
-                    accounting_total += int(credit_card_amt[1].get()) * 35
-                    accounting_total += int(register_amt[1].get()) * 25
+            if self.centers_bool.get():
+                total *= 1.1
+            if self.orders_bool.get():
+                total *= 1.1
+            if self.analysis_bool.get():
+                total *= 1.1
+            if self.warehouses_bool.get():
+                total *= 1.2
 
-                if ucto_bool.get():
-                    accounting_total += int(by_hand[1].get()) * 35
-                    accounting_total += int(PFA_amt[1].get()) * 35
-                    accounting_total += int(credit_card_amt[1].get()) * 35
-                    accounting_total += int(register_amt[1].get()) * 35
+        except ValueError:
+            return 0.0
+        except TypeError:
+            return 0.0
 
-                if tax_check_bool.get():
+        return total
 
-                    if int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(register_amt[1].get()) + int(
-                            bank_amt[1].get()) + int(by_hand[1].get()) < 300:
-                        accounting_total += 500
-                    elif 300 <= int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(register_amt[1].get()) + int(
-                            bank_amt[1].get()) + int(by_hand[1].get()) < 500:
-                        accounting_total += 700
-                    elif 500 <= int(create_VFA[1].get()) + int(PFA_amt[1].get()) + int(register_amt[1].get()) + int(
-                            bank_amt[1].get()) + int(by_hand[1].get()) < 1000:
-                        accounting_total += 1000
-                    else:
-                        accounting_total += 2000
 
-                if send_docs_bool.get():
-                    accounting_total += 300
 
-                accounting_total = accounting_total * 7 / 6
+class TotalSection(SectionBase):
+    def __init__(self, master):
+        self.frame = CTkFrame(master=master,
+                              fg_color = "#b34f4c",
+                              border_color = "white",
+                              border_width = 2)
 
-        if centers_bool.get():
-            accounting_total = accounting_total * 1.1
-        if analytics_bool.get():
-            accounting_total = accounting_total * 1.1
-        if orders_bool.get():
-            accounting_total = accounting_total * 1.1
-        if warehouses_bool.get():
-            accounting_total = accounting_total * 1.2
+        self.widgets = []
 
-    except ValueError:
-        pass
+        self.setup_widgets()
+        self.arrange_widgets(self.frame, self.widgets)
 
-    finally:
+    def setup_widgets(self):
+        self.payrolls_total = (CTkLabel(master = self.frame,
+                                               text = "Cena za mzdy"),
+                                      CTkLabel(master = self.frame,
+                                               text = ""))
+        self.widgets.append(self.payrolls_total)
 
-        total = "%.3f" % (accounting_total + payrolls_total)
-        accounting_total = "%.3f" % accounting_total
-        payrolls_total = "%.3f" % payrolls_total
+        self.accounting_total = (CTkLabel(master = self.frame,
+                                           text = "Cena za účto"),
+                                  CTkLabel(master = self.frame,
+                                           text = ""))
+        self.widgets.append(self.accounting_total)
 
-        accounting_price_tuple[1].configure(text = accounting_total)
-        payrolls_total_price_tuple[1].configure(text = payrolls_total)
-        total_price_tuple[1].configure(text = total)
+        self.total_price = (CTkLabel(master = self.frame,
+                                      text = "Cena celkem:"),
+                             CTkLabel(master = self.frame,
+                                      text = ""))
+        self.widgets.append(self.total_price)
 
-        #kind of inefficiently done every 100ms, should change to only be done whenever there is a change in parms
-        root.after(100, calculate_total)
+class BaseSection(SectionBase):
+    def __init__(self, master):
+        self.frame = CTkFrame(master=master,
+                              fg_color="#b34f4c",
+                              border_color="white",
+                              border_width=2)
 
-def toggle_dph(dph_boolean : bool, master : CTkFrame, dph_widgets : list, no_dph_widgets : list) -> None:
-    """
-    toggles dph widgets on and off within the accounting frame
-    :param dph_boolean: decides which dph widgets should be toggled (False = no_dph, True = dph)
-    :param master: master for all the widgets
-    :param dph_widgets: widgets needed for calculation with DPH
-    :param no_dph_widgets: widgets needed for calculation with no DPH
-    :return: None
-    """
-    if dph_boolean:
-        widgets_to_render = dph_widgets
-        widgets_to_forget = no_dph_widgets
-    else:
-        widgets_to_render = no_dph_widgets
-        widgets_to_forget = dph_widgets
+        self.accounting_bool = tk.BooleanVar(value = False)
+        self.payrolls_bool = tk.BooleanVar(value = False)
 
-    for widget in widgets_to_forget:
-        for portion in widget:
-            portion.grid_forget()
-    for i in range(0, len(widgets_to_render)):
-        for j in range(0, len(widgets_to_render[i])):
-            widgets_to_render[i][j].grid(row=i + master.grid_size()[1],
-                                   column=j)
+        self.widgets = []
 
-        master.rowconfigure(i, weight=1)
+        self.setup_widgets()
+        self.arrange_widgets(self.frame, self.widgets)
 
-def arrange_widgets(master : CTkFrame, widgets : list) -> None:
-    """
-    prepares widgets within individual master frames, rendering them in the order they were placed into the list
-    :param master: master for all the widgets
-    :param widgets: list of all widgets to render within a given master frame
-    :return: None
-    """
-    for i in range(0, len(widgets)):
-        for j in range(0, len(widgets[i])):
-            widgets[i][j].grid(row = i,
-                               column = j,
+    def setup_widgets(self):
+        self.checkboxes = (CTkCheckBox(master = self.frame,
+                                       text = "Mzdy",
+                                       variable = self.payrolls_bool,
+                                       command = lambda: app.toggle_relevant(self.payrolls_bool.get(), app.payrolls_section, 1)),
+                           CTkCheckBox(master = self.frame,
+                                       text = "Účetnictví",
+                                       variable = self.accounting_bool,
+                                       command = lambda: app.toggle_relevant(self.accounting_bool.get(), app.accounting_section, 2)))
+
+        self.widgets.append(self.checkboxes)
+
+class PriceCalc(CTk):
+    def __init__(self):
+        super().__init__()
+        self.title("Cenová kalkulačka")
+        self.scrollable_frame = CTkScrollableFrame(master = self)
+        self.scrollable_frame.pack(fill = "both",
+                                   expand = True,
+                                   padx = 10,
+                                   pady = 10)
+
+        self.base_section = BaseSection(self.scrollable_frame)
+        self.total_section = TotalSection(self.scrollable_frame)
+        self.payrolls_section = PayrollSection(self.scrollable_frame)
+        self.accounting_section = AccountingSection(self.scrollable_frame)
+
+        self.setup_sections()
+        self.calculate_total()
+
+    def setup_sections(self):
+
+        self.base_section.frame.grid(row = 0,
+                                     column = 0,
+                                     padx = 10,
+                                     pady = 10,
+                                     columnspan = 2)
+        self.total_section.frame.grid(row = 3,
+                                      column = 0,
+                                      padx = 10,
+                                      pady = 10,
+                                      columnspan = 2)
+
+    def calculate_total(self):
+        payrolls_total = PayrollSection.get_total(self.payrolls_section)
+        accounting_total = AccountingSection.get_total(self.accounting_section)
+        self.total_section.payrolls_total[1].configure(text = "%.3f" % payrolls_total)
+        self.total_section.accounting_total[1].configure(text = "%.3f" % accounting_total)
+        self.total_section.total_price[1].configure(text = "%.3f" % (payrolls_total + accounting_total))
+
+        self.after(100, self.calculate_total)
+
+    def toggle_relevant(self, toggle_bool, section, offset):
+        if toggle_bool:
+            section.frame.grid(row = offset,
+                               column = 0,
                                padx = 10,
-                               pady = 10)
-            master.columnconfigure(index = i,
-                                   weight = 1)
-        master.rowconfigure(index = i,
-                            weight = 1)
+                               pady = 10,
+                               columnspan = 2)
+        else:
+            section.frame.grid_forget()
 
-
-if __name__ == '__main__':
-
-    #windows managed by customtkinter, looks nicer
-    root = CTk()
-    root.title("Cenová kalkulačka")
-
-    scrollable_frame = CTkScrollableFrame(master = root)
-    scrollable_frame.pack(fill = "both",
-                          expand = True)
-
-    base_frame = CTkFrame(master = scrollable_frame,
-                          fg_color = "#b34f4c",
-                          border_color = "white",
-                          border_width = 2)
-
-    #all widgets are stored in tuples, philosophy being that loading can be made easier through this
-
-    totals_widgets = list()
-    totals_frame = CTkFrame(master = scrollable_frame,
-                            fg_color = "#b34f4c",
-                            border_color = "white",
-                            border_width = 2)
-
-    #widgets for price display
-    payrolls_total_price_tuple = (CTkLabel(master=totals_frame,
-                                           text="Cena za mzdy"),
-                                  CTkLabel(master=totals_frame,
-                                           text=""))
-    totals_widgets.append(payrolls_total_price_tuple)
-    accounting_price_tuple = (CTkLabel(master = totals_frame,
-                                      text = "Cena za účto"),
-                              CTkLabel(master = totals_frame,
-                                       text = ""))
-    totals_widgets.append(accounting_price_tuple)
-    total_price_tuple = (CTkLabel(master = totals_frame,
-                                 text="Cena celkem:"),
-                         CTkLabel(master = totals_frame,
-                                  text = ""))
-    totals_widgets.append(total_price_tuple)
-
-    base_widgets = list()
-
-    #base checkboxes for determining the kind of widgets to display to the user
-    payrolls_bool = tk.BooleanVar(value = False)
-    accounting_bool = tk.BooleanVar(value=False)
-    base_checkboxes = (CTkCheckBox(master = base_frame,
-                                    text = "Mzdy",
-                                    variable = payrolls_bool,
-                                    command = lambda : toggle_relevant(payrolls_bool.get(), payrolls_frame, 1)),
-                       CTkCheckBox(master=base_frame,
-                                   text="Účetnictví",
-                                   variable=accounting_bool,
-                                   command=lambda: toggle_relevant(accounting_bool.get(), accounting_frame, 2))
-                       )
-    base_widgets.append(base_checkboxes)
-
-    payrolls_frame = CTkFrame(master = scrollable_frame,
-                             fg_color = "#b34f4c",
-                             border_color = "white",
-                             border_width = 2)
-
-    #payrolls widgets
-    payrolls_widgets = list()
-
-    payrolls_amt_tuple = (CTkLabel(master = payrolls_frame,
-                                   text = "Počet mezd"),
-                          Spinbox(master = payrolls_frame,
-                                  width = 150))
-    payrolls_amt_tuple[1].set(0)
-    payrolls_widgets.append(payrolls_amt_tuple)
-
-    payrolls_price_tuple = (CTkLabel(master = payrolls_frame,
-                                     text = "Cena za zpracování jedné"),
-                            Spinbox(master = payrolls_frame,
-                                    width = 150))
-    payrolls_price_tuple[1].set(275)
-    payrolls_widgets.append(payrolls_price_tuple)
-
-    signups_signoffs_tuple = (CTkLabel(master = payrolls_frame,
-                                       text = "Počet přihlášek/odhlášek"),
-                              Spinbox(master = payrolls_frame,
-                                      width = 150))
-    signups_signoffs_tuple[1].set(0)
-    payrolls_widgets.append(signups_signoffs_tuple)
-
-    executions_tuple = (CTkLabel(master = payrolls_frame,
-                                 text = "Exekuce"),
-                        CTkComboBox(master = payrolls_frame))
-    executions_tuple[1].set(str(0))
-    payrolls_widgets.append(executions_tuple)
-
-    #accounting widgets
-    DPH_widgets = list()
-    DPPO_widgets = list()
-    accounting_widgets = list()
-
-    accounting_frame = CTkFrame(master = scrollable_frame,
-                                fg_color = "#b34f4c",
-                                border_color = "white",
-                                border_width = 2)
-
-    DPH_pay_bool = tk.BooleanVar(value = False)
-    evidence_bool = tk.BooleanVar(value = False)
-    ucto_bool = tk.BooleanVar(value = False)
-
-    accounting_checkboxes = (CTkCheckBox(master = accounting_frame,
-                                         text = "Evidence",
-                                         variable = evidence_bool),
-                             CTkCheckBox(master = accounting_frame,
-                                         text = "Účto",
-                                         variable = ucto_bool))
-    DPH_widgets.append(accounting_checkboxes)
-
-    import_only_bool = tk.BooleanVar()
-    import_only = (CTkCheckBox(master = accounting_frame,
-                               text = "import",
-                               variable = import_only_bool),
-                   CTkComboBox(master = accounting_frame,
-                               values = [str(800), str(1000), str(1200), str(1400), str(1600)]))
-    import_only[1].set(str(1000))
-    accounting_widgets.append(import_only)
-
-    by_hand = (CTkLabel(master = accounting_frame,
-                        text = "Počet vystavených faktur pro ruční zpracování"),
-               Spinbox(master = accounting_frame,
-                       width = 150))
-    by_hand[1].set(0)
-    accounting_widgets.append(by_hand)
-
-    create_VFA = (CTkLabel(master = accounting_frame,
-                           text = "Počet vydaných faktur k vystavení"),
-                  Spinbox(master = accounting_frame,
-                          width = 150))
-    create_VFA[1].set(0)
-    accounting_widgets.append(create_VFA)
-
-    PFA_amt = (CTkLabel(master = accounting_frame,
-                        text = "Počet přijatých faktur k vystavení"),
-               Spinbox(master = accounting_frame,
-                       width = 150))
-    PFA_amt[1].set(0)
-    accounting_widgets.append(PFA_amt)
-
-    credit_card_amt = (CTkLabel(master = accounting_frame,
-                                text = "Počet operací provedených platební kartou"),
-                       Spinbox(master = accounting_frame,
-                               width = 150))
-    credit_card_amt[1].set(0)
-    accounting_widgets.append(credit_card_amt)
-
-    register_amt = (CTkLabel(master = accounting_frame,
-                             text ="Počet pokladen"),
-                    Spinbox(master = accounting_frame,
-                            width = 150))
-    register_amt[1].set(0)
-    accounting_widgets.append(register_amt)
-
-    bank_amt = (CTkLabel(master = accounting_frame,
-                         text ="Počet bankovních výpisů"),
-                Spinbox(master = accounting_frame,
-                        width = 150))
-    bank_amt[1].set(0)
-    accounting_widgets.append(bank_amt)
-
-    centers_bool = tk.BooleanVar(value = False)
-    centers_tuple = (CTkCheckBox(master = accounting_frame, text = "Střediska",
-                                 variable = centers_bool),
-                     CTkLabel(master = accounting_frame, text="x1,1"))
-    accounting_widgets.append(centers_tuple)
-    orders_bool = tk.BooleanVar(value = False)
-    orders_tuple = (CTkCheckBox(master = accounting_frame,
-                                text = "Zakázky",
-                                variable = orders_bool),
-                     CTkLabel(master = accounting_frame,
-                              text = "x1,1"))
-    accounting_widgets.append(orders_tuple)
-    analytics_bool = tk.BooleanVar(value = False)
-    analytics_tuple = (CTkCheckBox(master = accounting_frame,
-                                   text = "Analytické služby",
-                                   variable = analytics_bool),
-                     CTkLabel(master = accounting_frame,
-                              text = "x1,1"))
-    accounting_widgets.append(analytics_tuple)
-    warehouses_bool = tk.BooleanVar(value = False)
-    warehouses_tuple = (CTkCheckBox(master = accounting_frame,
-                                    text = "Sklady",
-                                    variable = warehouses_bool),
-                     CTkLabel(master = accounting_frame,
-                              text = "x1,2"))
-    accounting_widgets.append(warehouses_tuple)
-
-    DPH_pay = (CTkCheckBox(master = accounting_frame,
-                           text = "Plátce DPH",
-                           variable = DPH_pay_bool,
-                           command = lambda: toggle_dph(DPH_pay_bool.get(), accounting_frame, DPH_widgets, DPPO_widgets)),
-               CTkLabel(master = accounting_frame,
-                        text = ""))
-    accounting_widgets.append(DPH_pay)
-
-    tax_check_bool = tk.BooleanVar(value = False)
-    tax_check = (CTkCheckBox(master = accounting_frame,
-                             text = "Kontrola DPH",
-                             variable = tax_check_bool),
-                 CTkLabel(master = accounting_frame,
-                          text = ""))
-    DPH_widgets.append(tax_check)
-
-    send_docs_bool = tk.BooleanVar(value = False)
-    send_docs = (CTkCheckBox(master = accounting_frame,
-                             text = "Odeslání DPH, KH",
-                             variable = send_docs_bool),
-                 CTkLabel(master = accounting_frame,
-                          text = ""))
-    DPH_widgets.append(send_docs)
-
-    DPPODPFO_bool = tk.BooleanVar(value = False)
-    create_DPPODPFO = (CTkCheckBox(master = accounting_frame,
-                                   text = "Zpracování DPPO/DPFO",
-                                   variable = DPPODPFO_bool),
-                       CTkLabel(master = accounting_frame,
-                                text = ""))
-    DPPO_widgets.append(create_DPPODPFO)
-
-    #arranging all widgets within their respective frames
-    arrange_widgets(base_frame, base_widgets)
-    arrange_widgets(totals_frame, totals_widgets)
-    arrange_widgets(payrolls_frame, payrolls_widgets)
-    arrange_widgets(accounting_frame, accounting_widgets + DPPO_widgets)
-
-    #rendering base frames needed on startup
-    base_frame.grid(row = 0,
-                    column = 0,
-                    columnspan = 2,
-                    padx = 10,
-                    pady = 10)
-    totals_frame.grid(row = 3,
-                      column = 0,
-                      columnspan = 2,
-                      padx = 10,
-                      pady = 10)
-
-    #column configures for base widgets
-    for i in range(0, scrollable_frame.grid_size()[1]):
-        scrollable_frame.rowconfigure(i, weight = 1)
-    for i in range(0, scrollable_frame.grid_size()[0]):
-        scrollable_frame.columnconfigure(i, weight = 1)
-
-    calculate_total()
-
-    root.mainloop()
+if __name__ == "__main__":
+    app = PriceCalc()
+    app.mainloop()
