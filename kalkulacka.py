@@ -6,6 +6,9 @@ from customtkinter import CTkCheckBox, CTkLabel
 NUMBER_FORMAT = "%.3f"
 
 class Spinbox(CTkFrame):
+    """
+    defines a spinbox widget for customtkinter, it does not have this in base
+    """
     def __init__(self, *args,
                  width: int = 100,
                  height: int = 32,
@@ -67,7 +70,17 @@ class Spinbox(CTkFrame):
         self.entry.insert(0, str(int(value)))
 
 class SectionBase:
-    def arrange_widgets(self, master : CTkFrame, widgets : List[Tuple[tk.Widget, tk.Widget]]):
+    """
+    server as a base for all sections, containing common methods
+    """
+    def arrange_widgets(self, master : CTkFrame, widgets : List[Tuple[tk.Widget, tk.Widget]]) -> None:
+        """
+        arranges widgets into a grid layout within the master parameter
+        :param master: the master widget within which to arrange all the child widgets
+        :param widgets: list of all child widgets, expected to be arranged into a list of tuples, where each list item
+                        represents a row and each tuple item represents a column within the grid
+        :return: None
+        """
         for i, row in enumerate(widgets):
             for j, widget in enumerate(row):
                 widget.grid(row=i,
@@ -78,6 +91,9 @@ class SectionBase:
             master.rowconfigure(i, weight=1)
 
 class PayrollSection(SectionBase):
+    """
+    defines a section for the payrolls widgets
+    """
     def __init__(self, master):
         self.frame = CTkFrame(master = master,
                               fg_color = "#b34f4c",
@@ -87,7 +103,11 @@ class PayrollSection(SectionBase):
         self.setup_widgets()
         self.arrange_widgets(self.frame, self.widgets)
 
-    def setup_widgets(self):
+    def setup_widgets(self) -> None:
+        """
+        sets up all widgets into default locations with default values
+        :return: None
+        """
         self.payrolls_amt = (CTkLabel(master = self.frame,
                                       text = "Počet mezd"),
                              Spinbox(master = self.frame,
@@ -116,6 +136,10 @@ class PayrollSection(SectionBase):
         self.widgets.append(self.executions)
 
     def get_total(self) -> float:
+        """
+        gets the total of all the widgets within the section
+        :return: float representing the total
+        """
         try:
             total = int(self.payrolls_amt[1].get()) * int(self.payrolls_price[1].get())
             total += int(self.signups_signoffs[1].get()) * 300
@@ -130,6 +154,9 @@ class PayrollSection(SectionBase):
         return total
 
 class AccountingSection(SectionBase):
+    """
+    defines a section for the accounting widgets
+    """
     def __init__(self, master):
         self.frame = CTkFrame(master=master,
                               fg_color = "#b34f4c",
@@ -157,7 +184,11 @@ class AccountingSection(SectionBase):
 
         self.total = 0
 
-    def setup_widgets(self):
+    def setup_widgets(self) -> None:
+        """
+        sets up all widgets into default states with default values
+        :return: None
+        """
         self.checkboxes = (CTkCheckBox(master = self.frame,
                                        text = "Evidence",
                                        variable = self.evidence_bool),
@@ -273,15 +304,25 @@ class AccountingSection(SectionBase):
                                          text=""))
         self.no_dph_widgets.append(self.create_dppodpfo)
 
-    def toggle_dph(self):
+    def toggle_dph(self) -> None:
+        """
+        toggles all widgets to do with dph
+        :return: None
+        """
         for widget in self.frame.grid_slaves():
             widget.grid_forget()
         if self.dph_pay_bool.get():
+            #disgusting hack
             self.arrange_widgets(self.frame, self.widgets[:2] + self.dph_widgets + self.widgets[2:])
         else:
+            #disgusting hack
             self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
 
     def get_total(self) -> float:
+        """
+        gets the total of all the widgets within the section
+        :return: float representing the total
+        """
         try:
             if self.dph_pay_bool.get():
 
@@ -354,6 +395,9 @@ class AccountingSection(SectionBase):
 
 
 class TotalSection(SectionBase):
+    """
+    section defining space for all widgets containing calculated totals
+    """
     def __init__(self, master):
         self.frame = CTkFrame(master=master,
                               fg_color = "#b34f4c",
@@ -365,7 +409,11 @@ class TotalSection(SectionBase):
         self.setup_widgets()
         self.arrange_widgets(self.frame, self.widgets)
 
-    def setup_widgets(self):
+    def setup_widgets(self) -> None:
+        """
+        sets up all the widgets with their default values
+        :return: None
+        """
         self.payrolls_total = (CTkLabel(master = self.frame,
                                                text = "Cena za mzdy"),
                                       CTkLabel(master = self.frame,
@@ -385,6 +433,9 @@ class TotalSection(SectionBase):
         self.widgets.append(self.total_price)
 
 class BaseSection(SectionBase):
+    """
+    section defining space for all the base widgets (base decisions visible on startup)
+    """
     def __init__(self, master):
         self.frame = CTkFrame(master=master,
                               fg_color="#b34f4c",
@@ -399,7 +450,11 @@ class BaseSection(SectionBase):
         self.setup_widgets()
         self.arrange_widgets(self.frame, self.widgets)
 
-    def setup_widgets(self):
+    def setup_widgets(self) -> None:
+        """
+        sets up widgets into default states with their default values
+        :return: None
+        """
         self.checkboxes = (CTkCheckBox(master = self.frame,
                                        text = "Mzdy",
                                        variable = self.payrolls_bool,
@@ -412,6 +467,10 @@ class BaseSection(SectionBase):
         self.widgets.append(self.checkboxes)
 
 class PriceCalc(CTk):
+    """
+    price calculator app class
+    handles the entire app operations
+    """
     def __init__(self):
         super().__init__()
         self.geometry("400x600")
@@ -434,7 +493,11 @@ class PriceCalc(CTk):
         self.calculate_total()
         self.bind("<Configure>", self.resize)
 
-    def setup_sections(self):
+    def setup_sections(self) -> None:
+        """
+        sets up all the sections into default positions
+        :return: None
+        """
 
         self.base_section.frame.grid(row = 0,
                                      column = 0,
@@ -450,14 +513,24 @@ class PriceCalc(CTk):
         self.scrollable_frame.rowconfigure((0,4), weight = 1)
         self.scrollable_frame.columnconfigure(0, weight = 1)
 
-    def resize(self, event):
+    def resize(self, event) -> None:
+        """
+        handles resizing of the internal widgets along with the window, since widgets are contained within a scrollable
+        frame which would not resize on its own
+        :param event: describes an event that occured on the app level
+        :return: None
+        """
         if event.widget == self:
             if self.scrollable_frame.winfo_width() != event.widget.winfo_width() or self.scrollable_frame.winfo_height() != event.widget.winfo_height():
-                self.scrollable_frame.configure(width = event.width,
-                                                height = event.height)
+                self.scrollable_frame.configure(width = event.width - 50,
+                                                height = event.height - 50)
                 self.scrollable_frame.update()
 
-    def calculate_total(self):
+    def calculate_total(self) -> None:
+        """
+        calculates the totals based on all the input data, calls itself every 100ms (subject to change)
+        :return: Nono
+        """
         payrolls_total = PayrollSection.get_total(self.payrolls_section)
         accounting_total = AccountingSection.get_total(self.accounting_section)
         self.total_section.payrolls_total[1].configure(text = NUMBER_FORMAT % payrolls_total)
@@ -466,7 +539,14 @@ class PriceCalc(CTk):
 
         self.after(100, self.calculate_total)
 
-    def toggle_relevant(self, toggle_bool, section, offset):
+    def toggle_relevant(self, toggle_bool, section, offset) -> None:
+        """
+        toggles relevant sections of the app based on user input
+        :param toggle_bool: toggle deciding whether to turn a widget on or off
+        :param section: section to toggle
+        :param offset: offset at which to toggle said section
+        :return: None
+        """
         if toggle_bool:
             section.frame.grid(row = offset,
                                column = 0,
