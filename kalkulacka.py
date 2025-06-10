@@ -3,6 +3,8 @@ from typing import *
 from customtkinter import *
 from customtkinter import CTkCheckBox, CTkLabel
 
+NUMBER_FORMAT = "%.3f"
+
 class Spinbox(CTkFrame):
     def __init__(self, *args,
                  width: int = 100,
@@ -412,12 +414,16 @@ class BaseSection(SectionBase):
 class PriceCalc(CTk):
     def __init__(self):
         super().__init__()
+        self.geometry("400x600")
         self.title("Cenová kalkulačka")
-        self.scrollable_frame = CTkScrollableFrame(master = self)
-        self.scrollable_frame.pack(fill = "both",
-                                   expand = True,
+        self.scrollable_frame = CTkScrollableFrame(master = self,
+                                                   border_width = 2,
+                                                   border_color = "white")
+        self.scrollable_frame.grid(row = 0,
+                                   column = 0,
                                    padx = 10,
-                                   pady = 10)
+                                   pady = 10,
+                                   sticky = "ew")
 
         self.base_section = BaseSection(self.scrollable_frame)
         self.total_section = TotalSection(self.scrollable_frame)
@@ -426,26 +432,37 @@ class PriceCalc(CTk):
 
         self.setup_sections()
         self.calculate_total()
+        self.bind("<Configure>", self.resize)
 
     def setup_sections(self):
 
         self.base_section.frame.grid(row = 0,
                                      column = 0,
-                                     padx = 10,
-                                     pady = 10,
-                                     columnspan = 2)
+                                     columnspan = 2,
+                                     sticky = "ew")
         self.total_section.frame.grid(row = 3,
                                       column = 0,
-                                      padx = 10,
-                                      pady = 10,
-                                      columnspan = 2)
+                                      columnspan = 2,
+                                      sticky = "ew")
+        self.update()
+        self.scrollable_frame.configure(width = self.winfo_width(),
+                                        height = self.winfo_height())
+        self.scrollable_frame.rowconfigure((0,4), weight = 1)
+        self.scrollable_frame.columnconfigure(0, weight = 1)
+
+    def resize(self, event):
+        if event.widget == self:
+            if self.scrollable_frame.winfo_width() != event.widget.winfo_width() or self.scrollable_frame.winfo_height() != event.widget.winfo_height():
+                self.scrollable_frame.configure(width = event.width,
+                                                height = event.height)
+                self.scrollable_frame.update()
 
     def calculate_total(self):
         payrolls_total = PayrollSection.get_total(self.payrolls_section)
         accounting_total = AccountingSection.get_total(self.accounting_section)
-        self.total_section.payrolls_total[1].configure(text = "%.3f" % payrolls_total)
-        self.total_section.accounting_total[1].configure(text = "%.3f" % accounting_total)
-        self.total_section.total_price[1].configure(text = "%.3f" % (payrolls_total + accounting_total))
+        self.total_section.payrolls_total[1].configure(text = NUMBER_FORMAT % payrolls_total)
+        self.total_section.accounting_total[1].configure(text = NUMBER_FORMAT % accounting_total)
+        self.total_section.total_price[1].configure(text = NUMBER_FORMAT % (payrolls_total + accounting_total))
 
         self.after(100, self.calculate_total)
 
@@ -453,9 +470,8 @@ class PriceCalc(CTk):
         if toggle_bool:
             section.frame.grid(row = offset,
                                column = 0,
-                               padx = 10,
-                               pady = 10,
-                               columnspan = 2)
+                               columnspan = 2,
+                               sticky = "ew")
         else:
             section.frame.grid_forget()
 
