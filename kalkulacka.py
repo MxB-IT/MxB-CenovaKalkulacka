@@ -5,40 +5,138 @@ from customtkinter import *
 FontManager.load_font('./DMSans-Regular.ttf')
 
 NUMBER_FORMAT = "%.3f"
+MXB_RED = "#703230"
+
+class ComboBoxBase(CTkComboBox):
+    def __init__(self,
+                 *args,
+                 master: CTkFrame,
+                 border_color = "#401c1b",
+                 fg_color = "white",
+                 dropdown_fg_color = "white",
+                 button_color = "#401c1b",
+                 text_color = MXB_RED,
+                 dropdown_text_color = MXB_RED,
+                 border_width = 2,
+                 **kwargs):
+        super().__init__(*args,
+                         master,
+                         border_color = border_color,
+                         fg_color = fg_color,
+                         dropdown_fg_color = dropdown_fg_color,
+                         button_color = button_color,
+                         text_color = text_color,
+                         dropdown_text_color = dropdown_text_color,
+                         border_width = border_width,
+                         **kwargs)
+
+class CheckBoxBase(CTkCheckBox):
+    def __init__(self,
+                 *args,
+                 master: CTkFrame,
+                 fg_color = MXB_RED,
+                 border_color = MXB_RED,
+                 text_color = MXB_RED,
+                 hover_color = MXB_RED,
+                 **kwargs):
+        super().__init__(*args,
+                         master,
+                         hover_color = hover_color,
+                         fg_color = fg_color,
+                         border_color = border_color,
+                         text_color = text_color,
+                         **kwargs)
+
+class FrameBase(CTkFrame):
+    def __init__(self,
+                 *args,
+                 master: CTkFrame,
+                 fg_color = "white",
+                 border_color = MXB_RED,
+                 border_width = 2,
+                 **kwargs):
+        super().__init__(*args,
+                         master,
+                         fg_color = fg_color,
+                         border_color = border_color,
+                         border_width = border_width,
+                         **kwargs)
+
+class LabelBase(CTkLabel):
+    def __init__(self,
+                 *args,
+                 master: CTkFrame,
+                 text_color = MXB_RED,
+                 **kwargs):
+        super().__init__(*args,
+                         master,
+                         text_color = text_color,
+                         **kwargs)
 
 class Spinbox(CTkFrame):
     """
     defines a spinbox widget for customtkinter, it does not have this in base
     """
-    def __init__(self, *args,
+    def __init__(self,
+                 *args,
                  width: int = 100,
                  height: int = 32,
                  step_size: Union[int, float] = 1,
                  command: Callable = None,
                  **kwargs):
-        super().__init__(*args, width=width, height=height, **kwargs)
+        super().__init__(*args,
+                         width=width,
+                         height=height,
+                         **kwargs)
 
         self.step_size = step_size
         self.command = command
 
-        self.configure(fg_color=("gray78", "gray28"))  # set frame color
+        self.configure(fg_color = MXB_RED)  # set frame color
 
-        self.grid_columnconfigure((0, 2), weight=0)  # buttons don't expand
-        self.grid_columnconfigure(1, weight=1)  # entry expands
+        self.grid_columnconfigure((0, 2),
+                                  weight=0)  # buttons don't expand
+        self.grid_columnconfigure(1,
+                                  weight=1)  # entry expands
 
-        self.subtract_button = CTkButton(self, text="-", width=height-6, height=height-6,
-                                                       command=self.subtract_button_callback)
-        self.subtract_button.grid(row=0, column=0, padx=(3, 0), pady=3)
+        self.subtract_button = CTkButton(self, text="-",
+                                         width=height-6,
+                                         height=height-6,
+                                         command=self.subtract_button_callback,
+                                         fg_color = "white",
+                                         text_color = MXB_RED,
+                                         hover_color = "white")
+        self.subtract_button.grid(row=0,
+                                  column=0,
+                                  padx=(3, 0),
+                                  pady=3)
 
-        self.entry = CTkEntry(self, width=width-(2*height), height=height-6, border_width=0)
-        self.entry.grid(row=0, column=1, columnspan=1, padx=3, pady=3, sticky="ew")
+        self.entry = CTkEntry(self,
+                              width=width-(2*height),
+                              height=height-6,
+                              border_width=0)
+        self.entry.grid(row=0,
+                        column=1,
+                        columnspan=1,
+                        padx=3,
+                        pady=3,
+                        sticky="ew")
 
-        self.add_button = CTkButton(self, text="+", width=height-6, height=height-6,
-                                                  command=self.add_button_callback)
-        self.add_button.grid(row=0, column=2, padx=(0, 3), pady=3)
+        self.add_button = CTkButton(self,
+                                    text="+",
+                                    width=height-6,
+                                    height=height-6,
+                                    command=self.add_button_callback,
+                                    fg_color="white",
+                                    text_color=MXB_RED)
+        self.add_button.grid(row=0,
+                             column=2,
+                             padx=(0, 3),
+                             pady=3)
 
         # default value
-        self.entry.insert(0, "0.0")
+        self.entry.insert(0,
+                          "0.0")
 
     def add_button_callback(self):
         if self.command is not None:
@@ -98,7 +196,7 @@ class PayrollSection(SectionBase):
     def __init__(self, master):
         self.frame = CTkFrame(master = master,
                               fg_color = "white",
-                              border_color = "#703230",
+                              border_color = MXB_RED,
                               border_width = 2)
         self.widgets = []
         self.setup_widgets()
@@ -109,30 +207,30 @@ class PayrollSection(SectionBase):
         sets up all widgets into default locations with default values
         :return: None
         """
-        self.payrolls_amt = (CTkLabel(master = self.frame,
+        self.payrolls_amt = (LabelBase(master = self.frame,
                                       text = "Počet mezd"),
                              Spinbox(master = self.frame,
                                      width = 150))
         self.payrolls_amt[1].set(0)
         self.widgets.append(self.payrolls_amt)
 
-        self.payrolls_price = (CTkLabel(master = self.frame,
+        self.payrolls_price = (LabelBase(master = self.frame,
                                          text = "Cena za zpracování jedné"),
                                Spinbox(master = self.frame,
                                        width = 150))
         self.payrolls_price[1].set(0)
         self.widgets.append(self.payrolls_price)
 
-        self.signups_signoffs = (CTkLabel(master = self.frame,
+        self.signups_signoffs = (LabelBase(master = self.frame,
                                        text = "Počet přihlášek/odhlášek"),
                                  Spinbox(master = self.frame,
                                          width=150))
         self.signups_signoffs[1].set(0)
         self.widgets.append(self.signups_signoffs)
 
-        self.executions = (CTkLabel(master = self.frame,
+        self.executions = (LabelBase(master = self.frame,
                                  text = "Exekuce"),
-                        CTkComboBox(master = self.frame))
+                        ComboBoxBase(master = self.frame))
         self.executions[1].set(str(0))
         self.widgets.append(self.executions)
 
@@ -159,10 +257,7 @@ class AccountingSection(SectionBase):
     defines a section for the accounting widgets
     """
     def __init__(self, master):
-        self.frame = CTkFrame(master=master,
-                              fg_color = "white",
-                              border_color = "#703230",
-                              border_width = 2)
+        self.frame = FrameBase(master=master)
 
         self.import_only_bool = tk.BooleanVar(value = False)
         self.dph_pay_bool = tk.BooleanVar(value = False)
@@ -190,118 +285,118 @@ class AccountingSection(SectionBase):
         sets up all widgets into default states with default values
         :return: None
         """
-        self.checkboxes = (CTkCheckBox(master = self.frame,
+        self.checkboxes = (CheckBoxBase(master = self.frame,
                                        text = "Evidence",
                                        variable = self.evidence_bool),
-                            CTkCheckBox(master = self.frame,
+                            CheckBoxBase(master = self.frame,
                                         text = "Účto",
                                         variable = self.ucto_bool))
         self.widgets.append(self.checkboxes)
 
-        self.dph_pay = (CTkCheckBox(master = self.frame,
+        self.dph_pay = (CheckBoxBase(master = self.frame,
                                     text = "Plátce DPH",
                                     variable = self.dph_pay_bool,
                                     command = lambda: self.toggle_dph()),
-                   CTkLabel(master = self.frame,
+                   LabelBase(master = self.frame,
                             text = ""))
         self.widgets.append(self.dph_pay)
 
-        self.import_only = (CTkCheckBox(master = self.frame,
+        self.import_only = (CheckBoxBase(master = self.frame,
                                         text = "import",
                                         variable = self.import_only_bool),
-                            CTkComboBox(master=self.frame,
+                            ComboBoxBase(master=self.frame,
                                         values=[str(800), str(1000), str(1200), str(1400), str(1600)]))
         self.import_only[1].set(str(1000))
         self.widgets.append(self.import_only)
 
-        self.by_hand = (CTkLabel(master = self.frame,
+        self.by_hand = (LabelBase(master = self.frame,
                                  text = "Počet vystavených faktur pro ruční zpracování"),
                         Spinbox(master = self.frame,
                                 width = 150))
         self.by_hand[1].set(0)
         self.widgets.append(self.by_hand)
 
-        self.create_vfa = (CTkLabel(master = self.frame,
+        self.create_vfa = (LabelBase(master = self.frame,
                                     text = "Počet vydaných faktur k vystavení"),
                            Spinbox(master = self.frame,
                                     width = 150))
         self.create_vfa[1].set(0)
         self.widgets.append(self.create_vfa)
 
-        self.pfa_amt = (CTkLabel(master = self.frame,
+        self.pfa_amt = (LabelBase(master = self.frame,
                                  text = "Počet přijatých faktur k vystavení"),
                         Spinbox(master = self.frame,
                                 width = 150))
         self.pfa_amt[1].set(0)
         self.widgets.append(self.pfa_amt)
 
-        self.credit_card_amt = (CTkLabel(master = self.frame,
+        self.credit_card_amt = (LabelBase(master = self.frame,
                                          text = "Počet operací provedených platební kartou"),
                                 Spinbox(master = self.frame,
                                         width = 150))
         self.credit_card_amt[1].set(0)
         self.widgets.append(self.credit_card_amt)
 
-        self.register_amt = (CTkLabel(master = self.frame,
+        self.register_amt = (LabelBase(master = self.frame,
                                       text ="Počet pokladen"),
                              Spinbox(master = self.frame,
                                      width = 150))
         self.register_amt[1].set(0)
         self.widgets.append(self.register_amt)
 
-        self.bank_amt = (CTkLabel(master = self.frame,
+        self.bank_amt = (LabelBase(master = self.frame,
                                   text ="Počet bankovních výpisů"),
                          Spinbox(master = self.frame,
                                  width = 150))
         self.bank_amt[1].set(0)
         self.widgets.append(self.bank_amt)
 
-        self.centers = (CTkCheckBox(master = self.frame,
+        self.centers = (CheckBoxBase(master = self.frame,
                                     text = "Střediska",
                                     variable = self.centers_bool),
-                        CTkLabel(master = self.frame,
+                        LabelBase(master = self.frame,
                                  text="x1,1"))
         self.widgets.append(self.centers)
 
-        self.orders = (CTkCheckBox(master = self.frame,
+        self.orders = (CheckBoxBase(master = self.frame,
                                    text = "Zakázky",
                                    variable = self.orders_bool),
-                       CTkLabel(master = self.frame,
+                       LabelBase(master = self.frame,
                                 text = "x1,1"))
         self.widgets.append(self.orders)
 
-        self.analysis = (CTkCheckBox(master = self.frame,
+        self.analysis = (CheckBoxBase(master = self.frame,
                                      text = "Analytické služby",
                                      variable = self.analysis_bool),
-                         CTkLabel(master = self.frame,
+                         LabelBase(master = self.frame,
                                   text = "x1,1"))
         self.widgets.append(self.analysis)
 
-        self.warehouses = (CTkCheckBox(master = self.frame,
+        self.warehouses = (CheckBoxBase(master = self.frame,
                                        text = "Sklady",
                                        variable = self.warehouses_bool),
-                           CTkLabel(master = self.frame,
+                           LabelBase(master = self.frame,
                                     text = "x1,2"))
         self.widgets.append(self.warehouses)
 
-        self.tax_check = (CTkCheckBox(master=self.frame,
+        self.tax_check = (CheckBoxBase(master=self.frame,
                                       text="Kontrola DPH",
                                       variable=self.tax_check_bool),
-                          CTkLabel(master=self.frame,
+                          LabelBase(master=self.frame,
                                    text=""))
         self.dph_widgets.append(self.tax_check)
 
-        self.send_docs = (CTkCheckBox(master=self.frame,
+        self.send_docs = (CheckBoxBase(master=self.frame,
                                       text="Odeslání DPH, KH",
                                       variable=self.send_docs_bool),
-                          CTkLabel(master=self.frame,
+                          LabelBase(master=self.frame,
                                    text=""))
         self.dph_widgets.append(self.send_docs)
 
-        self.create_dppodpfo = (CTkCheckBox(master=self.frame,
+        self.create_dppodpfo = (CheckBoxBase(master=self.frame,
                                             text="Zpracování DPPO/DPFO",
                                             variable=self.dppodpfo_bool),
-                                CTkLabel(master=self.frame,
+                                LabelBase(master=self.frame,
                                          text=""))
         self.no_dph_widgets.append(self.create_dppodpfo)
 
@@ -400,10 +495,7 @@ class TotalSection(SectionBase):
     section defining space for all widgets containing calculated totals
     """
     def __init__(self, master):
-        self.frame = CTkFrame(master=master,
-                              fg_color = "white",
-                              border_color = "#703230",
-                              border_width = 2)
+        self.frame = FrameBase(master=master)
 
         self.widgets = []
 
@@ -415,33 +507,27 @@ class TotalSection(SectionBase):
         sets up all the widgets with their default values
         :return: None
         """
-        self.payrolls_total = (CTkLabel(master = self.frame,
+        self.payrolls_total = (LabelBase(master = self.frame,
                                                text = "Cena za mzdy",
-                                               text_color = "#703230",
                                                font = CTkFont("DMSans-Regular")),
-                                      CTkLabel(master = self.frame,
-                                               text = "",
-                                               text_color = "#703230",
-                                               font = CTkFont("DMSans-Regular")))
+                               LabelBase(master = self.frame,
+                                         text = "",
+                                         font = CTkFont("DMSans-Regular")))
         self.widgets.append(self.payrolls_total)
 
-        self.accounting_total = (CTkLabel(master = self.frame,
+        self.accounting_total = (LabelBase(master = self.frame,
                                            text = "Cena za účto",
-                                          text_color = "#703230",
-                                          font = CTkFont("DMSans-Regular")),
-                                  CTkLabel(master = self.frame,
+                                           font = CTkFont("DMSans-Regular")),
+                                 LabelBase(master = self.frame,
                                            text = "",
-                                           text_color = "#703230",
                                            font = CTkFont("DMSans-Regular")))
         self.widgets.append(self.accounting_total)
 
-        self.total_price = (CTkLabel(master = self.frame,
+        self.total_price = (LabelBase(master = self.frame,
                                       text = "Cena celkem:",
-                                      text_color = "#703230",
                                       font = CTkFont("DM Sans")),
-                             CTkLabel(master = self.frame,
+                            LabelBase(master = self.frame,
                                       text = "",
-                                      text_color = "#703230",
                                       font = CTkFont("DM Sans")))
         self.widgets.append(self.total_price)
 
@@ -450,10 +536,7 @@ class BaseSection(SectionBase):
     section defining space for all the base widgets (base decisions visible on startup)
     """
     def __init__(self, master):
-        self.frame = CTkFrame(master=master,
-                              fg_color="white",
-                              border_color="#703230",
-                              border_width=2)
+        self.frame = FrameBase(master=master)
 
         self.accounting_bool = tk.BooleanVar(value = False)
         self.payrolls_bool = tk.BooleanVar(value = False)
@@ -468,16 +551,12 @@ class BaseSection(SectionBase):
         sets up widgets into default states with their default values
         :return: None
         """
-        self.checkboxes = (CTkCheckBox(master = self.frame,
+        self.checkboxes = (CheckBoxBase(master = self.frame,
                                        text = "Mzdy",
-                                       text_color = "#703230",
-                                       border_color = "#703230",
                                        variable = self.payrolls_bool,
                                        command = lambda: app.toggle_relevant(self.payrolls_bool.get(), app.payrolls_section, 1),
                                        font = CTkFont("DMSans-Regular")),
-                           CTkCheckBox(master = self.frame,
-                                       text_color = "#703230",
-                                       border_color = "#703230",
+                           CheckBoxBase(master = self.frame,
                                        text = "Účetnictví",
                                        variable = self.accounting_bool,
                                        command = lambda: app.toggle_relevant(self.accounting_bool.get(), app.accounting_section, 2),
