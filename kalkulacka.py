@@ -1,7 +1,8 @@
 import tkinter as tk
 from typing import *
 from customtkinter import *
-from customtkinter import CTkCheckBox, CTkLabel
+
+FontManager.load_font('./DMSans-Regular.ttf')
 
 NUMBER_FORMAT = "%.3f"
 
@@ -96,8 +97,8 @@ class PayrollSection(SectionBase):
     """
     def __init__(self, master):
         self.frame = CTkFrame(master = master,
-                              fg_color = "#b34f4c",
-                              border_color = "white",
+                              fg_color = "white",
+                              border_color = "#703230",
                               border_width = 2)
         self.widgets = []
         self.setup_widgets()
@@ -159,8 +160,8 @@ class AccountingSection(SectionBase):
     """
     def __init__(self, master):
         self.frame = CTkFrame(master=master,
-                              fg_color = "#b34f4c",
-                              border_color = "white",
+                              fg_color = "white",
+                              border_color = "#703230",
                               border_width = 2)
 
         self.import_only_bool = tk.BooleanVar(value = False)
@@ -400,8 +401,8 @@ class TotalSection(SectionBase):
     """
     def __init__(self, master):
         self.frame = CTkFrame(master=master,
-                              fg_color = "#b34f4c",
-                              border_color = "white",
+                              fg_color = "white",
+                              border_color = "#703230",
                               border_width = 2)
 
         self.widgets = []
@@ -415,21 +416,33 @@ class TotalSection(SectionBase):
         :return: None
         """
         self.payrolls_total = (CTkLabel(master = self.frame,
-                                               text = "Cena za mzdy"),
+                                               text = "Cena za mzdy",
+                                               text_color = "#703230",
+                                               font = CTkFont("DMSans-Regular")),
                                       CTkLabel(master = self.frame,
-                                               text = ""))
+                                               text = "",
+                                               text_color = "#703230",
+                                               font = CTkFont("DMSans-Regular")))
         self.widgets.append(self.payrolls_total)
 
         self.accounting_total = (CTkLabel(master = self.frame,
-                                           text = "Cena za účto"),
+                                           text = "Cena za účto",
+                                          text_color = "#703230",
+                                          font = CTkFont("DMSans-Regular")),
                                   CTkLabel(master = self.frame,
-                                           text = ""))
+                                           text = "",
+                                           text_color = "#703230",
+                                           font = CTkFont("DMSans-Regular")))
         self.widgets.append(self.accounting_total)
 
         self.total_price = (CTkLabel(master = self.frame,
-                                      text = "Cena celkem:"),
+                                      text = "Cena celkem:",
+                                      text_color = "#703230",
+                                      font = CTkFont("DM Sans")),
                              CTkLabel(master = self.frame,
-                                      text = ""))
+                                      text = "",
+                                      text_color = "#703230",
+                                      font = CTkFont("DM Sans")))
         self.widgets.append(self.total_price)
 
 class BaseSection(SectionBase):
@@ -438,8 +451,8 @@ class BaseSection(SectionBase):
     """
     def __init__(self, master):
         self.frame = CTkFrame(master=master,
-                              fg_color="#b34f4c",
-                              border_color="white",
+                              fg_color="white",
+                              border_color="#703230",
                               border_width=2)
 
         self.accounting_bool = tk.BooleanVar(value = False)
@@ -457,12 +470,18 @@ class BaseSection(SectionBase):
         """
         self.checkboxes = (CTkCheckBox(master = self.frame,
                                        text = "Mzdy",
+                                       text_color = "#703230",
+                                       border_color = "#703230",
                                        variable = self.payrolls_bool,
-                                       command = lambda: app.toggle_relevant(self.payrolls_bool.get(), app.payrolls_section, 1)),
+                                       command = lambda: app.toggle_relevant(self.payrolls_bool.get(), app.payrolls_section, 1),
+                                       font = CTkFont("DMSans-Regular")),
                            CTkCheckBox(master = self.frame,
+                                       text_color = "#703230",
+                                       border_color = "#703230",
                                        text = "Účetnictví",
                                        variable = self.accounting_bool,
-                                       command = lambda: app.toggle_relevant(self.accounting_bool.get(), app.accounting_section, 2)))
+                                       command = lambda: app.toggle_relevant(self.accounting_bool.get(), app.accounting_section, 2),
+                                       font = CTkFont('DMSans-Regular')))
 
         self.widgets.append(self.checkboxes)
 
@@ -522,8 +541,8 @@ class PriceCalc(CTk):
         """
         if event.widget == self:
             if self.scrollable_frame.winfo_width() != event.widget.winfo_width() or self.scrollable_frame.winfo_height() != event.widget.winfo_height():
-                self.scrollable_frame.configure(width = event.width - 50,
-                                                height = event.height - 50)
+                self.scrollable_frame.configure(width = event.width - 40,
+                                                height = event.height - 40)
                 self.scrollable_frame.update()
 
     def calculate_total(self) -> None:
