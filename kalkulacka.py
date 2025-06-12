@@ -279,11 +279,11 @@ class AccountingSection(SectionBase):
         self.checkboxes = (CheckBoxBase(master=self.frame,
                                         text="Evidence",
                                         variable=self.evidence_bool,
-                                        command=lambda: self.checkboxes[1].deselect()),
+                                        command=lambda: self.base_checkbox_tick("Evidence")),
                            CheckBoxBase(master=self.frame,
                                         text="Účto",
                                         variable=self.ucto_bool,
-                                        command=lambda: self.checkboxes[0].deselect()))
+                                        command=lambda: self.base_checkbox_tick("Účto")))
         self.dph_pay = (CheckBoxBase(master=self.frame,
                                      text="Plátce DPH",
                                      variable=self.dph_pay_bool,
@@ -505,7 +505,12 @@ class AccountingSection(SectionBase):
 
         self.total.set(total)
 
-
+    def base_checkbox_tick(self, checkbox_kind : str) -> None:
+        if checkbox_kind == "Evidence":
+            self.checkboxes[1].deselect()
+        else:
+            self.checkboxes[0].deselect()
+        self.get_total()
 
 class TotalSection(SectionBase):
     """
