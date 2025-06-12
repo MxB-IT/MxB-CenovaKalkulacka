@@ -74,50 +74,46 @@ class LabelBase(CTkLabel):
                          **kwargs)
 
 class Spinbox(CTkFrame):
-    """
-    defines a spinbox widget for customtkinter, it does not have this in base
-    """
-    def __init__(self,
-                 *args,
+    def __init__(self, *args,
                  width: int = 100,
                  height: int = 32,
                  step_size: Union[int, float] = 1,
+                 variable: Optional[tk.Variable] = None,
                  command: Callable = None,
                  **kwargs):
-        super().__init__(*args,
-                         width=width,
-                         height=height,
-                         **kwargs)
+        super().__init__(*args, width=width, height=height, **kwargs)
 
         self.step_size = step_size
         self.command = command
 
-        self.configure(fg_color = MXB_RED)  # set frame color
+        self.variable = variable or tk.DoubleVar(value=0)
+        self.variable.trace_add("write",
+                                self._on_var_change)
 
+        self.configure(fg_color=MXB_RED)
         self.grid_columnconfigure((0, 2),
-                                  weight=0)  # buttons don't expand
+                                  weight=0)
         self.grid_columnconfigure(1,
-                                  weight=1)  # entry expands
+                                  weight=1)
 
         self.subtract_button = CTkButton(self, text="-",
                                          width=height-6,
                                          height=height-6,
                                          command=self.subtract_button_callback,
-                                         fg_color = "white",
-                                         text_color = MXB_RED)
-
+                                         fg_color="white",
+                                         text_color=MXB_RED)
         self.subtract_button.grid(row=0,
                                   column=0,
                                   padx=(3, 0),
                                   pady=3)
 
         self.entry = CTkEntry(self,
-                              width=width-(2*height),
-                              height=height-6,
-                              border_width=0)
+                              width=width - 2 * height,
+                              height=height - 6,
+                              border_width=0,
+                              textvariable=self.variable)
         self.entry.grid(row=0,
                         column=1,
-                        columnspan=1,
                         padx=3,
                         pady=3,
                         sticky="ew")
@@ -134,39 +130,28 @@ class Spinbox(CTkFrame):
                              padx=(0, 3),
                              pady=3)
 
-        # default value
-        self.entry.insert(0,
-                          "0.0")
+    def _on_var_change(self, *args):
+        if self.command:
+            self.command()
 
     def add_button_callback(self):
-        if self.command is not None:
-            self.command()
         try:
-            value = int(self.entry.get()) + self.step_size
-            self.entry.delete(0, "end")
-            self.entry.insert(0, value)
-        except ValueError:
-            return
+            self.variable.set(self.variable.get() + self.step_size)
+        except Exception:
+            self.variable.set(0)
 
     def subtract_button_callback(self):
-        if self.command is not None:
-            self.command()
         try:
-            value = int(self.entry.get()) - self.step_size
-            self.entry.delete(0, "end")
-            self.entry.insert(0, value)
-        except ValueError:
-            return
+            self.variable.set(self.variable.get() - self.step_size)
+        except Exception:
+            self.variable.set(0)
 
-    def get(self) -> Union[int, None]:
-        try:
-            return int(self.entry.get())
-        except ValueError:
-            return None
+    def get(self):
+        return self.variable.get()
 
-    def set(self, value: int):
-        self.entry.delete(0, "end")
-        self.entry.insert(0, str(int(value)))
+    def set(self, value):
+        self.variable.set(value)
+
 
 class SectionBase:
     """
@@ -193,28 +178,44 @@ class PayrollSection(SectionBase):
     """
     defines a section for the payrolls widgets
     """
-    def __init__(self, master):
+    def __init__(self, master, on_total_change: Callable):
         self.frame = CTkFrame(master = master,
                               fg_color = "white",
                               border_color = MXB_RED,
                               border_width = 2)
         self.widgets = []
+        self.total = DoubleVar()
+        self.total.trace_add("write", lambda *args: on_total_change())
 
+        self.payrolls_amt_var = DoubleVar()
+        self.payrolls_amt_var.trace_add("write", self.get_total)
         self.payrolls_amt = (LabelBase(master=self.frame,
                                        text="Počet mezd"),
                              Spinbox(master=self.frame,
-                                     width=150))
+                                     width=150,
+                                     variable=self.payrolls_amt_var))
+        self.payrolls_price_var = DoubleVar(value=250.0)
+        self.payrolls_price_var.trace_add("write",self.get_total)
         self.payrolls_price = (LabelBase(master=self.frame,
                                          text="Cena za zpracování jedné"),
                                Spinbox(master=self.frame,
-                                       width=150))
+                                       width=150,
+                                       variable=self.payrolls_price_var))
+        self.signups_signoffs_var = DoubleVar()
+        self.signups_signoffs_var.trace_add("write", self.get_total)
         self.signups_signoffs = (LabelBase(master=self.frame,
                                            text="Počet přihlášek/odhlášek"),
                                  Spinbox(master=self.frame,
-                                         width=150))
+                                         width=150,
+                                         variable=self.signups_signoffs_var))
+
+        self.executions_var = tk.DoubleVar()
+        self.executions_var.trace_add("write", self.get_total)
+
         self.executions = (LabelBase(master=self.frame,
                                      text="Exekuce"),
-                           ComboBoxBase(master=self.frame))
+                           ComboBoxBase(master=self.frame,
+                                        variable = self.executions_var))
 
         self.setup_widgets()
         self.arrange_widgets(self.frame, self.widgets)
@@ -233,7 +234,7 @@ class PayrollSection(SectionBase):
         self.executions[1].set(str(0))
         self.widgets.append(self.executions)
 
-    def get_total(self) -> float:
+    def get_total(self, *args) -> None:
         """
         gets the total of all the widgets within the section
         :return: float representing the total
@@ -245,19 +246,20 @@ class PayrollSection(SectionBase):
             total *= 7/6
 
         except ValueError:
-            return 0.0
+            total = 0.0
         except TypeError:
-            return 0.0
-
-        return total
+            total = 0.0
+        self.total.set(total)
 
 class AccountingSection(SectionBase):
     """
     defines a section for the accounting widgets
     """
-    def __init__(self, master):
+    def __init__(self, master, on_total_change: Callable) -> None:
         self.frame = FrameBase(master=master)
 
+        self.total = DoubleVar(value=0.0)
+        self.total.trace_add("write", lambda *args: on_total_change())
         self.import_only_bool = tk.BooleanVar(value = False)
         self.dph_pay_bool = tk.BooleanVar(value = False)
         self.evidence_bool = tk.BooleanVar(value = False)
@@ -273,9 +275,6 @@ class AccountingSection(SectionBase):
         self.widgets = []
         self.dph_widgets = []
         self.no_dph_widgets = []
-        self.setup_widgets()
-
-        self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
 
         self.checkboxes = (CheckBoxBase(master=self.frame,
                                         text="Evidence",
@@ -291,72 +290,103 @@ class AccountingSection(SectionBase):
                                      command=lambda: self.toggle_dph()),
                         LabelBase(master=self.frame,
                                   text=""))
+        self.import_only_var=DoubleVar()
+        self.import_only_var.trace_add("write", self.get_total)
         self.import_only = (CheckBoxBase(master=self.frame,
                                          text="Import vystavených faktur",
-                                         variable=self.import_only_bool),
+                                         variable=self.import_only_bool,
+                                         command=self.get_total),
                             ComboBoxBase(master=self.frame,
-                                         values=[str(800), str(1000), str(1200), str(1400), str(1600)]))
+                                         values=[str(800), str(1000), str(1200), str(1400), str(1600)],
+                                         variable=self.import_only_var))
+        self.by_hand_var = DoubleVar()
+        self.by_hand_var.trace_add("write", self.get_total)
         self.by_hand = (LabelBase(master=self.frame,
                                   text="Počet zaúčtovaných vystavených faktur"),
                         Spinbox(master=self.frame,
-                                width=150))
+                                width=150,
+                                variable=self.by_hand_var))
+        self.create_vfa_var = DoubleVar()
+        self.create_vfa_var.trace_add("write", self.get_total)
         self.create_vfa = (LabelBase(master=self.frame,
                                      text="Počet vystavovaných faktur za klienta"),
                            Spinbox(master=self.frame,
-                                   width=150))
+                                   width=150,
+                                   variable=self.create_vfa_var))
+        self.pfa_amt_var = DoubleVar()
+        self.pfa_amt_var.trace_add("write", self.get_total)
         self.pfa_amt = (LabelBase(master=self.frame,
                                   text="Počet přijatých faktur"),
                         Spinbox(master=self.frame,
-                                width=150))
+                                width=150,
+                                variable=self.pfa_amt_var))
+        self.credit_card_amt_var = DoubleVar()
+        self.credit_card_amt_var.trace_add("write", self.get_total)
         self.credit_card_amt = (LabelBase(master=self.frame,
                                           text="Počet operací provedených platební kartou"),
                                 Spinbox(master=self.frame,
-                                        width=150))
+                                        width=150,
+                                        variable=self.credit_card_amt_var))
+        self.register_amt_var = DoubleVar()
+        self.register_amt_var.trace_add("write", self.get_total)
         self.register_amt = (LabelBase(master=self.frame,
                                        text="Počet pokladních dokladů"),
                              Spinbox(master=self.frame,
-                                     width=150))
+                                     width=150,
+                                     variable=self.register_amt_var))
         self.centers = (CheckBoxBase(master=self.frame,
                                      text="Střediska",
-                                     variable=self.centers_bool),
+                                     variable=self.centers_bool,
+                                     command=self.get_total),
                         LabelBase(master=self.frame,
                                   text="x1,1"))
+        self.bank_amt_var = DoubleVar()
+        self.bank_amt_var.trace_add("write", self.get_total)
         self.bank_amt = (LabelBase(master=self.frame,
                                    text="Počet položek na bance"),
                          Spinbox(master=self.frame,
-                                 width=150))
+                                 width=150,
+                                 variable=self.bank_amt_var))
         self.orders = (CheckBoxBase(master=self.frame,
                                     text="Zakázky",
-                                    variable=self.orders_bool),
+                                    variable=self.orders_bool,
+                                    command=self.get_total),
                        LabelBase(master=self.frame,
                                  text="x1,1"))
         self.analysis = (CheckBoxBase(master=self.frame,
                                       text="Analytické služby",
-                                      variable=self.analysis_bool),
+                                      variable=self.analysis_bool,
+                                      command=self.get_total),
                          LabelBase(master=self.frame,
                                    text="x1,1"))
         self.warehouses = (CheckBoxBase(master=self.frame,
                                         text="Sklady",
-                                        variable=self.warehouses_bool),
+                                        variable=self.warehouses_bool,
+                                        command=self.get_total),
                            LabelBase(master=self.frame,
                                      text="x1,2"))
         self.tax_check = (CheckBoxBase(master=self.frame,
                                        text="Kontrola DPH",
-                                       variable=self.tax_check_bool),
+                                       variable=self.tax_check_bool,
+                                       command=self.get_total),
                           LabelBase(master=self.frame,
                                     text=""))
         self.send_docs = (CheckBoxBase(master=self.frame,
                                        text="Odeslání DPH, KH",
-                                       variable=self.send_docs_bool),
+                                       variable=self.send_docs_bool,
+                                       command=self.get_total),
                           LabelBase(master=self.frame,
                                     text=""))
         self.create_dppodpfo = (CheckBoxBase(master=self.frame,
                                              text="Zpracování DPPO/DPFO",
-                                             variable=self.dppodpfo_bool),
+                                             variable=self.dppodpfo_bool,
+                                             command=self.get_total),
                                 LabelBase(master=self.frame,
                                           text=""))
 
-        self.total = 0
+        self.setup_widgets()
+
+        self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
 
     def setup_widgets(self) -> None:
         """
@@ -401,7 +431,7 @@ class AccountingSection(SectionBase):
             #disgusting hack
             self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
 
-    def get_total(self) -> float:
+    def get_total(self, *args) -> None:
         """
         gets the total of all the widgets within the section
         :return: float representing the total
@@ -469,11 +499,11 @@ class AccountingSection(SectionBase):
                 total *= 1.2
 
         except ValueError:
-            return 0.0
+            total = 0.0
         except TypeError:
-            return 0.0
+            total = 0.0
 
-        return total
+        self.total.set(total)
 
 
 
@@ -572,8 +602,8 @@ class PriceCalc(CTk):
 
         self.base_section = BaseSection(self.scrollable_frame)
         self.total_section = TotalSection(self.scrollable_frame)
-        self.payrolls_section = PayrollSection(self.scrollable_frame)
-        self.accounting_section = AccountingSection(self.scrollable_frame)
+        self.payrolls_section = PayrollSection(self.scrollable_frame, self.calculate_total)
+        self.accounting_section = AccountingSection(self.scrollable_frame, self.calculate_total)
 
         self.setup_sections()
         self.calculate_total()
@@ -612,18 +642,14 @@ class PriceCalc(CTk):
                                                 height = event.height - 40)
                 self.scrollable_frame.update()
 
-    def calculate_total(self) -> None:
+    def calculate_total(self, *args) -> None:
         """
         calculates the totals based on all the input data, calls itself every 100ms (subject to change)
-        :return: Nono
+        :return: None
         """
-        payrolls_total = PayrollSection.get_total(self.payrolls_section)
-        accounting_total = AccountingSection.get_total(self.accounting_section)
-        self.total_section.payrolls_total[1].configure(text = NUMBER_FORMAT % payrolls_total)
-        self.total_section.accounting_total[1].configure(text = NUMBER_FORMAT % accounting_total)
-        self.total_section.total_price[1].configure(text = NUMBER_FORMAT % (payrolls_total + accounting_total))
-
-        self.after(100, self.calculate_total)
+        self.total_section.payrolls_total[1].configure(text = NUMBER_FORMAT % self.payrolls_section.total.get())
+        self.total_section.accounting_total[1].configure(text = NUMBER_FORMAT % self.accounting_section.total.get())
+        self.total_section.total_price[1].configure(text = NUMBER_FORMAT % (self.payrolls_section.total.get() + self.accounting_section.total.get()))
 
     def toggle_relevant(self, toggle_bool, section, offset) -> None:
         """
