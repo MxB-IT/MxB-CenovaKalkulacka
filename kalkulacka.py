@@ -104,8 +104,8 @@ class Spinbox(CTkFrame):
                                          height=height-6,
                                          command=self.subtract_button_callback,
                                          fg_color = "white",
-                                         text_color = MXB_RED,
-                                         hover_color = "white")
+                                         text_color = MXB_RED)
+
         self.subtract_button.grid(row=0,
                                   column=0,
                                   padx=(3, 0),
@@ -199,6 +199,23 @@ class PayrollSection(SectionBase):
                               border_color = MXB_RED,
                               border_width = 2)
         self.widgets = []
+
+        self.payrolls_amt = (LabelBase(master=self.frame,
+                                       text="Počet mezd"),
+                             Spinbox(master=self.frame,
+                                     width=150))
+        self.payrolls_price = (LabelBase(master=self.frame,
+                                         text="Cena za zpracování jedné"),
+                               Spinbox(master=self.frame,
+                                       width=150))
+        self.signups_signoffs = (LabelBase(master=self.frame,
+                                           text="Počet přihlášek/odhlášek"),
+                                 Spinbox(master=self.frame,
+                                         width=150))
+        self.executions = (LabelBase(master=self.frame,
+                                     text="Exekuce"),
+                           ComboBoxBase(master=self.frame))
+
         self.setup_widgets()
         self.arrange_widgets(self.frame, self.widgets)
 
@@ -207,30 +224,12 @@ class PayrollSection(SectionBase):
         sets up all widgets into default locations with default values
         :return: None
         """
-        self.payrolls_amt = (LabelBase(master = self.frame,
-                                      text = "Počet mezd"),
-                             Spinbox(master = self.frame,
-                                     width = 150))
         self.payrolls_amt[1].set(0)
         self.widgets.append(self.payrolls_amt)
-
-        self.payrolls_price = (LabelBase(master = self.frame,
-                                         text = "Cena za zpracování jedné"),
-                               Spinbox(master = self.frame,
-                                       width = 150))
         self.payrolls_price[1].set(0)
         self.widgets.append(self.payrolls_price)
-
-        self.signups_signoffs = (LabelBase(master = self.frame,
-                                       text = "Počet přihlášek/odhlášek"),
-                                 Spinbox(master = self.frame,
-                                         width=150))
         self.signups_signoffs[1].set(0)
         self.widgets.append(self.signups_signoffs)
-
-        self.executions = (LabelBase(master = self.frame,
-                                 text = "Exekuce"),
-                        ComboBoxBase(master = self.frame))
         self.executions[1].set(str(0))
         self.widgets.append(self.executions)
 
@@ -278,6 +277,85 @@ class AccountingSection(SectionBase):
 
         self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
 
+        self.checkboxes = (CheckBoxBase(master=self.frame,
+                                        text="Evidence",
+                                        variable=self.evidence_bool,
+                                        command=lambda: self.checkboxes[1].deselect()),
+                           CheckBoxBase(master=self.frame,
+                                        text="Účto",
+                                        variable=self.ucto_bool,
+                                        command=lambda: self.checkboxes[0].deselect()))
+        self.dph_pay = (CheckBoxBase(master=self.frame,
+                                     text="Plátce DPH",
+                                     variable=self.dph_pay_bool,
+                                     command=lambda: self.toggle_dph()),
+                        LabelBase(master=self.frame,
+                                  text=""))
+        self.import_only = (CheckBoxBase(master=self.frame,
+                                         text="Import vystavených faktur",
+                                         variable=self.import_only_bool),
+                            ComboBoxBase(master=self.frame,
+                                         values=[str(800), str(1000), str(1200), str(1400), str(1600)]))
+        self.by_hand = (LabelBase(master=self.frame,
+                                  text="Počet zaúčtovaných vystavených faktur"),
+                        Spinbox(master=self.frame,
+                                width=150))
+        self.create_vfa = (LabelBase(master=self.frame,
+                                     text="Počet vystavovaných faktur za klienta"),
+                           Spinbox(master=self.frame,
+                                   width=150))
+        self.pfa_amt = (LabelBase(master=self.frame,
+                                  text="Počet přijatých faktur"),
+                        Spinbox(master=self.frame,
+                                width=150))
+        self.credit_card_amt = (LabelBase(master=self.frame,
+                                          text="Počet operací provedených platební kartou"),
+                                Spinbox(master=self.frame,
+                                        width=150))
+        self.register_amt = (LabelBase(master=self.frame,
+                                       text="Počet pokladních dokladů"),
+                             Spinbox(master=self.frame,
+                                     width=150))
+        self.centers = (CheckBoxBase(master=self.frame,
+                                     text="Střediska",
+                                     variable=self.centers_bool),
+                        LabelBase(master=self.frame,
+                                  text="x1,1"))
+        self.bank_amt = (LabelBase(master=self.frame,
+                                   text="Počet položek na bance"),
+                         Spinbox(master=self.frame,
+                                 width=150))
+        self.orders = (CheckBoxBase(master=self.frame,
+                                    text="Zakázky",
+                                    variable=self.orders_bool),
+                       LabelBase(master=self.frame,
+                                 text="x1,1"))
+        self.analysis = (CheckBoxBase(master=self.frame,
+                                      text="Analytické služby",
+                                      variable=self.analysis_bool),
+                         LabelBase(master=self.frame,
+                                   text="x1,1"))
+        self.warehouses = (CheckBoxBase(master=self.frame,
+                                        text="Sklady",
+                                        variable=self.warehouses_bool),
+                           LabelBase(master=self.frame,
+                                     text="x1,2"))
+        self.tax_check = (CheckBoxBase(master=self.frame,
+                                       text="Kontrola DPH",
+                                       variable=self.tax_check_bool),
+                          LabelBase(master=self.frame,
+                                    text=""))
+        self.send_docs = (CheckBoxBase(master=self.frame,
+                                       text="Odeslání DPH, KH",
+                                       variable=self.send_docs_bool),
+                          LabelBase(master=self.frame,
+                                    text=""))
+        self.create_dppodpfo = (CheckBoxBase(master=self.frame,
+                                             text="Zpracování DPPO/DPFO",
+                                             variable=self.dppodpfo_bool),
+                                LabelBase(master=self.frame,
+                                          text=""))
+
         self.total = 0
 
     def setup_widgets(self) -> None:
@@ -285,119 +363,28 @@ class AccountingSection(SectionBase):
         sets up all widgets into default states with default values
         :return: None
         """
-        self.checkboxes = (CheckBoxBase(master = self.frame,
-                                       text = "Evidence",
-                                       variable = self.evidence_bool),
-                            CheckBoxBase(master = self.frame,
-                                        text = "Účto",
-                                        variable = self.ucto_bool))
         self.widgets.append(self.checkboxes)
-
-        self.dph_pay = (CheckBoxBase(master = self.frame,
-                                    text = "Plátce DPH",
-                                    variable = self.dph_pay_bool,
-                                    command = lambda: self.toggle_dph()),
-                   LabelBase(master = self.frame,
-                            text = ""))
         self.widgets.append(self.dph_pay)
-
-        self.import_only = (CheckBoxBase(master = self.frame,
-                                        text = "import",
-                                        variable = self.import_only_bool),
-                            ComboBoxBase(master=self.frame,
-                                        values=[str(800), str(1000), str(1200), str(1400), str(1600)]))
         self.import_only[1].set(str(1000))
         self.widgets.append(self.import_only)
-
-        self.by_hand = (LabelBase(master = self.frame,
-                                 text = "Počet vystavených faktur pro ruční zpracování"),
-                        Spinbox(master = self.frame,
-                                width = 150))
         self.by_hand[1].set(0)
         self.widgets.append(self.by_hand)
-
-        self.create_vfa = (LabelBase(master = self.frame,
-                                    text = "Počet vydaných faktur k vystavení"),
-                           Spinbox(master = self.frame,
-                                    width = 150))
         self.create_vfa[1].set(0)
         self.widgets.append(self.create_vfa)
-
-        self.pfa_amt = (LabelBase(master = self.frame,
-                                 text = "Počet přijatých faktur k vystavení"),
-                        Spinbox(master = self.frame,
-                                width = 150))
         self.pfa_amt[1].set(0)
         self.widgets.append(self.pfa_amt)
-
-        self.credit_card_amt = (LabelBase(master = self.frame,
-                                         text = "Počet operací provedených platební kartou"),
-                                Spinbox(master = self.frame,
-                                        width = 150))
         self.credit_card_amt[1].set(0)
         self.widgets.append(self.credit_card_amt)
-
-        self.register_amt = (LabelBase(master = self.frame,
-                                      text ="Počet pokladen"),
-                             Spinbox(master = self.frame,
-                                     width = 150))
         self.register_amt[1].set(0)
         self.widgets.append(self.register_amt)
-
-        self.bank_amt = (LabelBase(master = self.frame,
-                                  text ="Počet bankovních výpisů"),
-                         Spinbox(master = self.frame,
-                                 width = 150))
         self.bank_amt[1].set(0)
         self.widgets.append(self.bank_amt)
-
-        self.centers = (CheckBoxBase(master = self.frame,
-                                    text = "Střediska",
-                                    variable = self.centers_bool),
-                        LabelBase(master = self.frame,
-                                 text="x1,1"))
         self.widgets.append(self.centers)
-
-        self.orders = (CheckBoxBase(master = self.frame,
-                                   text = "Zakázky",
-                                   variable = self.orders_bool),
-                       LabelBase(master = self.frame,
-                                text = "x1,1"))
         self.widgets.append(self.orders)
-
-        self.analysis = (CheckBoxBase(master = self.frame,
-                                     text = "Analytické služby",
-                                     variable = self.analysis_bool),
-                         LabelBase(master = self.frame,
-                                  text = "x1,1"))
         self.widgets.append(self.analysis)
-
-        self.warehouses = (CheckBoxBase(master = self.frame,
-                                       text = "Sklady",
-                                       variable = self.warehouses_bool),
-                           LabelBase(master = self.frame,
-                                    text = "x1,2"))
         self.widgets.append(self.warehouses)
-
-        self.tax_check = (CheckBoxBase(master=self.frame,
-                                      text="Kontrola DPH",
-                                      variable=self.tax_check_bool),
-                          LabelBase(master=self.frame,
-                                   text=""))
         self.dph_widgets.append(self.tax_check)
-
-        self.send_docs = (CheckBoxBase(master=self.frame,
-                                      text="Odeslání DPH, KH",
-                                      variable=self.send_docs_bool),
-                          LabelBase(master=self.frame,
-                                   text=""))
         self.dph_widgets.append(self.send_docs)
-
-        self.create_dppodpfo = (CheckBoxBase(master=self.frame,
-                                            text="Zpracování DPPO/DPFO",
-                                            variable=self.dppodpfo_bool),
-                                LabelBase(master=self.frame,
-                                         text=""))
         self.no_dph_widgets.append(self.create_dppodpfo)
 
     def toggle_dph(self) -> None:
@@ -499,6 +486,25 @@ class TotalSection(SectionBase):
 
         self.widgets = []
 
+        self.payrolls_total = (LabelBase(master=self.frame,
+                                         text="Cena za mzdy",
+                                         font=CTkFont("DMSans-Regular")),
+                               LabelBase(master=self.frame,
+                                         text="",
+                                         font=CTkFont("DMSans-Regular")))
+        self.accounting_total = (LabelBase(master=self.frame,
+                                           text="Cena za účto",
+                                           font=CTkFont("DMSans-Regular")),
+                                 LabelBase(master=self.frame,
+                                           text="",
+                                           font=CTkFont("DMSans-Regular")))
+        self.total_price = (LabelBase(master=self.frame,
+                                      text="Cena celkem:",
+                                      font=CTkFont("DM Sans")),
+                            LabelBase(master=self.frame,
+                                      text="",
+                                      font=CTkFont("DM Sans")))
+
         self.setup_widgets()
         self.arrange_widgets(self.frame, self.widgets)
 
@@ -507,28 +513,8 @@ class TotalSection(SectionBase):
         sets up all the widgets with their default values
         :return: None
         """
-        self.payrolls_total = (LabelBase(master = self.frame,
-                                               text = "Cena za mzdy",
-                                               font = CTkFont("DMSans-Regular")),
-                               LabelBase(master = self.frame,
-                                         text = "",
-                                         font = CTkFont("DMSans-Regular")))
         self.widgets.append(self.payrolls_total)
-
-        self.accounting_total = (LabelBase(master = self.frame,
-                                           text = "Cena za účto",
-                                           font = CTkFont("DMSans-Regular")),
-                                 LabelBase(master = self.frame,
-                                           text = "",
-                                           font = CTkFont("DMSans-Regular")))
         self.widgets.append(self.accounting_total)
-
-        self.total_price = (LabelBase(master = self.frame,
-                                      text = "Cena celkem:",
-                                      font = CTkFont("DM Sans")),
-                            LabelBase(master = self.frame,
-                                      text = "",
-                                      font = CTkFont("DM Sans")))
         self.widgets.append(self.total_price)
 
 class BaseSection(SectionBase):
@@ -543,6 +529,19 @@ class BaseSection(SectionBase):
 
         self.widgets = []
 
+        self.checkboxes = (CheckBoxBase(master=self.frame,
+                                        text="Mzdy",
+                                        variable=self.payrolls_bool,
+                                        command=lambda: app.toggle_relevant(self.payrolls_bool.get(),
+                                                                            app.payrolls_section, 1),
+                                        font=CTkFont("DMSans-Regular")),
+                           CheckBoxBase(master=self.frame,
+                                        text="Účetnictví",
+                                        variable=self.accounting_bool,
+                                        command=lambda: app.toggle_relevant(self.accounting_bool.get(),
+                                                                            app.accounting_section, 2),
+                                        font=CTkFont('DMSans-Regular')))
+
         self.setup_widgets()
         self.arrange_widgets(self.frame, self.widgets)
 
@@ -551,17 +550,6 @@ class BaseSection(SectionBase):
         sets up widgets into default states with their default values
         :return: None
         """
-        self.checkboxes = (CheckBoxBase(master = self.frame,
-                                       text = "Mzdy",
-                                       variable = self.payrolls_bool,
-                                       command = lambda: app.toggle_relevant(self.payrolls_bool.get(), app.payrolls_section, 1),
-                                       font = CTkFont("DMSans-Regular")),
-                           CheckBoxBase(master = self.frame,
-                                       text = "Účetnictví",
-                                       variable = self.accounting_bool,
-                                       command = lambda: app.toggle_relevant(self.accounting_bool.get(), app.accounting_section, 2),
-                                       font = CTkFont('DMSans-Regular')))
-
         self.widgets.append(self.checkboxes)
 
 class PriceCalc(CTk):
