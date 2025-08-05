@@ -4,11 +4,11 @@ class AccountingSection(SectionBase):
     """
     defines a section for the accounting widgets
     """
-    def __init__(self, master, on_total_change: Callable) -> None:
+    def __init__(self, master, app: "PriceCalc") -> None:
         self.frame = FrameBase(master=master)
 
         self.total = DoubleVar(value=0.0)
-        self.total.trace_add("write", lambda *args: on_total_change())
+        self.total.trace_add("write", app.calculate_total)
         self.import_only_bool = BooleanVar(value = False)
         self.dph_pay_bool = BooleanVar(value = False)
         self.evidence_bool = BooleanVar(value = False)
