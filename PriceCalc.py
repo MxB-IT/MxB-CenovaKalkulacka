@@ -27,9 +27,10 @@ class PriceCalc(CTk):
 
     def __init__(self):
         super().__init__()
+        self.img_dir = self.resource_path("Icon")
         self.geometry("400x600")
         self.title("Cenová kalkulačka")
-        self.iconbitmap(self.resource_path('Icon/calculator.ico'))
+        self.iconbitmap(self.resource_path(f'{self.img_dir}/calculator.ico'))
         self.scrollable_frame = CTkScrollableFrame(master=self,
                                                    border_width = 2,
                                                    border_color = "white")
