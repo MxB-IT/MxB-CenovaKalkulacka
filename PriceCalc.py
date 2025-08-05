@@ -15,25 +15,29 @@ class PriceCalc(CTk):
         super().__init__()
         self.geometry("400x600")
         self.title("Cenová kalkulačka")
-        self.scrollable_frame = CTkScrollableFrame(master = self,
+        self.scrollable_frame = CTkScrollableFrame(master=self,
                                                    border_width = 2,
                                                    border_color = "white")
-        self.scrollable_frame.grid(row = 0,
-                                   column = 0,
-                                   padx = 10,
-                                   pady = 10,
-                                   sticky = "ew")
+        self.scrollable_frame.grid(row=0,
+                                   column=0,
+                                   padx=10,
+                                   pady=10,
+                                   sticky="nsew")
+
+        self.grid_rowconfigure(index=0,
+                               weight=1)
+        self.grid_columnconfigure(index=0,
+                                  weight=1)
 
         self.base_section = BaseSection(self.scrollable_frame, self)
         self.total_section = TotalSection(self.scrollable_frame)
-        self.payrolls_section = PayrollSection(self.scrollable_frame, self.calculate_total)
-        self.accounting_section = AccountingSection(self.scrollable_frame, self.calculate_total)
+        self.payrolls_section = PayrollSection(self.scrollable_frame, self)
+        self.accounting_section = AccountingSection(self.scrollable_frame, self)
 
-        self.setup_sections()
+        self._setup_sections()
         self.calculate_total()
-        self.bind("<Configure>", self.resize)
 
-    def setup_sections(self) -> None:
+    def _setup_sections(self) -> None:
         """
         sets up all the sections into default positions
         :return: None
@@ -53,29 +57,20 @@ class PriceCalc(CTk):
         self.scrollable_frame.rowconfigure((0,4), weight = 1)
         self.scrollable_frame.columnconfigure(0, weight = 1)
 
-    def resize(self, event) -> None:
-        """
-        handles resizing of the internal widgets along with the window, since widgets are contained within a scrollable
-        frame which would not resize on its own
-        :param event: describes an event that occured on the app level
-        :return: None
-        """
-        if event.widget == self:
-            if self.scrollable_frame.winfo_width() != event.widget.winfo_width() or self.scrollable_frame.winfo_height() != event.widget.winfo_height():
-                self.scrollable_frame.configure(width = event.width - 40,
-                                                height = event.height - 40)
-                self.scrollable_frame.update()
-
     def calculate_total(self, *args) -> None:
         """
         calculates the totals based on all the input data, calls itself every 100ms (subject to change)
         :return: None
         """
-        self.total_section.payrolls_total[1].configure(text = NUMBER_FORMAT % self.payrolls_section.total.get())
-        self.total_section.accounting_total[1].configure(text = NUMBER_FORMAT % self.accounting_section.total.get())
-        self.total_section.total_price[1].configure(text = NUMBER_FORMAT % (self.payrolls_section.total.get() + self.accounting_section.total.get()))
+        try:
+            self.total_section.payrolls_total[1].configure(text = NUMBER_FORMAT % self.payrolls_section.total.get())
+            self.total_section.accounting_total[1].configure(text = NUMBER_FORMAT % self.accounting_section.total.get())
+            self.total_section.total_price[1].configure(text = NUMBER_FORMAT % (self.payrolls_section.total.get() + self.accounting_section.total.get()))
+        except AttributeError:
+            print("AttributeError on init FIX ASAP")
 
-    def toggle_relevant(self, toggle_bool, section, offset) -> None:
+    @staticmethod
+    def toggle_relevant(toggle_bool, section, offset) -> None:
         """
         toggles relevant sections of the app based on user input
         :param toggle_bool: toggle deciding whether to turn a widget on or off
