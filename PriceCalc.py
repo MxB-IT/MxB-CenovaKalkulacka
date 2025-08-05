@@ -11,10 +11,25 @@ class PriceCalc(CTk):
     price calculator app class
     handles the entire app operations
     """
+    @staticmethod
+    def resource_path(relative_path: str) -> str:
+        """
+        gets resource paths for PyInstaller
+        :param relative_path: relative path to the resource we want to get
+        :return: absolute path to the resource
+        """
+        try:
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
+
     def __init__(self):
         super().__init__()
         self.geometry("400x600")
         self.title("Cenová kalkulačka")
+        self.iconbitmap(self.resource_path('Icon/calculator.ico'))
         self.scrollable_frame = CTkScrollableFrame(master=self,
                                                    border_width = 2,
                                                    border_color = "white")
