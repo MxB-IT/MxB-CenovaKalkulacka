@@ -4,14 +4,14 @@ class PayrollSection(SectionBase):
     """
     defines a section for the payrolls widgets
     """
-    def __init__(self, master, on_total_change: Callable):
+    def __init__(self, master, app: "PriceCalc"):
         self.frame = CTkFrame(master = master,
                               fg_color = "white",
                               border_color = MXB_RED,
                               border_width = 2)
         self.widgets = []
         self.total = DoubleVar()
-        self.total.trace_add("write", lambda *args: on_total_change())
+        self.total.trace_add("write", app.calculate_total)
 
         self.payrolls_amt_var = DoubleVar()
         self.payrolls_amt_var.trace_add("write", self.get_total)
