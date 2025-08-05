@@ -1,17 +1,18 @@
 from customtkinter import *
 from typing import *
 from tkinter import *
-from Widgets.Label import *
-from Widgets.Frame import *
+from Widgets.LabelBase import *
+from Widgets.FrameBase import *
 from Widgets.CTkSpinbox import *
-from Widgets.CheckBox import *
-from Widgets.ComboBox import *
+from Widgets.CheckBoxBase import *
+from Widgets.ComboBoxBase import *
 
 class SectionBase:
     """
     server as a base for all sections, containing common methods
     """
-    def arrange_widgets(self, master : CTkFrame, widgets : List[Tuple[Widget, Widget]]) -> None:
+    @staticmethod
+    def arrange_widgets(master : CTkFrame, widgets : List[Tuple[Widget, Widget]]) -> None:
         """
         arranges widgets into a grid layout within the master parameter
         :param master: the master widget within which to arrange all the child widgets
