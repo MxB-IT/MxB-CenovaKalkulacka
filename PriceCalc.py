@@ -3,7 +3,7 @@ from Sections.AccountingSection import *
 from Sections.PayrollSection import *
 from Sections.TotalSection import *
 
-NUMBER_FORMAT = "%.3f"
+NUMBER_FORMAT = "%.0f"
 MXB_RED = "#703230"
 
 class PriceCalc(CTk):
@@ -45,11 +45,11 @@ class PriceCalc(CTk):
 
         self.base_section.frame.grid(row = 0,
                                      column = 0,
-                                     columnspan = 2,
+                                     columnspan = 3,
                                      sticky = "ew")
         self.total_section.frame.grid(row = 3,
                                       column = 0,
-                                      columnspan = 2,
+                                      columnspan = 3,
                                       sticky = "ew")
         self.update()
         self.scrollable_frame.configure(width = self.winfo_width() - 40,

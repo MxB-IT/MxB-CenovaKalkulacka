@@ -10,6 +10,14 @@ class CTkSpinbox(CTkFrame):
                  **kwargs):
         super().__init__(*args, width=width, height=height, **kwargs)
 
+        self.display_var = StringVar()
+
+        if variable is not None and variable.get() != 0:
+            self.display_var.set(str(int(round(variable.get(), 0))))
+
+        self.display_var.trace_add("write",
+                                   self._on_display_var_change)
+
         self.step_size = step_size
         self.command = command
 
@@ -39,7 +47,7 @@ class CTkSpinbox(CTkFrame):
                               width=width - 2 * height,
                               height=height - 6,
                               border_width=0,
-                              textvariable=self.variable)
+                              textvariable=self.display_var)
         self.entry.grid(row=0,
                         column=1,
                         padx=3,
@@ -60,8 +68,21 @@ class CTkSpinbox(CTkFrame):
                              pady=3)
 
     def _on_var_change(self, *args):
+        if self.variable.get() <= 0:
+            self.display_var.set("")
+            self.variable.set(0)
+
+        else:
+            self.display_var.set(str(int(round(self.variable.get(), 0))))
+
         if self.command:
             self.command()
+
+    def _on_display_var_change(self, *args):
+        if not self.display_var.get().isnumeric():
+            self.variable.set(0)
+        else:
+            self.variable.set(float(self.display_var.get()))
 
     def add_button_callback(self):
         try:
