@@ -13,20 +13,26 @@ class PayrollSection(SectionBase):
         self.total = DoubleVar()
         self.total.trace_add("write", app.calculate_total)
 
+        self.headers = (LabelBase(master=self.frame,
+                                  text="Položka"),
+                        LabelBase(master=self.frame,
+                                  text="Počet"),
+                        LabelBase(master=self.frame,
+                                  text="Cena"))
+
         self.payrolls_amt_var = DoubleVar()
         self.payrolls_amt_var.trace_add("write", self.get_total)
-        self.payrolls_amt = (LabelBase(master=self.frame,
-                                       text="Počet mezd"),
-                             CTkSpinbox(master=self.frame,
-                                        width=150,
-                                        variable=self.payrolls_amt_var))
         self.payrolls_price_var = DoubleVar(value=250.0)
-        self.payrolls_price_var.trace_add("write",self.get_total)
-        self.payrolls_price = (LabelBase(master=self.frame,
-                                         text="Cena za zpracování jedné"),
-                               CTkSpinbox(master=self.frame,
-                                          width=150,
-                                          variable=self.payrolls_price_var))
+        self.payrolls_price_var.trace_add("write", self.get_total)
+        self.payrolls = (LabelBase(master=self.frame,
+                                       text="Mzdy"),
+                         CTkSpinbox(master=self.frame,
+                                    width=150,
+                                    variable=self.payrolls_amt_var),
+                         CTkSpinbox(master=self.frame,
+                                    width=150,
+                                    variable=self.payrolls_price_var)
+                         )
         self.signups_signoffs_var = DoubleVar()
         self.signups_signoffs_var.trace_add("write", self.get_total)
         self.signups_signoffs = (LabelBase(master=self.frame,
@@ -40,8 +46,9 @@ class PayrollSection(SectionBase):
 
         self.executions = (LabelBase(master=self.frame,
                                      text="Exekuce"),
-                           ComboBoxBase(master=self.frame,
-                                        variable = self.executions_var))
+                           CTkSpinbox(master=self.frame,
+                                      width=150,
+                                      variable = self.executions_var))
 
         self.setup_widgets()
         self.arrange_widgets(self.frame, self.widgets)
@@ -51,13 +58,8 @@ class PayrollSection(SectionBase):
         sets up all widgets into default locations with default values
         :return: None
         """
-        self.payrolls_amt[1].set(0)
-        self.widgets.append(self.payrolls_amt)
-        self.payrolls_price[1].set(0)
-        self.widgets.append(self.payrolls_price)
-        self.signups_signoffs[1].set(0)
+        self.widgets.append(self.payrolls)
         self.widgets.append(self.signups_signoffs)
-        self.executions[1].set(str(0))
         self.widgets.append(self.executions)
 
     def get_total(self, *args) -> None:
