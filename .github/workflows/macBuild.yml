@@ -1,0 +1,38 @@
+name: Build Mac App
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-mac:
+    # 'macos-14' is the first runner to natively use Apple Silicon (M1)
+    runs-on: macos-14
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11' 
+        # Optional: cache pip dependencies
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build with PyInstaller
+      # --onefile: Create a single executable
+      # --windowed: No terminal window (good for GUIs), remove if CLI tool
+      # --target-arch arm64: Explicitly target Apple Silicon
+      run: |
+        pyinstaller --name "Kalkulacka" --onefile --windowed --target-arch arm64 PriceCalc.py
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: PriceCalc-MacOS-ARM64
+        path: dist/
