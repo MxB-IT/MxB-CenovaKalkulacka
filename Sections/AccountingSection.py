@@ -55,12 +55,8 @@ class AccountingSection(SectionBase):
                                          variable=self.import_only_var))
 
         self.by_hand_var = DoubleVar(value=0.0)
-        self.by_hand_prices_vars = {"evidence"  : DoubleVar(value=DefaultPriceEnum.BY_HAND_EVIDENCE),
-                                    "ucto"      : DoubleVar(value=DefaultPriceEnum.BY_HAND_UCTO),
-                                    "noDPH"     : DoubleVar(value=DefaultPriceEnum.BY_HAND_NO_DPH)}
-        for item in self.by_hand_prices_vars.values():
-            item.trace_add("write", self.get_total)
-            #TODO add userInput recognition and disable initialVal toggle
+        # one of the constructs of all time :)
+        self.by_hand_price_var = DoubleVar(value=DefaultPriceEnum.BY_HAND_EVIDENCE if self.evidence_bool.get() else DefaultPriceEnum.BY_HAND_UCTO if self.ucto_bool.get() else DefaultPriceEnum.BY_HAND_NO_DPH)
 
         self.by_hand = (LabelBase(master=self.frame,
                                   text="Počet zaúčtovaných vystavených faktur"),
@@ -69,10 +65,10 @@ class AccountingSection(SectionBase):
                                    variable=self.by_hand_var))
 
         self.create_vfa_var = DoubleVar(value=0.0)
-        self.create_vfa_price_var = DoubleVar(value=DefaultPriceEnum.CREATE_VFA_DPH)
+        self.create_vfa_price_var = DoubleVar(value=DefaultPriceEnum.CREATE_VFA_DPH if self.dph_pay_bool.get() else DefaultPriceEnum.CREATE_VFA_NO_DPH)
 
-        self.create_vfa_price_var.trace_add("write", self.get_total)
         self.create_vfa_var.trace_add("write", self.get_total)
+        self.create_vfa_price_var.trace_add("write", self.get_total)
 
         self.create_vfa = (LabelBase(master=self.frame,
                                      text="Počet vystavovaných faktur za klienta"),
@@ -85,8 +81,10 @@ class AccountingSection(SectionBase):
                            )
 
         self.pfa_amt_var = DoubleVar(value=0.0)
-        self.pfa_amt_var.trace_add("write", self.get_total)
+        self.pfa_price_var = DoubleVar(value=DefaultPriceEnum.CREATE_PFA_UCTO if self.ucto_bool.get() else DefaultPriceEnum.CREATE_PFA_EVIDENCE if self.evidence_bool.get() else 0.0)
 
+        self.pfa_amt_var.trace_add("write", self.get_total)
+        self.pfa_price_var.trace_add("write", self.get_total)
 
         self.pfa_amt = (LabelBase(master=self.frame,
                                   text="Počet přijatých faktur"),
@@ -101,7 +99,11 @@ class AccountingSection(SectionBase):
                                           text="Počet operací provedených platební kartou"),
                                 CTkSpinbox(master=self.frame,
                                            width=150,
-                                           variable=self.credit_card_amt_var))
+                                           variable=self.credit_card_amt_var),
+                                CTkSpinbox(master=self.frame,
+                                           width=150,
+                                           variable=self.pfa_price_var)
+                                )
 
         self.register_amt_var = DoubleVar(value=0.0)
         self.register_amt_var.trace_add("write", self.get_total)
