@@ -21,9 +21,11 @@ class PayrollSection(SectionBase):
                                   text="Cena"))
 
         self.payrolls_amt_var = DoubleVar()
-        self.payrolls_amt_var.trace_add("write", self.get_total)
         self.payrolls_price_var = DoubleVar(value=250.0)
+
+        self.payrolls_amt_var.trace_add("write", self.get_total)
         self.payrolls_price_var.trace_add("write", self.get_total)
+
         self.payrolls = (LabelBase(master=self.frame,
                                        text="Mzdy"),
                          CTkSpinbox(master=self.frame,
@@ -33,22 +35,38 @@ class PayrollSection(SectionBase):
                                     width=150,
                                     variable=self.payrolls_price_var)
                          )
-        self.signups_signoffs_var = DoubleVar()
-        self.signups_signoffs_var.trace_add("write", self.get_total)
+
+        self.signups_signoffs_amt_var = DoubleVar()
+        self.signups_signoffs_price_var = DoubleVar(value=300.0)
+
+        self.signups_signoffs_amt_var.trace_add("write", self.get_total)
+        self.signups_signoffs_price_var.trace_add("write", self.get_total)
+
         self.signups_signoffs = (LabelBase(master=self.frame,
                                            text="Počet přihlášek/odhlášek"),
                                  CTkSpinbox(master=self.frame,
                                             width=150,
-                                            variable=self.signups_signoffs_var))
+                                            variable=self.signups_signoffs_amt_var),
+                                 CTkSpinbox(master=self.frame,
+                                            width=150,
+                                            variable=self.signups_signoffs_price_var)
+                                 )
 
-        self.executions_var = DoubleVar()
-        self.executions_var.trace_add("write", self.get_total)
+        self.executions_amt_var = DoubleVar()
+        self.executions_price_var = DoubleVar(value=880.0)
+
+        self.executions_price_var.trace_add("write", self.get_total)
+        self.executions_amt_var.trace_add("write", self.get_total)
 
         self.executions = (LabelBase(master=self.frame,
                                      text="Exekuce"),
                            CTkSpinbox(master=self.frame,
                                       width=150,
-                                      variable = self.executions_var))
+                                      variable = self.executions_amt_var),
+                           CTkSpinbox(master=self.frame,
+                                      width=150,
+                                      variable=self.executions_price_var)
+                           )
 
         self.setup_widgets()
         self.arrange_widgets(self.frame, self.widgets)
@@ -68,9 +86,9 @@ class PayrollSection(SectionBase):
         :return: float representing the total
         """
         try:
-            total = int(self.payrolls_amt[1].get()) * int(self.payrolls_price[1].get())
-            total += int(self.signups_signoffs[1].get()) * 300
-            total += int(self.executions[1].get()) * 880
+            total = int(self.payrolls_amt_var.get()) * int(self.payrolls_price_var.get())
+            total += int(self.signups_signoffs_amt_var.get()) * int(self.signups_signoffs_price_var.get())
+            total += int(self.executions_amt_var.get()) * int(self.executions_price_var.get())
             total *= 7/6
 
         except ValueError:
