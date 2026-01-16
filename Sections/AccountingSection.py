@@ -1,4 +1,5 @@
 from Sections.SectionBase import *
+from Common.DefaultPriceEnum import DefaultPriceEnum
 
 class AccountingSection(SectionBase):
     """
@@ -9,6 +10,8 @@ class AccountingSection(SectionBase):
 
         self.total = DoubleVar(value=0.0)
         self.total.trace_add("write", app.calculate_total)
+
+        #wall of bools
         self.import_only_bool = BooleanVar(value = False)
         self.dph_pay_bool = BooleanVar(value = False)
         self.evidence_bool = BooleanVar(value = False)
@@ -39,8 +42,10 @@ class AccountingSection(SectionBase):
                                      command=lambda: self.toggle_dph()),
                         LabelBase(master=self.frame,
                                   text=""))
-        self.import_only_var=DoubleVar()
+
+        self.import_only_var=DoubleVar(value=0.0)
         self.import_only_var.trace_add("write", self.get_total)
+
         self.import_only = (CheckBoxBase(master=self.frame,
                                          text="Import vystavených faktur",
                                          variable=self.import_only_bool,
@@ -48,36 +53,59 @@ class AccountingSection(SectionBase):
                             ComboBoxBase(master=self.frame,
                                          values=[str(800), str(1000), str(1200), str(1400), str(1600)],
                                          variable=self.import_only_var))
-        self.by_hand_var = DoubleVar()
-        self.by_hand_var.trace_add("write", self.get_total)
+
+        self.by_hand_var = DoubleVar(value=0.0)
+        self.by_hand_prices_vars = {"evidence"  : DoubleVar(value=DefaultPriceEnum.BY_HAND_EVIDENCE),
+                                    "ucto"      : DoubleVar(value=DefaultPriceEnum.BY_HAND_UCTO),
+                                    "noDPH"     : DoubleVar(value=DefaultPriceEnum.BY_HAND_NO_DPH)}
+        for item in self.by_hand_prices_vars.values():
+            item.trace_add("write", self.get_total)
+            #TODO add userInput recognition and disable initialVal toggle
+
         self.by_hand = (LabelBase(master=self.frame,
                                   text="Počet zaúčtovaných vystavených faktur"),
                         CTkSpinbox(master=self.frame,
                                    width=150,
                                    variable=self.by_hand_var))
-        self.create_vfa_var = DoubleVar()
+
+        self.create_vfa_var = DoubleVar(value=0.0)
+        self.create_vfa_price_var = DoubleVar(value=DefaultPriceEnum.CREATE_VFA_DPH)
+
+        self.create_vfa_price_var.trace_add("write", self.get_total)
         self.create_vfa_var.trace_add("write", self.get_total)
+
         self.create_vfa = (LabelBase(master=self.frame,
                                      text="Počet vystavovaných faktur za klienta"),
                            CTkSpinbox(master=self.frame,
                                       width=150,
-                                      variable=self.create_vfa_var))
-        self.pfa_amt_var = DoubleVar()
+                                      variable=self.create_vfa_var),
+                           CTkSpinbox(master=self.frame,
+                                      width=150,
+                                      variable=self.create_vfa_price_var)
+                           )
+
+        self.pfa_amt_var = DoubleVar(value=0.0)
         self.pfa_amt_var.trace_add("write", self.get_total)
+
+
         self.pfa_amt = (LabelBase(master=self.frame,
                                   text="Počet přijatých faktur"),
                         CTkSpinbox(master=self.frame,
                                    width=150,
                                    variable=self.pfa_amt_var))
-        self.credit_card_amt_var = DoubleVar()
+
+        self.credit_card_amt_var = DoubleVar(value=0.0)
         self.credit_card_amt_var.trace_add("write", self.get_total)
+
         self.credit_card_amt = (LabelBase(master=self.frame,
                                           text="Počet operací provedených platební kartou"),
                                 CTkSpinbox(master=self.frame,
                                            width=150,
                                            variable=self.credit_card_amt_var))
-        self.register_amt_var = DoubleVar()
+
+        self.register_amt_var = DoubleVar(value=0.0)
         self.register_amt_var.trace_add("write", self.get_total)
+
         self.register_amt = (LabelBase(master=self.frame,
                                        text="Počet pokladních dokladů"),
                              CTkSpinbox(master=self.frame,
@@ -89,37 +117,50 @@ class AccountingSection(SectionBase):
                                      command=self.get_total),
                         LabelBase(master=self.frame,
                                   text="x1,1"))
-        self.bank_amt_var = DoubleVar()
+
+        self.bank_amt_var = DoubleVar(value=0.0)
+        self.bank_price_var = DoubleVar(value=10.0)
         self.bank_amt_var.trace_add("write", self.get_total)
+        self.bank_price_var.trace_add("write", self.get_total)
+
         self.bank_amt = (LabelBase(master=self.frame,
                                    text="Počet položek na bance"),
                          CTkSpinbox(master=self.frame,
                                     width=150,
-                                    variable=self.bank_amt_var))
+                                    variable=self.bank_amt_var),
+                         CTkSpinbox(master=self.frame,
+                                    width=150,
+                                    variable=self.bank_price_var)
+                         )
+
         self.orders = (CheckBoxBase(master=self.frame,
                                     text="Zakázky",
                                     variable=self.orders_bool,
                                     command=self.get_total),
                        LabelBase(master=self.frame,
                                  text="x1,1"))
+
         self.analysis = (CheckBoxBase(master=self.frame,
                                       text="Analytické služby",
                                       variable=self.analysis_bool,
                                       command=self.get_total),
                          LabelBase(master=self.frame,
                                    text="x1,1"))
+
         self.warehouses = (CheckBoxBase(master=self.frame,
                                         text="Sklady",
                                         variable=self.warehouses_bool,
                                         command=self.get_total),
                            LabelBase(master=self.frame,
                                      text="x1,2"))
+
         self.tax_check = (CheckBoxBase(master=self.frame,
                                        text="Kontrola DPH",
                                        variable=self.tax_check_bool,
                                        command=self.get_total),
                           LabelBase(master=self.frame,
                                     text=""))
+
         self.send_docs = (CheckBoxBase(master=self.frame,
                                        text="Odeslání DPH, KH",
                                        variable=self.send_docs_bool,
@@ -146,17 +187,11 @@ class AccountingSection(SectionBase):
         self.widgets.append(self.dph_pay)
         self.import_only[1].set(str(1000))
         self.widgets.append(self.import_only)
-        self.by_hand[1].set(0)
         self.widgets.append(self.by_hand)
-        self.create_vfa[1].set(0)
         self.widgets.append(self.create_vfa)
-        self.pfa_amt[1].set(0)
         self.widgets.append(self.pfa_amt)
-        self.credit_card_amt[1].set(0)
         self.widgets.append(self.credit_card_amt)
-        self.register_amt[1].set(0)
         self.widgets.append(self.register_amt)
-        self.bank_amt[1].set(0)
         self.widgets.append(self.bank_amt)
         self.widgets.append(self.centers)
         self.widgets.append(self.orders)
@@ -190,55 +225,55 @@ class AccountingSection(SectionBase):
         try:
             if self.dph_pay_bool.get():
 
-                total = int(self.create_vfa[1].get()) * 50
-                total += int(self.bank_amt[1].get()) * 10
+                total = int(self.create_vfa_var.get()) * int(self.create_vfa_price_var.get())
+                total += int(self.bank_amt_var.get()) * int(DefaultPriceEnum.BANK)
 
                 if self.import_only_bool.get():
-                    total += int(self.import_only[1].get())
+                    total += int(self.import_only_var.get())
 
                 if self.evidence_bool.get():
-                    total += int(self.by_hand[1].get()) * 25
-                    total += int(self.pfa_amt[1].get()) * 25
-                    total += int(self.credit_card_amt[1].get()) * 35
-                    total += int(self.register_amt[1].get()) * 25
+                    total += int(self.by_hand_var.get()) * int(DefaultPriceEnum.BY_HAND_EVIDENCE)
+                    total += int(self.pfa_amt_var.get()) * int(DefaultPriceEnum.CREATE_PFA_EVIDENCE)
+                    total += int(self.credit_card_amt_var.get()) * int(DefaultPriceEnum.CREDIT_CARD_EVIDENCE)
+                    total += int(self.register_amt_var.get()) * int(DefaultPriceEnum.REGISTER_EVIDENCE)
 
                 if self.ucto_bool.get():
-                    total += int(self.by_hand[1].get()) * 35
-                    total += int(self.pfa_amt[1].get()) * 35
-                    total += int(self.credit_card_amt[1].get()) * 35
-                    total += int(self.register_amt[1].get()) * 35
+                    total += int(self.by_hand_var.get()) * int(DefaultPriceEnum.BY_HAND_UCTO)
+                    total += int(self.pfa_amt_var.get()) * int(DefaultPriceEnum.CREATE_PFA_UCTO)
+                    total += int(self.credit_card_amt_var.get()) * int(DefaultPriceEnum.CREDIT_CARD_UCTO)
+                    total += int(self.register_amt_var.get()) * int(DefaultPriceEnum.REGISTER_UCTO)
 
                 if self.tax_check_bool.get():
 
-                    if int(self.create_vfa[1].get()) + int(self.pfa_amt[1].get()) + int(self.register_amt[1].get()) + int(
-                            self.bank_amt[1].get()) + int(self.by_hand[1].get()) < 300:
+                    if int(self.create_vfa_var.get()) + int(self.pfa_amt_var.get()) + int(self.register_amt_var.get()) + int(
+                            self.bank_amt_var.get()) + int(self.by_hand_var.get()) < 300:
                         total += 500
-                    elif 300 <= int(self.create_vfa[1].get()) + int(self.pfa_amt[1].get()) + int(self.register_amt[1].get()) + int(
-                            self.bank_amt[1].get()) + int(self.by_hand[1].get()) < 500:
+                    elif 300 <= int(self.create_vfa_var.get()) + int(self.pfa_amt_var.get()) + int(self.register_amt_var.get()) + int(
+                            self.bank_amt_var.get()) + int(self.by_hand_var.get()) < 500:
                         total += 700
-                    elif 500 <= int(self.create_vfa[1].get()) + int(self.pfa_amt[1].get()) + int(self.register_amt[1].get()) + int(
-                            self.bank_amt[1].get()) + int(self.by_hand[1].get()) < 1000:
+                    elif 500 <= int(self.create_vfa_var.get()) + int(self.pfa_amt_var.get()) + int(self.register_amt_var.get()) + int(
+                            self.bank_amt_var.get()) + int(self.by_hand_var.get()) < 1000:
                         total += 1000
                     else:
                         total += 2000
 
                 if self.send_docs_bool.get():
-                    total += 300
+                    total += DefaultPriceEnum.SEND_DOCS
 
                 total *= 7/6
 
             else:
-                total = int(self.by_hand[1].get()) * 20
-                total += int(self.create_vfa[1].get()) * 20
-                total += int(self.credit_card_amt[1].get()) * 20
-                total += int(self.register_amt[1].get()) * 20
-                total += int(self.bank_amt[1].get()) * 10
+                total = int(self.by_hand_var.get()) * int(DefaultPriceEnum.BY_HAND_NO_DPH)
+                total += int(self.create_vfa_var.get()) * int(DefaultPriceEnum.CREATE_VFA_NO_DPH)
+                total += int(self.credit_card_amt_var.get()) * int(DefaultPriceEnum.CREDIT_CARD_NO_DPH)
+                total += int(self.register_amt_var.get()) * int(DefaultPriceEnum.REGISTER_NO_DPH)
+                total += int(self.bank_amt_var.get()) * int(DefaultPriceEnum.BANK)
 
                 if self.import_only_bool.get():
-                    total += int(self.import_only[1].get())
+                    total += int(self.import_only_var.get())
 
                 if self.dppodpfo_bool.get():
-                    total += 1500
+                    total += int(DefaultPriceEnum.DPPO_DPFO)
 
             if self.centers_bool.get():
                 total *= 1.1
@@ -256,7 +291,12 @@ class AccountingSection(SectionBase):
 
         self.total.set(total)
 
-    def base_checkbox_tick(self, kind):
+    def base_checkbox_tick(self, kind) -> None:
+        """
+        tracks the 2 base checkboxes and ensures that only one can ever be selected, making them mutually exclusive
+        :param kind: which checkbox has been ticked
+        :return: None
+        """
         match kind:
             case"Evidence":
                 self.checkboxes[1].deselect()
@@ -265,3 +305,10 @@ class AccountingSection(SectionBase):
                 self.checkboxes[0].deselect()
 
         self.get_total()
+
+    def disable_default_values(self) -> None:
+        """
+        disables default value toggling, so that no user input is overwritten
+        :return: None
+        """
+        self.default_values_bool.set(False)

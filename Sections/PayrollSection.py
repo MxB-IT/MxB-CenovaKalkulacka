@@ -1,3 +1,4 @@
+from Common.DefaultPriceEnum import DefaultPriceEnum
 from Sections.SectionBase import *
 
 class PayrollSection(SectionBase):
@@ -21,7 +22,7 @@ class PayrollSection(SectionBase):
                                   text="Cena"))
 
         self.payrolls_amt_var = DoubleVar()
-        self.payrolls_price_var = DoubleVar(value=250.0)
+        self.payrolls_price_var = DoubleVar(value=DefaultPriceEnum.PAYROLL_PRICE)
 
         self.payrolls_amt_var.trace_add("write", self.get_total)
         self.payrolls_price_var.trace_add("write", self.get_total)
@@ -37,7 +38,7 @@ class PayrollSection(SectionBase):
                          )
 
         self.signups_signoffs_amt_var = DoubleVar()
-        self.signups_signoffs_price_var = DoubleVar(value=300.0)
+        self.signups_signoffs_price_var = DoubleVar(value=DefaultPriceEnum.SIGNUPS_SIGNOFFS)
 
         self.signups_signoffs_amt_var.trace_add("write", self.get_total)
         self.signups_signoffs_price_var.trace_add("write", self.get_total)
@@ -53,7 +54,7 @@ class PayrollSection(SectionBase):
                                  )
 
         self.executions_amt_var = DoubleVar()
-        self.executions_price_var = DoubleVar(value=880.0)
+        self.executions_price_var = DoubleVar(value=DefaultPriceEnum.EXECUTIONS)
 
         self.executions_price_var.trace_add("write", self.get_total)
         self.executions_amt_var.trace_add("write", self.get_total)
