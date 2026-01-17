@@ -31,11 +31,11 @@ class AccountingSection(SectionBase):
         self.checkboxes = (CheckBoxBase(master=self.frame,
                                         text="Evidence",
                                         variable=self.evidence_bool,
-                                        command=lambda: self.base_checkbox_tick("Evidence")),
+                                        command=lambda: self.base_checkbox_tick("evidence")),
                            CheckBoxBase(master=self.frame,
                                         text="Účto",
                                         variable=self.ucto_bool,
-                                        command=lambda: self.base_checkbox_tick("Účto")))
+                                        command=lambda: self.base_checkbox_tick("ucto")))
         self.dph_pay = (CheckBoxBase(master=self.frame,
                                      text="Plátce DPH",
                                      variable=self.dph_pay_bool,
@@ -300,10 +300,10 @@ class AccountingSection(SectionBase):
         :return: None
         """
         match kind:
-            case"Evidence":
+            case"evidence":
                 self.checkboxes[1].deselect()
 
-            case "Účto":
+            case "ucto":
                 self.checkboxes[0].deselect()
 
         self.get_total()
