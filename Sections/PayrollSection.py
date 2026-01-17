@@ -77,6 +77,7 @@ class PayrollSection(SectionBase):
         sets up all widgets into default locations with default values
         :return: None
         """
+        self.widgets.append(self.headers)
         self.widgets.append(self.payrolls)
         self.widgets.append(self.signups_signoffs)
         self.widgets.append(self.executions)
