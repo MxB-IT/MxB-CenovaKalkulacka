@@ -54,6 +54,14 @@ class AccountingSection(SectionBase):
                                          values=[str(800), str(1000), str(1200), str(1400), str(1600)],
                                          variable=self.import_only_var))
 
+        self.headers = (LabelBase(master=self.frame,
+                                  text="Položka"),
+                        LabelBase(master=self.frame,
+                                  text="Počet"),
+                        LabelBase(master=self.frame,
+                                  text="Cena")
+                        )
+
         self.by_hand_var = DoubleVar(value=0.0)
         # one of the constructs of all time :)
         self.by_hand_price_var = DoubleVar(value=DefaultPriceEnum.BY_HAND_EVIDENCE if self.evidence_bool.get() else DefaultPriceEnum.BY_HAND_UCTO if self.ucto_bool.get() else DefaultPriceEnum.BY_HAND_NO_DPH)
@@ -62,7 +70,11 @@ class AccountingSection(SectionBase):
                                   text="Počet zaúčtovaných vystavených faktur"),
                         CTkSpinbox(master=self.frame,
                                    width=150,
-                                   variable=self.by_hand_var))
+                                   variable=self.by_hand_var),
+                        CTkSpinbox(master=self.frame,
+                                   width=150,
+                                   variable=self.by_hand_price_var)
+                        )
 
         self.create_vfa_var = DoubleVar(value=0.0)
         self.create_vfa_price_var = DoubleVar(value=DefaultPriceEnum.CREATE_VFA_DPH if self.dph_pay_bool.get() else DefaultPriceEnum.CREATE_VFA_NO_DPH)
@@ -90,10 +102,17 @@ class AccountingSection(SectionBase):
                                   text="Počet přijatých faktur"),
                         CTkSpinbox(master=self.frame,
                                    width=150,
-                                   variable=self.pfa_amt_var))
+                                   variable=self.pfa_amt_var),
+                        CTkSpinbox(master=self.frame,
+                                   width=150,
+                                   variable=self.pfa_price_var)
+                        )
 
         self.credit_card_amt_var = DoubleVar(value=0.0)
+        self.credit_card_price_var = DoubleVar(value=DefaultPriceEnum.CREDIT_CARD_EVIDENCE if self.evidence_bool.get() else DefaultPriceEnum.CREDIT_CARD_UCTO if self.ucto_bool.get() else DefaultPriceEnum.CREDIT_CARD_NO_DPH)
+
         self.credit_card_amt_var.trace_add("write", self.get_total)
+        self.credit_card_price_var.trace_add("write", self.get_total)
 
         self.credit_card_amt = (LabelBase(master=self.frame,
                                           text="Počet operací provedených platební kartou"),
@@ -102,17 +121,25 @@ class AccountingSection(SectionBase):
                                            variable=self.credit_card_amt_var),
                                 CTkSpinbox(master=self.frame,
                                            width=150,
-                                           variable=self.pfa_price_var)
+                                           variable=self.credit_card_price_var)
                                 )
 
         self.register_amt_var = DoubleVar(value=0.0)
+        self.register_price_var = DoubleVar(value=DefaultPriceEnum.REGISTER_EVIDENCE if self.evidence_bool.get() else DefaultPriceEnum.REGISTER_UCTO if self.ucto_bool.get() else DefaultPriceEnum.REGISTER_NO_DPH)
+
         self.register_amt_var.trace_add("write", self.get_total)
+        self.register_price_var.trace_add("write", self.get_total)
 
         self.register_amt = (LabelBase(master=self.frame,
                                        text="Počet pokladních dokladů"),
                              CTkSpinbox(master=self.frame,
                                         width=150,
-                                        variable=self.register_amt_var))
+                                        variable=self.register_amt_var),
+                             CTkSpinbox(master=self.frame,
+                                        width=150,
+                                        variable=self.register_price_var)
+                             )
+
         self.centers = (CheckBoxBase(master=self.frame,
                                      text="Střediska",
                                      variable=self.centers_bool,
@@ -121,7 +148,8 @@ class AccountingSection(SectionBase):
                                   text="x1,1"))
 
         self.bank_amt_var = DoubleVar(value=0.0)
-        self.bank_price_var = DoubleVar(value=10.0)
+        self.bank_price_var = DoubleVar(value=DefaultPriceEnum.BANK)
+
         self.bank_amt_var.trace_add("write", self.get_total)
         self.bank_price_var.trace_add("write", self.get_total)
 
@@ -189,12 +217,6 @@ class AccountingSection(SectionBase):
         self.widgets.append(self.dph_pay)
         self.import_only[1].set(str(1000))
         self.widgets.append(self.import_only)
-        self.widgets.append(self.by_hand)
-        self.widgets.append(self.create_vfa)
-        self.widgets.append(self.pfa_amt)
-        self.widgets.append(self.credit_card_amt)
-        self.widgets.append(self.register_amt)
-        self.widgets.append(self.bank_amt)
         self.widgets.append(self.centers)
         self.widgets.append(self.orders)
         self.widgets.append(self.analysis)
@@ -202,6 +224,13 @@ class AccountingSection(SectionBase):
         self.dph_widgets.append(self.tax_check)
         self.dph_widgets.append(self.send_docs)
         self.no_dph_widgets.append(self.create_dppodpfo)
+        self.widgets.append(self.headers)
+        self.widgets.append(self.by_hand)
+        self.widgets.append(self.create_vfa)
+        self.widgets.append(self.pfa_amt)
+        self.widgets.append(self.credit_card_amt)
+        self.widgets.append(self.register_amt)
+        self.widgets.append(self.bank_amt)
 
     def toggle_dph(self) -> None:
         """
