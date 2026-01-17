@@ -1,5 +1,6 @@
 from Sections.SectionBase import *
 from Common.DefaultPriceEnum import DefaultPriceEnum
+from Common.ModeEnum import ModeEnum
 
 class AccountingSection(SectionBase):
     """
@@ -31,11 +32,11 @@ class AccountingSection(SectionBase):
         self.checkboxes = (CheckBoxBase(master=self.frame,
                                         text="Evidence",
                                         variable=self.evidence_bool,
-                                        command=lambda: self.base_checkbox_tick("evidence")),
+                                        command=lambda: self.base_checkbox_tick(ModeEnum.EVIDENCE)),
                            CheckBoxBase(master=self.frame,
                                         text="Účto",
                                         variable=self.ucto_bool,
-                                        command=lambda: self.base_checkbox_tick("ucto")))
+                                        command=lambda: self.base_checkbox_tick(ModeEnum.UCTO)))
         self.dph_pay = (CheckBoxBase(master=self.frame,
                                      text="Plátce DPH",
                                      variable=self.dph_pay_bool,
@@ -322,18 +323,21 @@ class AccountingSection(SectionBase):
 
         self.total.set(total)
 
-    def base_checkbox_tick(self, kind) -> None:
+    def base_checkbox_tick(self, kind: ModeEnum) -> None:
         """
         tracks the 2 base checkboxes and ensures that only one can ever be selected, making them mutually exclusive
         :param kind: which checkbox has been ticked
         :return: None
         """
         match kind:
-            case"evidence":
+            case ModeEnum.EVIDENCE:
                 self.checkboxes[1].deselect()
 
-            case "ucto":
+            case ModeEnum.UCTO:
                 self.checkboxes[0].deselect()
+
+            case _:
+                pass
 
         self.get_total()
 
