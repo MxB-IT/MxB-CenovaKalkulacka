@@ -1,7 +1,7 @@
 from Common.PlaceholderTexts import PlaceholderTexts
-from WidgetsBase import *
+from Widgets.WidgetsBase import *
 
-class TextBoxBase(CTkEntry):
+class TextBoxBase(CTkTextbox):
     def __init__(self,
                  master: CTkFrame,
                  border_color = "401c1b",
@@ -14,14 +14,16 @@ class TextBoxBase(CTkEntry):
                  border_width = 0,
                  *args,
                  **kwargs):
-        super().__init__(master, *args, **kwargs)
-        self.configure(border_color=border_color,
-                       fg_color=fg_color,
-                       text_color=text_color,
-                       wrap = wrap,
-                       height = height,
-                       activate_scrollbars = activate_scrollbars,
-                       border_width = border_width)
+        super().__init__(master,
+                         border_color=border_color,
+                         fg_color=fg_color,
+                         text_color=text_color,
+                         wrap=wrap,
+                         height=height,
+                         activate_scrollbars=activate_scrollbars,
+                         border_width=border_width,
+                         *args,
+                         **kwargs)
         self.insert(0.0, text)
 
         self.configure(state = "disabled")
@@ -29,7 +31,7 @@ class TextBoxBase(CTkEntry):
 
         self.bind("<Button-1>", self.start_edit)
         self.bind("<Return>", self.stop_edit)
-        self.bind("<FocusOut", self.stop_edit)
+        self.bind("<FocusOut>", self.stop_edit)
         self.bind("<Shift-Return>", self.add_newline)
 
     def start_edit(self, event = None) -> None:

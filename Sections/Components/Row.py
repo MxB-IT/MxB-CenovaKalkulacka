@@ -9,17 +9,19 @@ from Widgets.TextBoxBase import TextBoxBase
 class Row(CTkFrame):
     def __init__(self,
                  master,
+                 text = PlaceholderTexts.DESCRIPTION,
+                 price = 0.0,
                  *args,
                  **kwargs):
         super().__init__(master, *args, **kwargs)
 
-        self.description_var = StringVar(value = PlaceholderTexts.DESCRIPTION)
+        self.description_var = StringVar(value=text)
         self.amount_var = IntVar(value=0)
-        self.price_var = DoubleVar(value=0.0)
+        self.price_var = DoubleVar(value=price)
+        self.subtotal_var = DoubleVar(value=0.0)
 
-        self.description_var.trace_add("write", self.updateTextBox)
-        self.amount_var.trace_add("write", self.updateAmount)
-        self.price_var.trace_add("write", self.updatePrice)
+        self.amount_var.trace_add("write", self.get_subtotal)
+        self.price_var.trace_add("write", self.get_subtotal)
 
         self.grid_columnconfigure((0, 1, 2), weight = 1)
 
@@ -40,8 +42,8 @@ class Row(CTkFrame):
         )
         self.price_spinbox.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
 
-    def get_subtotal(self) -> float:
+    def get_subtotal(self, *args, **kwargs) -> None:
         try:
-            return self.amount_var.get() * self.price_var.get()
+            self.subtotal_var.set(round(self.amount_var.get() * self.price_var.get(), 0))
         except Exception:
-            return 0.00
+            self.subtotal_var.set(0.00)

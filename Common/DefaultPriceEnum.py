@@ -1,6 +1,6 @@
 from enum import Enum
-from PieceNamesEnum import PieceNamesEnum
-from ModeEnum import ModeEnum
+from Common.PieceNamesEnum import PieceNamesEnum
+from Common.ModeEnum import ModeEnum
 
 class DefaultPriceEnum(float, Enum):
     PAYROLL_PRICE = 250.0

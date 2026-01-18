@@ -67,7 +67,7 @@ class PriceCalc(CTk):
             self.total_section.accounting_total[1].configure(text = NUMBER_FORMAT % self.accounting_section.total.get())
             self.total_section.total_price[1].configure(text = NUMBER_FORMAT % (self.payrolls_section.total.get() + self.accounting_section.total.get()))
         except AttributeError:
-            print("AttributeError on init FIX ASAP")
+            pass
 
     @staticmethod
     def toggle_relevant(toggle_bool, section, offset) -> None:
