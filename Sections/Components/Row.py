@@ -11,9 +11,10 @@ class Row(CTkFrame):
                  master,
                  text = PlaceholderTexts.DESCRIPTION,
                  price = 0.0,
+                 fg_color = "white",
                  *args,
                  **kwargs):
-        super().__init__(master, *args, **kwargs)
+        super().__init__(master, fg_color = fg_color, *args, **kwargs)
 
         self.description_var = StringVar(value=text)
         self.amount_var = IntVar(value=0)
@@ -25,7 +26,7 @@ class Row(CTkFrame):
 
         self.grid_columnconfigure((0, 1, 2), weight = 1)
 
-        self.textbox = TextBoxBase(master = self, height = 30)
+        self.textbox = TextBoxBase(master = self, height = 30, text = text)
         self.textbox.grid(row=0, column=0, padx=5, pady=5, sticky = "ew")
 
         self.amount_spinbox = CTkSpinbox(
