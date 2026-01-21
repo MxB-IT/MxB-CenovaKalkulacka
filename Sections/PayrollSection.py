@@ -1,4 +1,5 @@
 from Common.DefaultPriceEnum import DefaultPriceEnum
+from Sections.Components.Row import Row
 from Sections.SectionBase import *
 
 class PayrollSection(SectionBase):
@@ -13,6 +14,7 @@ class PayrollSection(SectionBase):
         self.widgets = []
         self.total = DoubleVar()
         self.total.trace_add("write", app.calculate_total)
+        self.subtotals = []
 
         self.headers = (LabelBase(master=self.frame,
                                   text="Položka"),
@@ -21,55 +23,17 @@ class PayrollSection(SectionBase):
                         LabelBase(master=self.frame,
                                   text="Cena"))
 
-        self.payrolls_amt_var = DoubleVar()
-        self.payrolls_price_var = DoubleVar(value=DefaultPriceEnum.PAYROLL_PRICE)
-
-        self.payrolls_amt_var.trace_add("write", self.get_total)
-        self.payrolls_price_var.trace_add("write", self.get_total)
-
-        self.payrolls = (LabelBase(master=self.frame,
-                                       text="Mzdy"),
-                         CTkSpinbox(master=self.frame,
-                                    width=150,
-                                    variable=self.payrolls_amt_var),
-                         CTkSpinbox(master=self.frame,
-                                    width=150,
-                                    variable=self.payrolls_price_var)
-                         )
-
-        self.signups_signoffs_amt_var = DoubleVar()
-        self.signups_signoffs_price_var = DoubleVar(value=DefaultPriceEnum.SIGNUPS_SIGNOFFS)
-
-        self.signups_signoffs_amt_var.trace_add("write", self.get_total)
-        self.signups_signoffs_price_var.trace_add("write", self.get_total)
-
-        self.signups_signoffs = (LabelBase(master=self.frame,
-                                           text="Počet přihlášek/odhlášek"),
-                                 CTkSpinbox(master=self.frame,
-                                            width=150,
-                                            variable=self.signups_signoffs_amt_var),
-                                 CTkSpinbox(master=self.frame,
-                                            width=150,
-                                            variable=self.signups_signoffs_price_var)
-                                 )
-
-        self.executions_amt_var = DoubleVar()
-        self.executions_price_var = DoubleVar(value=DefaultPriceEnum.EXECUTIONS)
-
-        self.executions_price_var.trace_add("write", self.get_total)
-        self.executions_amt_var.trace_add("write", self.get_total)
-
-        self.executions = (LabelBase(master=self.frame,
-                                     text="Exekuce"),
-                           CTkSpinbox(master=self.frame,
-                                      width=150,
-                                      variable = self.executions_amt_var),
-                           CTkSpinbox(master=self.frame,
-                                      width=150,
-                                      variable=self.executions_price_var)
-                           )
-
         self.setup_widgets()
+
+        self.define_row(text="Počet přihlášek/odhlášek",
+                        price=DefaultPriceEnum.SIGNUPS_SIGNOFFS)
+
+        self.define_row(text="Mzdy",
+                        price=DefaultPriceEnum.PAYROLL_PRICE)
+
+        self.define_row(text="Exekuce",
+                        price=DefaultPriceEnum.EXECUTIONS)
+
         self.arrange_widgets(self.frame, self.widgets)
 
     def setup_widgets(self) -> None:
@@ -78,23 +42,34 @@ class PayrollSection(SectionBase):
         :return: None
         """
         self.widgets.append(self.headers)
-        self.widgets.append(self.payrolls)
-        self.widgets.append(self.signups_signoffs)
-        self.widgets.append(self.executions)
 
     def get_total(self, *args) -> None:
         """
         gets the total of all the widgets within the section
         :return: float representing the total
         """
+        total = 0.0
         try:
-            total = int(self.payrolls_amt_var.get()) * int(self.payrolls_price_var.get())
-            total += int(self.signups_signoffs_amt_var.get()) * int(self.signups_signoffs_price_var.get())
-            total += int(self.executions_amt_var.get()) * int(self.executions_price_var.get())
+            for subtotal in self.subtotals:
+                total += subtotal.get()
+
             total *= 7/6
 
-        except ValueError:
+        except ValueError as e:
             total = 0.0
-        except TypeError:
+            print(e)
+
+        except TypeError as e:
             total = 0.0
+            print(e)
+
         self.total.set(total)
+
+    def define_row(self, text : str, price: Union[DefaultPriceEnum, float]) -> None:
+        row = Row(master=self.frame,
+                  text=text,
+                  price=price)
+
+        row.subtotal_var.trace_add("write", self.get_total)
+        self.widgets.append(row)
+        self.subtotals.append(row.subtotal_var)
