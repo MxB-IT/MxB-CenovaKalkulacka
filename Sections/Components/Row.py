@@ -2,7 +2,6 @@ from tkinter import StringVar, IntVar, DoubleVar
 from customtkinter import CTkFrame
 from Common.PlaceholderTexts import PlaceholderTexts
 from Widgets.CTkSpinbox import CTkSpinbox
-from Widgets.LabelBase import LabelBase
 from Widgets.TextBoxBase import TextBoxBase
 
 
