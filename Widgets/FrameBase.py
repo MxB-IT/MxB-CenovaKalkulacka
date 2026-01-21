@@ -3,7 +3,7 @@ from Widgets.WidgetsBase import *
 class FrameBase(CTkFrame):
     def __init__(self,
                  *args,
-                 master: CTkFrame,
+                 master: Union[CTkFrame, Canvas],
                  fg_color = "white",
                  border_color = MXB_RED,
                  border_width = 2,
