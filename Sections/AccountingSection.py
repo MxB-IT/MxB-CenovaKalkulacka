@@ -50,6 +50,8 @@ class AccountingSection(SectionBase):
         self.import_only_var=DoubleVar(value=0.0)
         self.import_only_var.trace_add("write", self.get_total)
 
+        self.subtotals.append(self.import_only_var)
+
         self.import_only = (CheckBoxBase(master=self.frame,
                                          text="Import vystavených faktur",
                                          variable=self.import_only_bool,
@@ -122,15 +124,35 @@ class AccountingSection(SectionBase):
                         dph_price=DefaultPriceEnum.BANK,
                         no_dph_price=DefaultPriceEnum.BANK)
         self.define_row(text="Počet zaúčtovaných vystavených faktur",
-                        price=DefaultPriceEnum.BY_HAND_EVIDENCE if self.evidence_bool.get() else DefaultPriceEnum.BY_HAND_UCTO if self.ucto_bool.get() else DefaultPriceEnum.BY_HAND_NO_DPH)
+                        evidence_price=DefaultPriceEnum.BY_HAND_EVIDENCE,
+                        ucto_price=DefaultPriceEnum.BY_HAND_UCTO,
+                        dph_price=0.0,
+                        no_dph_price=DefaultPriceEnum.BY_HAND_NO_DPH
+                        )
         self.define_row(text="Počet pokladních dokladů",
-                        price=DefaultPriceEnum.REGISTER_EVIDENCE if self.evidence_bool.get() else DefaultPriceEnum.REGISTER_UCTO if self.ucto_bool.get() else DefaultPriceEnum.REGISTER_NO_DPH)
+                        evidence_price=DefaultPriceEnum.REGISTER_EVIDENCE,
+                        ucto_price=DefaultPriceEnum.REGISTER_UCTO,
+                        dph_price=0.0,
+                        no_dph_price=DefaultPriceEnum.REGISTER_NO_DPH
+                        )
         self.define_row(text="Počet operací provedených platební kartou",
-                        price=DefaultPriceEnum.CREDIT_CARD_EVIDENCE if self.evidence_bool.get() else DefaultPriceEnum.CREDIT_CARD_UCTO if self.ucto_bool.get() else DefaultPriceEnum.CREDIT_CARD_NO_DPH)
+                        evidence_price=DefaultPriceEnum.CREDIT_CARD_EVIDENCE,
+                        ucto_price=DefaultPriceEnum.CREDIT_CARD_UCTO,
+                        dph_price=0.0,
+                        no_dph_price=DefaultPriceEnum.CREDIT_CARD_NO_DPH
+                        )
         self.define_row(text="Počet přijatých faktur",
-                        price=DefaultPriceEnum.CREATE_PFA_UCTO if self.ucto_bool.get() else DefaultPriceEnum.CREATE_PFA_EVIDENCE if self.evidence_bool.get() else 0.0)
+                        evidence_price=DefaultPriceEnum.CREATE_PFA_EVIDENCE,
+                        ucto_price=DefaultPriceEnum.CREATE_PFA_UCTO,
+                        dph_price=0.0,
+                        no_dph_price=0.0
+                        )
         self.define_row(text="Počet vystavovaných faktur za klienta",
-                        price=DefaultPriceEnum.CREATE_VFA_DPH if self.dph_pay_bool.get() else DefaultPriceEnum.CREATE_VFA_NO_DPH)
+                        evidence_price=0.0,
+                        ucto_price=0.0,
+                        dph_price=DefaultPriceEnum.CREATE_VFA_DPH,
+                        no_dph_price=DefaultPriceEnum.CREATE_VFA_NO_DPH
+                        )
 
         self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
 
@@ -178,6 +200,19 @@ class AccountingSection(SectionBase):
             for subtotal in self.subtotals:
                 total += subtotal.get()
 
+            if self.dph_pay_bool.get():
+                if self.send_docs_bool.get():
+                    total += 300
+
+                if self.tax_check_bool.get():
+
+
+                if self.dph_pay_bool.get():
+                    total *= 7/6
+
+            else:
+                if self.dppodpfo_bool.get():
+
             if self.centers_bool.get():
                 total *= 1.1
             if self.orders_bool.get():
@@ -215,7 +250,7 @@ class AccountingSection(SectionBase):
 
         self.get_total()
 
-    def define_row(self, text : str, evidence_price: Union[DefaultPriceEnum, float], ucto_price: Union[DefaultPriceEnum, float], dph_price: Union[DefaultPriceEnum, float], no_dph_price: Union[DefaultPriceEnum, float]) -> None:
+    def define_row(self, text : str, evidence_price: Union[DefaultPriceEnum, float], ucto_price: Union[DefaultPriceEnum, float], dph_price: Union[DefaultPriceEnum, float], no_dph_price: Union[DefaultPriceEnum, float], amt_var: IntVar = None) -> None:
         row = Row(master=self.frame,
                   text=text,
                   ucto_price=ucto_price,
@@ -224,7 +259,8 @@ class AccountingSection(SectionBase):
                   no_dph_price=no_dph_price,
                   evidence_bool=self.evidence_bool,
                   dph_bool=self.dph_pay_bool,
-                  ucto_bool=self.ucto_bool)
+                  ucto_bool=self.ucto_bool,
+                  amt_var = amt_var)
 
         row.subtotal_var.trace_add("write", self.get_total)
         self.widgets.append(row)

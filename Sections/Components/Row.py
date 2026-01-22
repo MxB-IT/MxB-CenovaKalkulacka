@@ -17,6 +17,7 @@ class Row(CTkFrame):
                  evidence_bool = None,
                  dph_bool = None,
                  fg_color = "white",
+                 amt_var = None,
                  *args,
                  **kwargs):
         super().__init__(master, fg_color = fg_color, *args, **kwargs)
@@ -44,9 +45,9 @@ class Row(CTkFrame):
         else:
             self.price_var.set(no_dph_price)
 
-        ucto_bool.trace_add("write", self.set_price)
-        evidence_bool.trace_add("write", self.set_price)
-        dph_bool.trace_add("write", self.set_price)
+        self.ucto_bool.trace_add("write", self.set_price)
+        self.evidence_bool.trace_add("write", self.set_price)
+        self.dph_bool.trace_add("write", self.set_price)
 
         self.amount_var.trace_add("write", self.get_subtotal)
         self.price_var.trace_add("write", self.get_subtotal)
@@ -77,11 +78,11 @@ class Row(CTkFrame):
             self.subtotal_var.set(0.00)
 
     def set_price(self, *args) -> None:
-        if self.ucto_bool.get():
+        if self.ucto_bool.get() and self.ucto_price != 0.0:
             self.price_var.set(self.ucto_price)
-        elif self.evidence_bool.get():
+        elif self.evidence_bool.get() and self.evidence_price != 0.0:
             self.price_var.set(self.evidence_price)
-        elif self.dph_bool.get():
+        elif self.dph_bool.get() and self.dph_price != 0.0:
             self.price_var.set(self.dph_price)
-        else:
+        elif self.no_dph_price != 0.0:
             self.price_var.set(self.no_dph_price)
