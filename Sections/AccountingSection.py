@@ -73,16 +73,6 @@ class AccountingSection(SectionBase):
                         LabelBase(master=self.frame,
                                   text="x1,1"))
 
-        self.bank_amt_var = DoubleVar(value=0.0)
-        self.bank_price_var = DoubleVar(value=DefaultPriceEnum.BANK)
-
-        self.bank_amt_var.trace_add("write", self.get_total)
-        self.bank_price_var.trace_add("write", self.get_total)
-
-        self.bank_row = Row(master=self.frame,
-                            text="Počet položek na bance",
-                            price=DefaultPriceEnum.BANK)
-
         self.orders = (CheckBoxBase(master=self.frame,
                                     text="Zakázky",
                                     variable=self.orders_bool,
@@ -126,6 +116,11 @@ class AccountingSection(SectionBase):
 
         self.setup_widgets()
 
+        self.define_row(text="Počet položek na bance",
+                        evidence_price=DefaultPriceEnum.BANK,
+                        ucto_price=DefaultPriceEnum.BANK,
+                        dph_price=DefaultPriceEnum.BANK,
+                        no_dph_price=DefaultPriceEnum.BANK)
         self.define_row(text="Počet zaúčtovaných vystavených faktur",
                         price=DefaultPriceEnum.BY_HAND_EVIDENCE if self.evidence_bool.get() else DefaultPriceEnum.BY_HAND_UCTO if self.ucto_bool.get() else DefaultPriceEnum.BY_HAND_NO_DPH)
         self.define_row(text="Počet pokladních dokladů",
@@ -156,7 +151,6 @@ class AccountingSection(SectionBase):
         self.dph_widgets.append(self.send_docs)
         self.no_dph_widgets.append(self.create_dppodpfo)
         self.widgets.append(self.headers)
-        self.widgets.append(self.bank_row)
 
     def toggle_dph(self) -> None:
         """
@@ -221,17 +215,16 @@ class AccountingSection(SectionBase):
 
         self.get_total()
 
-    def disable_default_values(self) -> None:
-        """
-        disables default value toggling, so that no user input is overwritten
-        :return: None
-        """
-        self.default_values_bool.set(False)
-
-    def define_row(self, text : str, price: Union[DefaultPriceEnum, float]) -> None:
+    def define_row(self, text : str, evidence_price: Union[DefaultPriceEnum, float], ucto_price: Union[DefaultPriceEnum, float], dph_price: Union[DefaultPriceEnum, float], no_dph_price: Union[DefaultPriceEnum, float]) -> None:
         row = Row(master=self.frame,
                   text=text,
-                  price=price)
+                  ucto_price=ucto_price,
+                  evidence_price=evidence_price,
+                  dph_price=dph_price,
+                  no_dph_price=no_dph_price,
+                  evidence_bool=self.evidence_bool,
+                  dph_bool=self.dph_pay_bool,
+                  ucto_bool=self.ucto_bool)
 
         row.subtotal_var.trace_add("write", self.get_total)
         self.widgets.append(row)
