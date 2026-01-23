@@ -1,3 +1,5 @@
+import _tkinter
+
 from Sections.Components.Row import Row
 from Sections.SectionBase import *
 from Common.DefaultPriceEnum import DefaultPriceEnum
@@ -15,6 +17,7 @@ class AccountingSection(SectionBase):
 
         #wall of bools
         self.import_only_bool = BooleanVar(value = False)
+        self.import_only_bool.trace_add("write", self.get_total)
         self.dph_pay_bool = BooleanVar(value = False)
         self.evidence_bool = BooleanVar(value = False)
         self.ucto_bool = BooleanVar(value = False)
@@ -30,6 +33,7 @@ class AccountingSection(SectionBase):
         self.dph_widgets = []
         self.no_dph_widgets = []
         self.subtotals = []
+        self.tax_check_amts = []
 
         self.checkboxes = (CheckBoxBase(master=self.frame,
                                         text="Evidence",
@@ -50,12 +54,9 @@ class AccountingSection(SectionBase):
         self.import_only_var=DoubleVar(value=0.0)
         self.import_only_var.trace_add("write", self.get_total)
 
-        self.subtotals.append(self.import_only_var)
-
         self.import_only = (CheckBoxBase(master=self.frame,
                                          text="Import vystavených faktur",
-                                         variable=self.import_only_bool,
-                                         command=self.get_total),
+                                         variable=self.import_only_bool),
                             ComboBoxBase(master=self.frame,
                                          values=[str(800), str(1000), str(1200), str(1400), str(1600)],
                                          variable=self.import_only_var))
@@ -118,40 +119,58 @@ class AccountingSection(SectionBase):
 
         self.setup_widgets()
 
+        bank_amt = IntVar(value=0)
+        self.tax_check_amts.append(bank_amt)
         self.define_row(text="Počet položek na bance",
                         evidence_price=DefaultPriceEnum.BANK,
                         ucto_price=DefaultPriceEnum.BANK,
                         dph_price=DefaultPriceEnum.BANK,
-                        no_dph_price=DefaultPriceEnum.BANK)
+                        no_dph_price=DefaultPriceEnum.BANK,
+                        amt_var=bank_amt
+                        )
+
+        by_hand_amt = IntVar(value=0)
+        self.tax_check_amts.append(by_hand_amt)
         self.define_row(text="Počet zaúčtovaných vystavených faktur",
                         evidence_price=DefaultPriceEnum.BY_HAND_EVIDENCE,
                         ucto_price=DefaultPriceEnum.BY_HAND_UCTO,
                         dph_price=0.0,
-                        no_dph_price=DefaultPriceEnum.BY_HAND_NO_DPH
+                        no_dph_price=DefaultPriceEnum.BY_HAND_NO_DPH,
+                        amt_var=by_hand_amt
                         )
+
+        register_amt = IntVar(value=0)
+        self.tax_check_amts.append(register_amt)
         self.define_row(text="Počet pokladních dokladů",
                         evidence_price=DefaultPriceEnum.REGISTER_EVIDENCE,
                         ucto_price=DefaultPriceEnum.REGISTER_UCTO,
                         dph_price=0.0,
-                        no_dph_price=DefaultPriceEnum.REGISTER_NO_DPH
+                        no_dph_price=DefaultPriceEnum.REGISTER_NO_DPH,
+                        amt_var=register_amt
                         )
+
         self.define_row(text="Počet operací provedených platební kartou",
                         evidence_price=DefaultPriceEnum.CREDIT_CARD_EVIDENCE,
                         ucto_price=DefaultPriceEnum.CREDIT_CARD_UCTO,
                         dph_price=0.0,
                         no_dph_price=DefaultPriceEnum.CREDIT_CARD_NO_DPH
                         )
+
         self.define_row(text="Počet přijatých faktur",
                         evidence_price=DefaultPriceEnum.CREATE_PFA_EVIDENCE,
                         ucto_price=DefaultPriceEnum.CREATE_PFA_UCTO,
                         dph_price=0.0,
                         no_dph_price=0.0
                         )
+
+        vfa_amt = IntVar(value=0)
+        self.tax_check_amts.append(vfa_amt)
         self.define_row(text="Počet vystavovaných faktur za klienta",
                         evidence_price=0.0,
                         ucto_price=0.0,
                         dph_price=DefaultPriceEnum.CREATE_VFA_DPH,
-                        no_dph_price=DefaultPriceEnum.CREATE_VFA_NO_DPH
+                        no_dph_price=DefaultPriceEnum.CREATE_VFA_NO_DPH,
+                        amt_var=vfa_amt
                         )
 
         self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
@@ -198,20 +217,36 @@ class AccountingSection(SectionBase):
         total = 0.0
         try:
             for subtotal in self.subtotals:
-                total += subtotal.get()
+                try:
+                    total += subtotal.get()
+                except _tkinter.TclError:
+                    total += 0.0
 
             if self.dph_pay_bool.get():
                 if self.send_docs_bool.get():
                     total += 300
 
                 if self.tax_check_bool.get():
+                    total_amts = sum(var.get() for var in self.tax_check_amts)
 
+                    if total_amts < 300:
+                        total+= 500
+                    elif 300 <= total_amts < 500:
+                        total += 700
+                    elif 500 <= total_amts < 1000:
+                        total += 1000
+                    else:
+                        total += 2000
 
                 if self.dph_pay_bool.get():
                     total *= 7/6
 
             else:
                 if self.dppodpfo_bool.get():
+                    total += 1500
+
+                if self.import_only_bool.get():
+                    total += self.import_only_var.get()
 
             if self.centers_bool.get():
                 total *= 1.1
@@ -251,6 +286,16 @@ class AccountingSection(SectionBase):
         self.get_total()
 
     def define_row(self, text : str, evidence_price: Union[DefaultPriceEnum, float], ucto_price: Union[DefaultPriceEnum, float], dph_price: Union[DefaultPriceEnum, float], no_dph_price: Union[DefaultPriceEnum, float], amt_var: IntVar = None) -> None:
+        """
+        method used to define each row with an interactible price and amount of items to be calculated
+        :param text: text to be displayed in the textbox next to the row
+        :param evidence_price: price for evidence (optional, if left out, defaults to 0)
+        :param ucto_price: price for ucto (optional, if left out, defaults to 0)
+        :param dph_price: price for dph payers (optional, if left out, defaults to 0)
+        :param no_dph_price: price for no pay of dph (optional, if left out, defaults to 0)
+        :param amt_var: optional variable to let the section track the amount in this row (optional, if left out, defaults to 0)
+        :return: None
+        """
         row = Row(master=self.frame,
                   text=text,
                   ucto_price=ucto_price,
