@@ -68,7 +68,10 @@ class PayrollSection(SectionBase):
     def define_row(self, text : str, price: Union[DefaultPriceEnum, float]) -> None:
         row = Row(master=self.frame,
                   text=text,
-                  ucto_price=price)
+                  evidence_price=price,
+                  ucto_price=price,
+                  dph_price=price,
+                  no_dph_price=price)
 
         row.subtotal_var.trace_add("write", self.get_total)
         self.widgets.append(row)
