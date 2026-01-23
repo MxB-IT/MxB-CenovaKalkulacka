@@ -21,10 +21,11 @@ class Row(CTkFrame):
                  dph_bool = None,
                  fg_color = "white",
                  amt_var = None,
+                 is_ghost = False,
                  *args,
                  **kwargs):
         """
-        initialization method
+        initialization method for Rows
         :param master: master widget that will contain this row
         :param text: description to display on this row (optional, defaults to some default text)
         :param ucto_price: ucto price (optional, defaults to 0)
@@ -40,6 +41,8 @@ class Row(CTkFrame):
         :param kwargs: any other kwargs
         """
         super().__init__(master, fg_color = fg_color, *args, **kwargs)
+
+        self.is_ghost = is_ghost
 
         self.description_var = StringVar(value=text)
         self.amount_var = amt_var if amt_var is not None else IntVar(value=0)
