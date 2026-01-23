@@ -6,6 +6,9 @@ from Widgets.TextBoxBase import TextBoxBase
 
 
 class Row(CTkFrame):
+    """
+    class used to define every single interactible row with amounts and prices
+    """
     def __init__(self,
                  master,
                  text = PlaceholderTexts.DESCRIPTION,
@@ -20,10 +23,26 @@ class Row(CTkFrame):
                  amt_var = None,
                  *args,
                  **kwargs):
+        """
+        initialization method
+        :param master: master widget that will contain this row
+        :param text: description to display on this row (optional, defaults to some default text)
+        :param ucto_price: ucto price (optional, defaults to 0)
+        :param evidence_price: evidence price (optional, defaults to 0)
+        :param dph_price: price for dph payers (optional, defaults to 0)
+        :param no_dph_price: price for dph non payers (optional, defaults to 0)
+        :param ucto_bool: BoolVar indicating whether ucto is active (optional, defaults to nothing)
+        :param evidence_bool: BoolVar indicating whether evidence is active (optional, defaults to constantnly false bool)
+        :param dph_bool: BoolVar indicating whether dph is active (optional, defaults to constantnly false bool)
+        :param fg_color: fg_color for this row
+        :param amt_var: amt_var that this row will save its amount into (optional, creates its own var by default)
+        :param args: any other args
+        :param kwargs: any other kwargs
+        """
         super().__init__(master, fg_color = fg_color, *args, **kwargs)
 
         self.description_var = StringVar(value=text)
-        self.amount_var = IntVar(value=0)
+        self.amount_var = amt_var if amt_var is not None else IntVar(value=0)
         self.price_var = DoubleVar(value=0.0)
         self.subtotal_var = DoubleVar(value=0.0)
 
@@ -72,10 +91,16 @@ class Row(CTkFrame):
         self.price_spinbox.grid(row=0, column=2, padx=5, pady=5, sticky="ew")
 
     def get_subtotal(self, *args, **kwargs) -> None:
+        """
+        method used for recalculating the total for this row by multiplying amt with its price
+        :param args: any args passed
+        :param kwargs: any kwargs passed
+        :return: None, sets an internal variable
+        """
         try:
             self.subtotal_var.set(round(self.amount_var.get() * self.price_var.get(), 0))
         except Exception:
-            self.subtotal_var.set(0.00)
+            self.subtotal_var.set(0.0)
 
     def set_price(self, *args) -> None:
         if self.ucto_bool.get() and self.ucto_price != 0.0:
