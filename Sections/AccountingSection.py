@@ -1,5 +1,4 @@
 import _tkinter
-
 from Sections.Components.Row import Row
 from Sections.SectionBase import *
 from Common.DefaultPriceEnum import DefaultPriceEnum
@@ -212,13 +211,19 @@ class AccountingSection(SectionBase):
     def get_total(self, *args) -> None:
         """
         gets the total of all the widgets within the section
-        :return: float representing the total
+        :return: None, updates an internal section total
         """
         total = 0.0
         try:
             for subtotal in self.subtotals:
                 try:
                     total += subtotal.get()
+                except _tkinter.TclError:
+                    total += 0.0
+
+            if self.import_only_bool.get():
+                try:
+                    total += self.import_only_var.get()
                 except _tkinter.TclError:
                     total += 0.0
 
@@ -244,9 +249,6 @@ class AccountingSection(SectionBase):
             else:
                 if self.dppodpfo_bool.get():
                     total += 1500
-
-                if self.import_only_bool.get():
-                    total += self.import_only_var.get()
 
             if self.centers_bool.get():
                 total *= 1.1
@@ -285,9 +287,10 @@ class AccountingSection(SectionBase):
 
         self.get_total()
 
-    def define_row(self, text : str, evidence_price: Union[DefaultPriceEnum, float], ucto_price: Union[DefaultPriceEnum, float], dph_price: Union[DefaultPriceEnum, float], no_dph_price: Union[DefaultPriceEnum, float], amt_var: IntVar = None) -> None:
+    def define_row(self, text : str, evidence_price: Union[DefaultPriceEnum, float], ucto_price: Union[DefaultPriceEnum, float], dph_price: Union[DefaultPriceEnum, float], no_dph_price: Union[DefaultPriceEnum, float], amt_var: IntVar = None, is_ghost: bool = False) -> None:
         """
         method used to define each row with an interactible price and amount of items to be calculated
+        :param is_ghost: indicates whether the row should be a dummy used to allow the user to add a new row inline
         :param text: text to be displayed in the textbox next to the row
         :param evidence_price: price for evidence (optional, if left out, defaults to 0)
         :param ucto_price: price for ucto (optional, if left out, defaults to 0)
