@@ -1,5 +1,6 @@
 from tkinter import StringVar, IntVar, DoubleVar, BooleanVar
-from customtkinter import CTkFrame
+from typing import Callable
+from customtkinter import CTkFrame, CTkButton
 from Common.PlaceholderTexts import PlaceholderTexts
 from Widgets.CTkSpinbox import CTkSpinbox
 from Widgets.TextBoxBase import TextBoxBase
@@ -11,18 +12,18 @@ class Row(CTkFrame):
     class used to define every single interactible row with amounts and prices
     """
     def __init__(self,
-                 master,
-                 text = PlaceholderTexts.DESCRIPTION,
-                 ucto_price = 0.0,
-                 evidence_price = 0.0,
-                 dph_price = 0.0,
-                 no_dph_price = 0.0,
-                 ucto_bool = None,
-                 evidence_bool = None,
-                 dph_bool = None,
-                 fg_color = "white",
-                 amt_var = None,
-                 is_ghost = False,
+                 master: CTkFrame,
+                 on_delete_callback: Callable = None,
+                 text: str = PlaceholderTexts.DESCRIPTION,
+                 ucto_price: float = 0.0,
+                 evidence_price: float = 0.0,
+                 dph_price: float = 0.0,
+                 no_dph_price: float = 0.0,
+                 ucto_bool: BooleanVar = None,
+                 evidence_bool: BooleanVar = None,
+                 dph_bool: BooleanVar = None,
+                 fg_color: str = "white",
+                 amt_var: IntVar = None,
                  *args,
                  **kwargs):
         """
@@ -38,16 +39,34 @@ class Row(CTkFrame):
         :param dph_bool: BoolVar indicating whether dph is active (optional, defaults to constantnly false bool)
         :param fg_color: fg_color for this row
         :param amt_var: amt_var that this row will save its amount into (optional, creates its own var by default)
+        :param on_delete_callback: callback for when row is deleted
         :param args: any other args
         :param kwargs: any other kwargs
         """
         super().__init__(master, fg_color = fg_color, *args, **kwargs)
 
-        self.is_ghost = is_ghost
+        self.on_delete_callback = on_delete_callback
+
+        self.close_button = CTkButton(
+            self,
+            text="X",
+            width=28,
+            height=28,
+            corner_radius=14,
+            fg_color="#FF6F56",
+            hover_color="#FF4040",
+            text_color="white",
+            font=("Arial", 14, "bold"),
+            command=self.delete_row
+        )
 
         Tooltip(widget=self.close_button,
                 text="Odstraní řádek, tato akce je nevratná")
 
+        self.close_button.grid(row=0,
+                               column=4,
+                               padx=10,
+                               pady=10)
 
         self.description_var = StringVar(value=text)
         self.amount_var = amt_var if amt_var is not None else IntVar(value=0)
@@ -122,3 +141,9 @@ class Row(CTkFrame):
             self.price_var.set(self.dph_price)
         elif self.no_dph_price != 0.0:
             self.price_var.set(self.no_dph_price)
+
+    def delete_row(self):
+        if self.on_delete_callback:
+            self.on_delete_callback(self)
+
+        self.destroy()

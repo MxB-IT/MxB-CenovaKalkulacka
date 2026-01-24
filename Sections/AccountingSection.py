@@ -276,7 +276,7 @@ class AccountingSection(SectionBase):
 
         self.get_total()
 
-    def define_row(self, text : str, evidence_price: Union[DefaultPriceEnum, float], ucto_price: Union[DefaultPriceEnum, float], dph_price: Union[DefaultPriceEnum, float], no_dph_price: Union[DefaultPriceEnum, float], amt_var: IntVar = None, is_ghost: bool = False) -> None:
+    def _define_row(self, text : str, evidence_price: Union[DefaultPriceEnum, float], ucto_price: Union[DefaultPriceEnum, float], dph_price: Union[DefaultPriceEnum, float], no_dph_price: Union[DefaultPriceEnum, float], amt_var: IntVar = None) -> None:
         """
         method used to define each row with an interactible price and amount of items to be calculated
         :param is_ghost: indicates whether the row should be a dummy used to allow the user to add a new row inline
@@ -297,7 +297,8 @@ class AccountingSection(SectionBase):
                   evidence_bool=self.evidence_bool,
                   dph_bool=self.dph_pay_bool,
                   ucto_bool=self.ucto_bool,
-                  amt_var = amt_var)
+                  amt_var = amt_var,
+                  on_delete_callback=self.row_delete_callback)
 
         row.subtotal_var.trace_add("write", self.get_total)
         self.widgets.append(row)
@@ -306,7 +307,8 @@ class AccountingSection(SectionBase):
     def add_row(self):
         self.add_row_button.grid_forget()
 
-        row = Row(master=self.frame)
+        row = Row(master=self.frame,
+                  on_delete_callback=self.row_delete_callback)
 
         row.subtotal_var.trace_add("write", self.get_total)
         self.widgets.append(row)
@@ -321,3 +323,40 @@ class AccountingSection(SectionBase):
                                  column=0,
                                  columnspan=self.frame.grid_size()[0],
                                  sticky="ew")
+
+    def row_delete_callback(self, deleted_row: Row) -> None:
+        """
+        callback used when the user deletes a row, ensuring frame forgetting the row and the button for adding a new row
+        :param deleted_row: an instance of the row class that is about to be deleted
+        :return: None
+        """
+
+        if deleted_row.subtotal_var in self.subtotals:
+            self.subtotals.remove(deleted_row.subtotal_var)
+
+        self.get_total()
+
+        try:
+            deleted_row_index = int(deleted_row.grid_info()["row"])
+        except _tkinter.TclError:
+            deleted_row_index = 9999
+
+        if deleted_row in self.widgets:
+            self.widgets.remove(deleted_row)
+
+        for widget in self.widgets:
+            if isinstance(widget, (list, tuple)):
+                continue
+
+            try:
+                current_row = int(widget.grid_info()["row"])
+            except _tkinter.TclError:
+                continue
+
+            if current_row > deleted_row_index:
+                widget.grid(row=current_row - 1,
+                            column=0,
+                            columnspan=self.frame.grid_size()[0],
+                            sticky="ew",
+                            padx=10,
+                            pady=10)

@@ -76,3 +76,13 @@ class PayrollSection(SectionBase):
         row.subtotal_var.trace_add("write", self.get_total)
         self.widgets.append(row)
         self.subtotals.append(row.subtotal_var)
+
+    def row_delete_callback(self, deleted_row: Row) -> None:
+        """
+        callback used when the user deletes a row, ensuring frame forgetting the row and the button for adding a new row
+        :param deleted_row: an instance of the row class that is about to be deleted
+        :return: None
+        """
+        self.subtotals.remove(deleted_row.subtotal_var)
+        self.get_total()
+        self.widgets.remove(deleted_row)
