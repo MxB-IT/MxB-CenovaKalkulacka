@@ -122,57 +122,35 @@ class AccountingSection(SectionBase):
 
         bank_amt = IntVar(value=0)
         self.tax_check_amts.append(bank_amt)
-        self.define_row(text="Počet položek na bance",
-                        evidence_price=DefaultPriceEnum.BANK,
-                        ucto_price=DefaultPriceEnum.BANK,
-                        dph_price=DefaultPriceEnum.BANK,
-                        no_dph_price=DefaultPriceEnum.BANK,
-                        amt_var=bank_amt
-                        )
+        self._define_row(text="Počet položek na bance", evidence_price=DefaultPriceEnum.BANK,
+                         ucto_price=DefaultPriceEnum.BANK, dph_price=DefaultPriceEnum.BANK,
+                         no_dph_price=DefaultPriceEnum.BANK, amt_var=bank_amt)
 
         by_hand_amt = IntVar(value=0)
         self.tax_check_amts.append(by_hand_amt)
-        self.define_row(text="Počet zaúčtovaných vystavených faktur",
-                        evidence_price=DefaultPriceEnum.BY_HAND_EVIDENCE,
-                        ucto_price=DefaultPriceEnum.BY_HAND_UCTO,
-                        dph_price=0.0,
-                        no_dph_price=DefaultPriceEnum.BY_HAND_NO_DPH,
-                        amt_var=by_hand_amt
-                        )
+        self._define_row(text="Počet zaúčtovaných vystavených faktur", evidence_price=DefaultPriceEnum.BY_HAND_EVIDENCE,
+                         ucto_price=DefaultPriceEnum.BY_HAND_UCTO, dph_price=0.0,
+                         no_dph_price=DefaultPriceEnum.BY_HAND_NO_DPH, amt_var=by_hand_amt)
 
         register_amt = IntVar(value=0)
         self.tax_check_amts.append(register_amt)
-        self.define_row(text="Počet pokladních dokladů",
-                        evidence_price=DefaultPriceEnum.REGISTER_EVIDENCE,
-                        ucto_price=DefaultPriceEnum.REGISTER_UCTO,
-                        dph_price=0.0,
-                        no_dph_price=DefaultPriceEnum.REGISTER_NO_DPH,
-                        amt_var=register_amt
-                        )
+        self._define_row(text="Počet pokladních dokladů", evidence_price=DefaultPriceEnum.REGISTER_EVIDENCE,
+                         ucto_price=DefaultPriceEnum.REGISTER_UCTO, dph_price=0.0,
+                         no_dph_price=DefaultPriceEnum.REGISTER_NO_DPH, amt_var=register_amt)
 
-        self.define_row(text="Počet operací provedených platební kartou",
-                        evidence_price=DefaultPriceEnum.CREDIT_CARD_EVIDENCE,
-                        ucto_price=DefaultPriceEnum.CREDIT_CARD_UCTO,
-                        dph_price=0.0,
-                        no_dph_price=DefaultPriceEnum.CREDIT_CARD_NO_DPH
-                        )
+        self._define_row(text="Počet operací provedených platební kartou",
+                         evidence_price=DefaultPriceEnum.CREDIT_CARD_EVIDENCE,
+                         ucto_price=DefaultPriceEnum.CREDIT_CARD_UCTO, dph_price=0.0,
+                         no_dph_price=DefaultPriceEnum.CREDIT_CARD_NO_DPH)
 
-        self.define_row(text="Počet přijatých faktur",
-                        evidence_price=DefaultPriceEnum.CREATE_PFA_EVIDENCE,
-                        ucto_price=DefaultPriceEnum.CREATE_PFA_UCTO,
-                        dph_price=0.0,
-                        no_dph_price=0.0
-                        )
+        self._define_row(text="Počet přijatých faktur", evidence_price=DefaultPriceEnum.CREATE_PFA_EVIDENCE,
+                         ucto_price=DefaultPriceEnum.CREATE_PFA_UCTO, dph_price=0.0, no_dph_price=0.0)
 
         vfa_amt = IntVar(value=0)
         self.tax_check_amts.append(vfa_amt)
-        self.define_row(text="Počet vystavovaných faktur za klienta",
-                        evidence_price=0.0,
-                        ucto_price=0.0,
-                        dph_price=DefaultPriceEnum.CREATE_VFA_DPH,
-                        no_dph_price=DefaultPriceEnum.CREATE_VFA_NO_DPH,
-                        amt_var=vfa_amt
-                        )
+        self._define_row(text="Počet vystavovaných faktur za klienta", evidence_price=0.0, ucto_price=0.0,
+                         dph_price=DefaultPriceEnum.CREATE_VFA_DPH, no_dph_price=DefaultPriceEnum.CREATE_VFA_NO_DPH,
+                         amt_var=vfa_amt)
 
         self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
 
