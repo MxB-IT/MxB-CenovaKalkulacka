@@ -77,6 +77,34 @@ class PayrollSection(SectionBase):
         self.widgets.append(row)
         self.subtotals.append(row.subtotal_var)
 
+    def add_row(self) -> None:
+        """
+        method used for creating new rows during runtime when the user wants to add them
+        :return: None
+        """
+        self.add_row_button.grid_forget()
+
+        row = Row(master=self.frame,
+                  on_delete_callback=self.row_delete_callback)
+
+        row.subtotal_var.trace_add("write", self.get_total)
+        self.widgets.append(row)
+        self.subtotals.append(row.subtotal_var)
+
+        row.grid(row=self.frame.grid_size()[1] + 1,
+                 column=0,
+                 columnspan=self.frame.grid_size()[0],
+                 sticky="ew",
+                 padx=10,
+                 pady=10)
+
+        self.add_row_button.grid(row=self.frame.grid_size()[1] + 1,
+                                 column=0,
+                                 columnspan=self.frame.grid_size()[0],
+                                 sticky="ew",
+                                 padx=10,
+                                 pady=10)
+
     def row_delete_callback(self, deleted_row: Row) -> None:
         """
         callback used when the user deletes a row, ensuring frame forgetting the row and the button for adding a new row

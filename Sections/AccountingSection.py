@@ -4,6 +4,7 @@ from Sections.SectionBase import *
 from Common.DefaultPriceEnum import DefaultPriceEnum
 from Common.ModeEnum import ModeEnum
 from Widgets.ButtonBase import ButtonBase
+from Widgets.Tooltip import Tooltip
 
 
 class AccountingSection(SectionBase):
@@ -322,7 +323,9 @@ class AccountingSection(SectionBase):
         self.add_row_button.grid(row=self.frame.grid_size()[1] + 1,
                                  column=0,
                                  columnspan=self.frame.grid_size()[0],
-                                 sticky="ew")
+                                 sticky="ew",
+                                 padx=10,
+                                 pady=10)
 
     def row_delete_callback(self, deleted_row: Row) -> None:
         """
