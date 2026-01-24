@@ -3,6 +3,7 @@ from customtkinter import CTkFrame
 from Common.PlaceholderTexts import PlaceholderTexts
 from Widgets.CTkSpinbox import CTkSpinbox
 from Widgets.TextBoxBase import TextBoxBase
+from Widgets.Tooltip import Tooltip
 
 
 class Row(CTkFrame):
