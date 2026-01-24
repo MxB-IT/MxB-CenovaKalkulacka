@@ -1,6 +1,7 @@
 from Common.DefaultPriceEnum import DefaultPriceEnum
 from Sections.Components.Row import Row
 from Sections.SectionBase import *
+from Widgets.ButtonBase import ButtonBase
 
 class PayrollSection(SectionBase):
     """
@@ -35,6 +36,17 @@ class PayrollSection(SectionBase):
                         price=DefaultPriceEnum.EXECUTIONS)
 
         self.arrange_widgets(self.frame, self.widgets)
+
+        self.add_row_button = ButtonBase(master=self.frame,
+                                         text="+",
+                                         command=self.add_row)
+
+        self.add_row_button.grid(row=self.frame.grid_size()[1] + 1,
+                                 column=0,
+                                 columnspan=self.frame.grid_size()[0],
+                                 sticky="ew",
+                                 padx=10,
+                                 pady=10)
 
     def setup_widgets(self) -> None:
         """
@@ -71,7 +83,8 @@ class PayrollSection(SectionBase):
                   evidence_price=price,
                   ucto_price=price,
                   dph_price=price,
-                  no_dph_price=price)
+                  no_dph_price=price,
+                  on_delete_callback=self.row_delete_callback)
 
         row.subtotal_var.trace_add("write", self.get_total)
         self.widgets.append(row)

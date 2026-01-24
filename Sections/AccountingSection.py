@@ -187,14 +187,24 @@ class AccountingSection(SectionBase):
         toggles all widgets to do with dph
         :return: None
         """
+        self.add_row_button.grid_forget()
+
         for widget in self.frame.grid_slaves():
             widget.grid_forget()
+
         if self.dph_pay_bool.get():
             #disgusting hack
             self.arrange_widgets(self.frame, self.widgets[:2] + self.dph_widgets + self.widgets[2:])
         else:
             #disgusting hack
             self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
+
+        self.add_row_button.grid(row=self.frame.grid_size()[1] + 1,
+                                 column=0,
+                                 columnspan=self.frame.grid_size()[0],
+                                 sticky="ew",
+                                 padx=10,
+                                 pady=10)
 
         self.get_total()
 
@@ -280,7 +290,6 @@ class AccountingSection(SectionBase):
     def _define_row(self, text : str, evidence_price: Union[DefaultPriceEnum, float], ucto_price: Union[DefaultPriceEnum, float], dph_price: Union[DefaultPriceEnum, float], no_dph_price: Union[DefaultPriceEnum, float], amt_var: IntVar = None) -> None:
         """
         method used to define each row with an interactible price and amount of items to be calculated
-        :param is_ghost: indicates whether the row should be a dummy used to allow the user to add a new row inline
         :param text: text to be displayed in the textbox next to the row
         :param evidence_price: price for evidence (optional, if left out, defaults to 0)
         :param ucto_price: price for ucto (optional, if left out, defaults to 0)
@@ -305,7 +314,11 @@ class AccountingSection(SectionBase):
         self.widgets.append(row)
         self.subtotals.append(row.subtotal_var)
 
-    def add_row(self):
+    def _add_row(self) -> None:
+        """
+        method used for creating new rows during runtime when the user wants to add them
+        :return: None
+        """
         self.add_row_button.grid_forget()
 
         row = Row(master=self.frame,
