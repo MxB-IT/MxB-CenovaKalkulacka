@@ -3,7 +3,7 @@ from Widgets.WidgetsBase import *
 class LabelBase(CTkLabel):
     def __init__(self,
                  *args,
-                 master: CTkFrame,
+                 master: Union[CTkFrame, CTkToplevel],
                  text_color = MXB_RED,
                  **kwargs):
         super().__init__(*args,
