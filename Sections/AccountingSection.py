@@ -3,6 +3,8 @@ from Sections.Components.Row import Row
 from Sections.SectionBase import *
 from Common.DefaultPriceEnum import DefaultPriceEnum
 from Common.ModeEnum import ModeEnum
+from Widgets.ButtonBase import ButtonBase
+
 
 class AccountingSection(SectionBase):
     """
@@ -174,6 +176,15 @@ class AccountingSection(SectionBase):
 
         self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
 
+        self.add_row_button=ButtonBase(master=self.frame,
+                                       text="+",
+                                       command=self.add_row)
+
+        self.add_row_button.grid(row=self.frame.grid_size()[1] + 1,
+                                 column=0,
+                                 columnspan=self.frame.grid_size()[0],
+                                 sticky="ew")
+
     def setup_widgets(self) -> None:
         """
         sets up all widgets into default states with default values
@@ -313,3 +324,22 @@ class AccountingSection(SectionBase):
         row.subtotal_var.trace_add("write", self.get_total)
         self.widgets.append(row)
         self.subtotals.append(row.subtotal_var)
+
+    def add_row(self):
+        self.add_row_button.grid_forget()
+
+        row = Row(master=self.frame)
+
+        row.subtotal_var.trace_add("write", self.get_total)
+        self.widgets.append(row)
+        self.subtotals.append(row.subtotal_var)
+
+        row.grid(row=self.frame.grid_size()[1] + 1,
+                 column=0,
+                 columnspan=self.frame.grid_size()[0],
+                 sticky="ew")
+
+        self.add_row_button.grid(row=self.frame.grid_size()[1] + 1,
+                                 column=0,
+                                 columnspan=self.frame.grid_size()[0],
+                                 sticky="ew")
