@@ -78,6 +78,12 @@ class PayrollSection(SectionBase):
         self.total.set(total)
 
     def define_row(self, text : str, price: Union[DefaultPriceEnum, float]) -> None:
+        """
+        method used to define each row with an interactible price and amount of items to be calculated
+        :param text: text to be displayed in the textbox, describing what this row represents
+        :param price: default price to be displayed next to the widget before being edited in any way by the user
+        :return: None
+        """
         row = Row(master=self.frame,
                   text=text,
                   evidence_price=price,
