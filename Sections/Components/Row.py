@@ -44,6 +44,10 @@ class Row(CTkFrame):
 
         self.is_ghost = is_ghost
 
+        Tooltip(widget=self.close_button,
+                text="Odstraní řádek, tato akce je nevratná")
+
+
         self.description_var = StringVar(value=text)
         self.amount_var = amt_var if amt_var is not None else IntVar(value=0)
         self.price_var = DoubleVar(value=0.0)
@@ -78,6 +82,9 @@ class Row(CTkFrame):
 
         self.textbox = TextBoxBase(master = self, height = 30, text = text)
         self.textbox.grid(row=0, column=0, padx=5, pady=5, sticky = "ew")
+
+        Tooltip(widget=self.textbox,
+                text="Editujte dvojklikem levého tlačítka myši")
 
         self.amount_spinbox = CTkSpinbox(
             master=self,
