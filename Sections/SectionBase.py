@@ -26,7 +26,7 @@ class SectionBase:
             if not isinstance(row, (list, tuple)):
                 row = [row]
 
-            span_width = 3 if len(row) == 1 else 1
+            span_width = 4 if len(row) == 1 else 1
 
             for j, widget in enumerate(row):
                 widget.grid(row=i,
