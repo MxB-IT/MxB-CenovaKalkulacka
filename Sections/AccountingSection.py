@@ -157,12 +157,17 @@ class AccountingSection(SectionBase):
 
         self.add_row_button=ButtonBase(master=self.frame,
                                        text="+",
-                                       command=self.add_row)
+                                       command=self._add_row)
+
+        Tooltip(widget=self.add_row_button,
+                text="Přidá další řádek s položkou, která bude do finálního výpočtu připočítána")
 
         self.add_row_button.grid(row=self.frame.grid_size()[1] + 1,
                                  column=0,
                                  columnspan=self.frame.grid_size()[0],
-                                 sticky="ew")
+                                 sticky="ew",
+                                 padx=10,
+                                 pady=10)
 
     def setup_widgets(self) -> None:
         """
@@ -229,7 +234,7 @@ class AccountingSection(SectionBase):
 
             if self.dph_pay_bool.get():
                 if self.send_docs_bool.get():
-                    total += 300
+                    total += DefaultPriceEnum.SEND_DOCS
 
                 if self.tax_check_bool.get():
                     total_amts = sum(var.get() for var in self.tax_check_amts)
@@ -248,7 +253,7 @@ class AccountingSection(SectionBase):
 
             else:
                 if self.dppodpfo_bool.get():
-                    total += 1500
+                    total += DefaultPriceEnum.DPPO_DPFO
 
             if self.centers_bool.get():
                 total *= 1.1
@@ -331,7 +336,9 @@ class AccountingSection(SectionBase):
         row.grid(row=self.frame.grid_size()[1] + 1,
                  column=0,
                  columnspan=self.frame.grid_size()[0],
-                 sticky="ew")
+                 sticky="ew",
+                 padx=10,
+                 pady=10)
 
         self.add_row_button.grid(row=self.frame.grid_size()[1] + 1,
                                  column=0,
