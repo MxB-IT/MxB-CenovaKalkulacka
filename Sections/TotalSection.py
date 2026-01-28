@@ -1,4 +1,6 @@
+from PdfGen.PDF import PDF
 from Sections.SectionBase import *
+from Widgets.ButtonBase import ButtonBase
 
 class TotalSection(SectionBase):
     """

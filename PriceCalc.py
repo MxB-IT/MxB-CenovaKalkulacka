@@ -3,6 +3,9 @@ from Sections.BaseSection import *
 from Sections.AccountingSection import *
 from Sections.PayrollSection import *
 from Sections.TotalSection import *
+from PdfGen.PDF import PDF
+from PIL import Image
+import os
 
 NUMBER_FORMAT = "%.0f"
 MXB_RED = "#703230"
@@ -16,6 +19,7 @@ class PriceCalc(CTk):
         super().__init__()
         self.geometry("400x600")
         self.title("Cenová kalkulačka")
+
         self._resize_timer = None
 
         self.grid_rowconfigure(0,
@@ -31,8 +35,8 @@ class PriceCalc(CTk):
                          column=0,
                          sticky="nsew")
 
-        self.scrollbar = tk.Scrollbar(self,
-                                      orient="vertical",
+        self.scrollbar = CTkScrollbar(self,
+                                      orientation="vertical",
                                       command=self.canvas.yview)
         self.scrollbar.grid(row=0,
                             column=1,
@@ -61,17 +65,56 @@ class PriceCalc(CTk):
         self._setup_sections()
         self.calculate_total()
 
+        self.topbar = CTkFrame(master=self.scrollable_frame,
+                               height=60,
+                               corner_radius=0,
+                               fg_color="#dddddd")
+
+        self.app_title = LabelBase(master=self.topbar,
+                                   text="Cenová kalkulačka",
+                                   font=("Arial", 20, "bold"))
+
+        self.app_title.pack(side=LEFT)
+
+        self.topbar.grid(row=0,
+                         column=0,
+                         padx=0,
+                         pady=0,
+                         columnspan=self.scrollable_frame.grid_size()[0],
+                         sticky="ew")
+
+        icon_path = PriceCalc.resource_path("Assets/Images/PDF_file_icon.png")
+        pdf_image = Image.open(icon_path)
+
+        pdf_icon = CTkImage(light_image=pdf_image,
+                            dark_image=pdf_image,
+                            size=(15,20))
+
+        self.export_to_pdf_button = ButtonBase(master=self.topbar,
+                                               command=self.export_pdf,
+                                               text="",
+                                               image=pdf_icon,
+                                               bg_color="white",
+                                               hover_color="#4d2422",
+                                               border_width=0,
+                                               corner_radius=0)
+
+        self.export_to_pdf_button.configure(width=30,
+                                            height=30)
+
+        self.export_to_pdf_button.pack(side=RIGHT)
+
     def _setup_sections(self) -> None:
         """
         sets up all the sections into default positions
         :return: None
         """
 
-        self.base_section.frame.grid(row = 0,
+        self.base_section.frame.grid(row = 1,
                                      column = 0,
                                      columnspan = 3,
                                      sticky = "ew")
-        self.total_section.frame.grid(row = 3,
+        self.total_section.frame.grid(row = 4,
                                       column = 0,
                                       columnspan = 3,
                                       sticky = "ew")
@@ -98,7 +141,7 @@ class PriceCalc(CTk):
         if self._resize_timer:
             self.after_cancel(self._resize_timer)
 
-        self._resize_timer = self.after(150, lambda: self._perform_resize(event.width))
+        self._resize_timer = self.after(150, self._perform_resize, event.width)
 
     def _perform_resize(self, new_width: int) -> None:
         self.canvas.itemconfig(self.canvas_window,
@@ -147,6 +190,19 @@ class PriceCalc(CTk):
                                sticky = "ew")
         else:
             section.frame.grid_forget()
+
+    @staticmethod
+    def resource_path(relative_path : str) -> str:
+        try:
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.dirname(os.path.abspath(__file__))
+
+        return os.path.join(base_path, relative_path)
+
+    def export_pdf(self):
+        print("yay")
+        pass
 
 if __name__ == "__main__":
     app = PriceCalc()

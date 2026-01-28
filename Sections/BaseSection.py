@@ -16,12 +16,12 @@ class BaseSection(SectionBase):
                                         text="Mzdy",
                                         variable=self.payrolls_bool,
                                         command=lambda: app.toggle_relevant(self.payrolls_bool.get(),
-                                                                            app.payrolls_section, 1)),
+                                                                            app.payrolls_section, 2)),
                            CheckBoxBase(master=self.frame,
                                         text="Účetnictví",
                                         variable=self.accounting_bool,
                                         command=lambda: app.toggle_relevant(self.accounting_bool.get(),
-                                                                            app.accounting_section, 2)))
+                                                                            app.accounting_section, 3)))
 
         self.setup_widgets()
         self.arrange_widgets(self.frame, self.widgets)
