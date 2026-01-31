@@ -1,9 +1,9 @@
 import tkinter as tk
+from PdfUtils.PdfGen import PdfGen
 from Sections.BaseSection import *
 from Sections.AccountingSection import *
 from Sections.PayrollSection import *
 from Sections.TotalSection import *
-from PdfGen.PDF import PDF
 from PIL import Image
 import os
 
@@ -98,6 +98,9 @@ class PriceCalc(CTk):
                                                hover_color="#4d2422",
                                                border_width=0,
                                                corner_radius=0)
+
+        Tooltip(widget=self.export_to_pdf_button,
+                text="Export do PDF")
 
         self.export_to_pdf_button.configure(width=30,
                                             height=30)
@@ -201,8 +204,17 @@ class PriceCalc(CTk):
         return os.path.join(base_path, relative_path)
 
     def export_pdf(self):
-        print("yay")
-        pass
+        rows = []
+
+        for widget in self.accounting_section.widgets:
+            if isinstance(widget, Row):
+                rows.append(widget)
+
+        for widget in self.payrolls_section.widgets:
+            if isinstance(widget, Row):
+                rows.append(widget)
+
+        PdfGen.create_pdf(rows, float(self.total_section.total_price[1].cget("text")))
 
 if __name__ == "__main__":
     app = PriceCalc()

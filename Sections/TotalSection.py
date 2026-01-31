@@ -1,4 +1,4 @@
-from PdfGen.PDF import PDF
+from PdfUtils.PDF import PDF
 from Sections.SectionBase import *
 from Widgets.ButtonBase import ButtonBase
 
