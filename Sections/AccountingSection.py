@@ -63,14 +63,6 @@ class AccountingSection(SectionBase):
                                          values=[str(800), str(1000), str(1200), str(1400), str(1600)],
                                          variable=self.import_only_var))
 
-        self.headers = (LabelBase(master=self.frame,
-                                  text="Položka"),
-                        LabelBase(master=self.frame,
-                                  text="Počet"),
-                        LabelBase(master=self.frame,
-                                  text="Cena")
-                        )
-
         self.centers = (CheckBoxBase(master=self.frame,
                                      text="Střediska",
                                      variable=self.centers_bool,
@@ -118,6 +110,14 @@ class AccountingSection(SectionBase):
                                              command=self.get_total),
                                 LabelBase(master=self.frame,
                                           text=""))
+
+        self.headers = (LabelBase(master=self.frame,
+                                  text="Položka"),
+                        LabelBase(master=self.frame,
+                                  text="Počet"),
+                        LabelBase(master=self.frame,
+                                  text="Cena")
+                        )
 
         self.setup_widgets()
 
@@ -384,4 +384,6 @@ class AccountingSection(SectionBase):
                             padx=10,
                             pady=10)
 
-    def export_non_row_for_pdf(self) -> list[PDFDataClass]:
+    def export_non_row_items_for_pdf(self) -> list[PDFDataClass]:
+        for widget in self.widgets:
+            if not isinstance(widget, Row):
