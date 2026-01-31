@@ -1,11 +1,11 @@
 import _tkinter
+from PdfUtils.Mappers.RowToPdfMapper import PDFDataClass
 from Sections.Components.Row import Row
 from Sections.SectionBase import *
 from Common.DefaultPriceEnum import DefaultPriceEnum
 from Common.ModeEnum import ModeEnum
 from Widgets.ButtonBase import ButtonBase
 from Widgets.Tooltip import Tooltip
-
 
 class AccountingSection(SectionBase):
     """
@@ -383,3 +383,5 @@ class AccountingSection(SectionBase):
                             sticky="ew",
                             padx=10,
                             pady=10)
+
+    def export_non_row_for_pdf(self) -> list[PDFDataClass]:

@@ -1,6 +1,6 @@
 from fpdf import FPDF
 from fpdf.fonts import FontFace
-from PdfUtils.Mappers.RowToPdfMapper import RowClass
+from PdfUtils.Mappers.RowToPdfMapper import PDFDataClass
 from pathlib import Path
 
 from Widgets.WidgetsBase import MXB_RED
@@ -27,7 +27,7 @@ class PDF(FPDF):
 
         self.set_y(50)
 
-    def construct_table(self, data: list[RowClass], total_price: float) -> None:
+    def construct_table(self, data: list[PDFDataClass], total_price: float) -> None:
 
         self.set_line_width(0.6)
         # ignore editor warn about self.set_draw_color, false flag
