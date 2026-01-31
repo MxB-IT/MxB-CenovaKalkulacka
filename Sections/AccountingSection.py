@@ -385,5 +385,9 @@ class AccountingSection(SectionBase):
                             pady=10)
 
     def export_non_row_items_for_pdf(self) -> list[PDFDataClass]:
-        for widget in self.widgets:
-            if not isinstance(widget, Row):
+        output = [PDFDataClass(name=self.create_dppodpfo[0].cget("text"),
+                               price=DefaultPriceEnum.DPPO_DPFO if self.dppodpfo_bool.get() else 0.0),
+                  PDFDataClass(name=self.import_only[0].cget("text"),
+                               price=self.import_only_var.get())]
+
+        return output
