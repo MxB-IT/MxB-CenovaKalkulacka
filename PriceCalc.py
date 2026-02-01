@@ -127,33 +127,62 @@ class PriceCalc(CTk):
         self.scrollable_frame.columnconfigure(0, weight = 1)
 
     def _bind_mouse_scroll(self, event) -> None:
+        """
+        method used to bind the mouse scrollwheel to scrolling through the app
+        :param event: unused
+        :return: None
+        """
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
         self.canvas.bind_all("<Button-4>", self._on_mousewheel)
         self.canvas.bind_all("<Button-5>", self._on_mousewheel)
 
     def _unbind_mouse_scroll(self, event) -> None:
+        """
+        method used to unbind the mouse scrollwheel from scrolling through the app, used when the user's mouse pointer exits the app
+        :param event: unused
+        :return: None
+        """
         self.canvas.unbind_all("<MouseWheel>")
         self.canvas.unbind_all("<Button-4>")
         self.canvas.unbind_all("<Button-5>")
 
-    def _on_frame_configure(self, event=None):
+    def _on_frame_configure(self, event=None) -> None:
+        """
+        method used to redefine the scrollregion whenever the app is resized to have it actually correspond with where the app is visually
+        :param event: unused
+        :return: None
+        """
         self.canvas.configure(scrollregion = self.canvas.bbox("all"))
 
-    def _on_canvas_configure(self, event):
-
+    def _on_canvas_configure(self, event) -> None:
+        """
+        method used to delay recalculating the widget and GUI elements sizes and parameters until the user has stopped resizing the app, helps with lag significantly
+        :param event: event descriptor, containing information about the user's action
+        :return: None
+        """
         if self._resize_timer:
             self.after_cancel(self._resize_timer)
 
         self._resize_timer = self.after(150, self._perform_resize, event.width)
 
     def _perform_resize(self, new_width: int) -> None:
+        """
+        method used to manually resize the app, after the user is done modifying the window size
+        :param new_width: new width of the app
+        :return: None
+        """
         self.canvas.itemconfig(self.canvas_window,
                                width=new_width)
 
         self.canvas.configure(scrollregion = self.canvas.bbox("all"))
         self._resize_timer = None
 
-    def _on_mousewheel(self, event):
+    def _on_mousewheel(self, event) -> None:
+        """
+        method used to catch the movement of the mousewheel and react accordingly
+        :param event: event descriptor, containing information about the user's action
+        :return: None
+        """
         if event.delta:
             self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         elif event.num == 4:
@@ -196,6 +225,11 @@ class PriceCalc(CTk):
 
     @staticmethod
     def resource_path(relative_path : str) -> str:
+        """
+        method used to get relative paths to resources, even after compiled for the end user
+        :param relative_path: relative path from the script to the requested resource
+        :return: real path to the resource
+        """
         try:
             base_path = sys._MEIPASS
         except Exception:
@@ -203,7 +237,11 @@ class PriceCalc(CTk):
 
         return os.path.join(base_path, relative_path)
 
-    def export_pdf(self):
+    def export_pdf(self) -> None:
+        """
+        method used to export all the data within the calculator app into a PDF format
+        :return: None
+        """
         rows = []
 
         for widget in self.payrolls_section.widgets:

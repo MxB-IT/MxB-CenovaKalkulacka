@@ -401,6 +401,10 @@ class AccountingSection(SectionBase):
                             pady=10)
 
     def export_non_row_items_for_pdf(self) -> list[PDFDataClass]:
+        """
+        method used to get all the non-Row object items and export them into a list PDFDataClass objects, which the PDF class knows how to handle
+        :return: list of the pdfDataClass objects
+        """
         output = []
 
         if self.dph_pay_bool.get():

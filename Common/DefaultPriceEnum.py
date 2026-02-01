@@ -3,6 +3,9 @@ from Common.PieceNamesEnum import PieceNamesEnum
 from Common.ModeEnum import ModeEnum
 
 class DefaultPriceEnum(float, Enum):
+    """
+    Enum containing default prices of all services
+    """
     PAYROLL_PRICE = 250.0
     SIGNUPS_SIGNOFFS = 300.0
     EXECUTIONS = 880.0
@@ -24,7 +27,7 @@ class DefaultPriceEnum(float, Enum):
     BANK = 10.0
 
     @classmethod
-    def get_by_mode(cls, mode: ModeEnum, variable: PieceNamesEnum)->float:
+    def get_by_mode(cls, mode: ModeEnum, variable: PieceNamesEnum) -> float:
         mapping = {
             ModeEnum.EVIDENCE: {
                 PieceNamesEnum.BY_HAND      : cls.BY_HAND_EVIDENCE,

@@ -7,6 +7,9 @@ from Widgets.WidgetsBase import MXB_RED
 
 
 class PDF(FPDF):
+    """
+    class serving as a container for the PDF file, contains styling and data layout definitions
+    """
     def __init__(self):
         super().__init__()
         try:
@@ -17,6 +20,10 @@ class PDF(FPDF):
             self.add_font('DejaVuSans', 'B', './Assets/fonts/DejaVuSans-Bold.ttf')
 
     def header(self):
+        """
+        defines the header of the PDF pages
+        :return: None
+        """
         self.image('./Assets/Images/mxbLogo.png', 10, 8, 33)
         self.set_font('DejaVuSans', 'B', 25)
         self.cell(w=0,
@@ -28,7 +35,12 @@ class PDF(FPDF):
         self.set_y(50)
 
     def construct_table(self, data: list[PDFDataClass], total_price: float) -> None:
-
+        """
+        method used to construct a table of all the data to be exported from the calculator (rows with names and prices)
+        :param data: list of PDFDataClass objects with all the relevant data
+        :param total_price: total price of all services
+        :return: None
+        """
         self.set_line_width(0.6)
         # ignore editor warn about self.set_draw_color, false flag
         self.set_draw_color(MXB_RED)

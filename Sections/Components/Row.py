@@ -133,6 +133,11 @@ class Row(CTkFrame):
             self.subtotal_var.set(0.0)
 
     def set_price(self, *args) -> None:
+        """
+        method used to set the price of a row's item
+        :param args: unused
+        :return: None
+        """
         if self.ucto_bool.get() and self.ucto_price != 0.0:
             self.price_var.set(self.ucto_price)
         elif self.evidence_bool.get() and self.evidence_price != 0.0:
@@ -142,7 +147,11 @@ class Row(CTkFrame):
         elif self.no_dph_price != 0.0:
             self.price_var.set(self.no_dph_price)
 
-    def delete_row(self):
+    def delete_row(self) -> None:
+        """
+        method used to safely delete a row, calling a callback function in its parent to ensure safe deletion before self.destroying
+        :return:
+        """
         if self.on_delete_callback:
             self.on_delete_callback(self)
 
