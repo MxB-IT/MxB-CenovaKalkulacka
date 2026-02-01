@@ -50,9 +50,13 @@ class PDF(FPDF):
             row.cell(text='Cena(CZK)')
 
             for item in data:
-                row = table.row()
-                row.cell(text=item.name)
-                row.cell(text=f"{item.price:,.2f}")
+                try:
+                    row = table.row()
+                    row.cell(text=item.name)
+                    row.cell(text=f"{item.price:,.2f}")
+                except Exception as e:
+                    print("item name = " + item.name)
+                    print("item price = " + str(item.price))
 
             self.set_font('DejaVuSans', 'B', 15)
             row = table.row()

@@ -405,12 +405,12 @@ class AccountingSection(SectionBase):
 
         if self.dph_pay_bool.get():
             output.append(PDFDataClass(name=self.tax_check[0].cget("text"),
-                                       price=self.tax_check_price))
-            output.append(PDFDataClass(name=self.send_docs[1].cget("text"),
-                                       price=DefaultPriceEnum.SEND_DOCS if self.send_docs_bool.get() else 0.0))
+                                       price=float(self.tax_check_price)))
+            output.append(PDFDataClass(name=self.send_docs[0].cget("text"),
+                                       price=DefaultPriceEnum.SEND_DOCS.value if self.send_docs_bool.get() else 0.0))
         else:
             output.append(PDFDataClass(name=self.create_dppodpfo[0].cget("text"),
-                                       price=DefaultPriceEnum.DPPO_DPFO if self.dppodpfo_bool.get() else 0.0))
+                                       price=DefaultPriceEnum.DPPO_DPFO.value if self.dppodpfo_bool.get() else 0.0))
 
         output.append(PDFDataClass(name=self.import_only[0].cget("text"),
                                    price=self.import_only_var.get() if self.import_only_bool.get() else 0.0))
@@ -422,6 +422,5 @@ class AccountingSection(SectionBase):
                                    price=self.analysis_price))
         output.append(PDFDataClass(name=self.warehouses[0].cget("text"),
                                    price=self.warehouses_price))
-
 
         return output

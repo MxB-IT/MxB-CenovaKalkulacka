@@ -206,15 +206,20 @@ class PriceCalc(CTk):
     def export_pdf(self):
         rows = []
 
-        for widget in self.accounting_section.widgets:
-            if isinstance(widget, Row):
-                rows.append(widget)
-
         for widget in self.payrolls_section.widgets:
             if isinstance(widget, Row):
                 rows.append(widget)
 
-        PdfGen.create_pdf(rows, self.accounting_section.export_non_row_items_for_pdf(), float(self.total_section.total_price[1].cget("text")))
+        for widget in self.accounting_section.widgets:
+            if isinstance(widget, Row):
+                rows.append(widget)
+
+        output_folder = filedialog.askdirectory(initialdir=os.getcwd())
+
+        if output_folder == '':
+            output_folder = os.getcwd()
+
+        PdfGen.create_pdf(rows, self.accounting_section.export_non_row_items_for_pdf(), float(self.total_section.total_price[1].cget("text")), output_folder)
 
 if __name__ == "__main__":
     app = PriceCalc()
