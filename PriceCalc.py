@@ -214,7 +214,7 @@ class PriceCalc(CTk):
             if isinstance(widget, Row):
                 rows.append(widget)
 
-        PdfGen.create_pdf(rows, float(self.total_section.total_price[1].cget("text")))
+        PdfGen.create_pdf(rows, self.accounting_section.export_non_row_items_for_pdf(), float(self.total_section.total_price[1].cget("text")))
 
 if __name__ == "__main__":
     app = PriceCalc()

@@ -14,6 +14,12 @@ class AccountingSection(SectionBase):
     def __init__(self, master, app: "PriceCalc") -> None:
         self.frame = FrameBase(master=master)
 
+        self.centers_price = 0
+        self.orders_price = 0
+        self.analysis_price = 0
+        self.warehouses_price = 0
+        self.tax_check_price = 0
+
         self.total = DoubleVar(value=0.0)
         self.total.trace_add("write", app.calculate_total)
 
@@ -240,13 +246,15 @@ class AccountingSection(SectionBase):
                     total_amts = sum(var.get() for var in self.tax_check_amts)
 
                     if total_amts < 300:
-                        total+= 500
+                        self.tax_check_price = 500
                     elif 300 <= total_amts < 500:
-                        total += 700
+                        self.tax_check_price = 700
                     elif 500 <= total_amts < 1000:
-                        total += 1000
+                        self.tax_check_price = 1000
                     else:
-                        total += 2000
+                        self.tax_check_price = 2000
+
+                    total += self.tax_check_price
 
                 if self.dph_pay_bool.get():
                     total *= 7/6
@@ -256,13 +264,21 @@ class AccountingSection(SectionBase):
                     total += DefaultPriceEnum.DPPO_DPFO
 
             if self.centers_bool.get():
+                old_total = total
                 total *= 1.1
+                self.centers_price = total - old_total
             if self.orders_bool.get():
+                old_total = total
                 total *= 1.1
+                self.orders_price = total - old_total
             if self.analysis_bool.get():
+                old_total = total
                 total *= 1.1
+                self.analysis_price = total - old_total
             if self.warehouses_bool.get():
+                old_total = total
                 total *= 1.2
+                self.warehouses_price = total - old_total
 
         except ValueError as e:
             total = 0.0
@@ -385,9 +401,27 @@ class AccountingSection(SectionBase):
                             pady=10)
 
     def export_non_row_items_for_pdf(self) -> list[PDFDataClass]:
-        output = [PDFDataClass(name=self.create_dppodpfo[0].cget("text"),
-                               price=DefaultPriceEnum.DPPO_DPFO if self.dppodpfo_bool.get() else 0.0),
-                  PDFDataClass(name=self.import_only[0].cget("text"),
-                               price=self.import_only_var.get())]
+        output = []
+
+        if self.dph_pay_bool.get():
+            output.append(PDFDataClass(name=self.tax_check[0].cget("text"),
+                                       price=self.tax_check_price))
+            output.append(PDFDataClass(name=self.send_docs[1].cget("text"),
+                                       price=DefaultPriceEnum.SEND_DOCS if self.send_docs_bool.get() else 0.0))
+        else:
+            output.append(PDFDataClass(name=self.create_dppodpfo[0].cget("text"),
+                                       price=DefaultPriceEnum.DPPO_DPFO if self.dppodpfo_bool.get() else 0.0))
+
+        output.append(PDFDataClass(name=self.import_only[0].cget("text"),
+                                   price=self.import_only_var.get() if self.import_only_bool.get() else 0.0))
+        output.append(PDFDataClass(name=self.centers[0].cget("text"),
+                                   price=self.orders_price))
+        output.append(PDFDataClass(name=self.orders[0].cget("text"),
+                                   price=self.orders_price))
+        output.append(PDFDataClass(name=self.analysis[0].cget("text"),
+                                   price=self.analysis_price))
+        output.append(PDFDataClass(name=self.warehouses[0].cget("text"),
+                                   price=self.warehouses_price))
+
 
         return output
