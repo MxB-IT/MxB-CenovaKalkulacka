@@ -49,7 +49,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['Assets/Icon/calculatorICO.ico' if sys.platform.startswith('win') else 'Assets/Icon/calculatorICNS.icns']
+    icon='Assets/Icon/calculatorICO.ico' if sys.platform.startswith('win') else 'Assets/Icon/calculatorICNS.icns'
 )
 
 app = BUNDLE(
