@@ -1,0 +1,86 @@
+name: Build App
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller PriceCalc.spec
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: PriceCalc-${{ matrix.os }}
+        path: dist/
+
+  screenshot-test:
+    needs: build
+    name: Test on ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-14]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Test Dependencies
+        run: pip install pillow
+
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: PriceCalc-${{ matrix.os == 'macos-14' && 'macos-latest' || 'windows-latest' }}
+          path: ./test-dist
+
+      - name: Run App and Capture (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+          chmod +x "test-dist/Kalkulacka.app/Contents/MacOS/Kalkulacka"
+          "./test-dist/Kalkulacka.app/Contents/MacOS/Kalkulacka" &
+          python ./Scripts/capture_screen.py
+          killall Kalkulacka || true
+
+      - name: Run App and Capture (Windows)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          ./test-dist/Kalkulacka.exe &
+          python ./Scripts/capture_screen.py
+          taskkill //F //IM Kalkulacka.exe || true
+
+      - name: Upload Screenshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sanity-Check-${{ matrix.os }}
+          path: screenshot.jpg
