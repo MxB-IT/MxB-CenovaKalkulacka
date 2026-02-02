@@ -7,7 +7,6 @@ block_cipher = None
 sep = ';' if sys.platform.startswith('win') else ':'
 
 added_files = [
-    ("Icon", "Icon"),
     ("Assets/Fonts/", "Assets/Fonts"),
     ("Assets/Images/", "Assets/Images"),
     ("Assets/Icon/", "Assets/Icon")
