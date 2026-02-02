@@ -6,6 +6,10 @@ time.sleep(15)
 
 try:
     screenshot = ImageGrab.grab()
+
+    if screenshot.mode in ["RGBA", "P"]:
+        screenshot = screenshot.convert("RGB")
+
     screenshot.save("../screenshot.jpg", "JPEG")
     print("Screenshot captured successfully.")
 except Exception as e:
