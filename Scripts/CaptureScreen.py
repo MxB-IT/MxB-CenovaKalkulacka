@@ -6,7 +6,7 @@ time.sleep(15)
 
 try:
     screenshot = ImageGrab.grab()
-    screenshot.save("screenshot.jpg", "JPEG")
+    screenshot.save("../screenshot.jpg", "JPEG")
     print("Screenshot captured successfully.")
 except Exception as e:
     print(f"Failed to capture screenshot: {e}")
