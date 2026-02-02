@@ -1,7 +1,7 @@
 from PdfUtils.PDF import PDF
 from Sections.Components.Row import Row
 from PdfUtils.Mappers.RowToPdfMapper import RowToPdfMapper, PDFDataClass
-
+import webbrowser
 
 class PdfGen:
     """
@@ -26,3 +26,4 @@ class PdfGen:
         pdf.construct_table(table_data, total_price)
 
         pdf.output(f"{output_path}/output.pdf")
+        webbrowser.open(f"{output_path}/output.pdf")
