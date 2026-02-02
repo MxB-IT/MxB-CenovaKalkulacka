@@ -67,7 +67,7 @@ jobs:
         run: |
           chmod +x "test-dist/Kalkulacka.app/Contents/MacOS/Kalkulacka"
           "./test-dist/Kalkulacka.app/Contents/MacOS/Kalkulacka" &
-          python ./Scripts/capture_screen.py
+          python ./Scripts/CaptureScreen.py
           killall Kalkulacka || true
 
       - name: Run App and Capture (Windows)
@@ -75,7 +75,7 @@ jobs:
         shell: bash
         run: |
           ./test-dist/Kalkulacka.exe &
-          python ./Scripts/capture_screen.py
+          python ./Scripts/CaptureScreen.py
           taskkill //F //IM Kalkulacka.exe || true
 
       - name: Upload Screenshot
