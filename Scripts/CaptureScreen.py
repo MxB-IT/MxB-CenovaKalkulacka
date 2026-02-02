@@ -10,7 +10,7 @@ try:
     if screenshot.mode in ["RGBA", "P"]:
         screenshot = screenshot.convert("RGB")
 
-    screenshot.save("../screenshot.jpg", "JPEG")
+    screenshot.save("screenshot.jpg", "JPEG")
     print("Screenshot captured successfully.")
 except Exception as e:
     print(f"Failed to capture screenshot: {e}")
