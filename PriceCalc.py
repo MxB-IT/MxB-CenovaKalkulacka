@@ -261,4 +261,12 @@ class PriceCalc(CTk):
 
 if __name__ == "__main__":
     app = PriceCalc()
+    try:
+        if sys.platform.startswith('win'):
+            app.iconbitmap(PriceCalc.resource_path("Assets/Icon/calculatorICO.ico"))
+        else:
+            img = tk.PhotoImage(file=PriceCalc.resource_path("Assets/Icon/calculatorICNS.icns"))
+            app.iconphoto(True, img)
+    except Exception as e:
+        print(f"Could not load icon {e}")
     app.mainloop()

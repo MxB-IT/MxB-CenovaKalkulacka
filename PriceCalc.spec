@@ -29,6 +29,8 @@ a = Analysis(
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
+icon_path = 'Assets/Icon/calculatorICO.ico' if sys.platform.startswith('win') else 'Assets/Icon/calculatorICNS.icns'
+
 exe = EXE(
     pyz,
     a.scripts,
@@ -49,11 +51,12 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='Assets/Icon/calculatorICO.ico' if sys.platform.startswith('win') else 'Assets/Icon/calculatorICNS.icns'
+    icon=icon_path
 )
 
 app = BUNDLE(
     exe,
     name='Kalkulacka.app',
+    icon=icon_path,
     bundle_identifier='com.Lander.Kalkulacka'
 )
