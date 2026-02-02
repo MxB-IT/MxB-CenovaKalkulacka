@@ -1,9 +1,7 @@
 from fpdf import FPDF
 from fpdf.fonts import FontFace
+from Scripts.ResourcePather import ResourcePather
 from PdfUtils.Mappers.RowToPdfMapper import PDFDataClass
-from pathlib import Path
-
-from PriceCalc import PriceCalc
 from Widgets.WidgetsBase import MXB_RED
 
 
@@ -13,8 +11,8 @@ class PDF(FPDF):
     """
     def __init__(self):
         super().__init__()
-        font_path = PriceCalc.resource_path('./Assets/fonts/DejaVuSans.ttf')
-        bold_font_path = PriceCalc.resource_path('./Assets/fonts/DejaVuSans-Bold.ttf')
+        font_path = ResourcePather.resource_path('./Assets/fonts/DejaVuSans.ttf')
+        bold_font_path = ResourcePather.resource_path('./Assets/fonts/DejaVuSans-Bold.ttf')
         try:
             self.add_font('DejaVuSans', '', font_path, uni=True)
             self.add_font('DejaVuSans', 'B', bold_font_path, uni=True)
@@ -27,7 +25,7 @@ class PDF(FPDF):
         defines the header of the PDF pages
         :return: None
         """
-        img_path = PriceCalc.resource_path('./Assets/Images/mxbLogo.png')
+        img_path = ResourcePather.resource_path('./Assets/Images/mxbLogo.png')
         self.image(img_path, 10, 8, 33)
         self.set_font('DejaVuSans', 'B', 25)
         self.cell(w=0,

@@ -2,8 +2,8 @@ import _tkinter
 from PdfUtils.Mappers.RowToPdfMapper import PDFDataClass
 from Sections.Components.Row import Row
 from Sections.SectionBase import *
-from Common.DefaultPriceEnum import DefaultPriceEnum
-from Common.ModeEnum import ModeEnum
+from Common.Enums.DefaultPriceEnum import DefaultPriceEnum
+from Common.Enums.ModeEnum import ModeEnum
 from Widgets.ButtonBase import ButtonBase
 from Widgets.Tooltip import Tooltip
 

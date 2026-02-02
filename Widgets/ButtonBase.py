@@ -1,4 +1,4 @@
-from Common.PlaceholderTexts import PlaceholderTexts
+from Common.Enums.PlaceholderTexts import PlaceholderTexts
 from Widgets.WidgetsBase import *
 
 class ButtonBase(CTkButton):

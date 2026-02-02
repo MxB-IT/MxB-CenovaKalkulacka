@@ -1,7 +1,7 @@
 from tkinter import StringVar, IntVar, DoubleVar, BooleanVar
 from typing import Callable
 from customtkinter import CTkFrame, CTkButton
-from Common.PlaceholderTexts import PlaceholderTexts
+from Common.Enums.PlaceholderTexts import PlaceholderTexts
 from Widgets.CTkSpinbox import CTkSpinbox
 from Widgets.TextBoxBase import TextBoxBase
 from Widgets.Tooltip import Tooltip

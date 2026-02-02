@@ -1,4 +1,5 @@
 import tkinter as tk
+from Scripts.ResourcePather import ResourcePather
 from PdfUtils.PdfGen import PdfGen
 from Sections.BaseSection import *
 from Sections.AccountingSection import *
@@ -83,7 +84,7 @@ class PriceCalc(CTk):
                          columnspan=self.scrollable_frame.grid_size()[0],
                          sticky="ew")
 
-        icon_path = PriceCalc.resource_path("Assets/Images/PDF_file_icon.png")
+        icon_path = ResourcePather.resource_path("Assets/Images/PDF_file_icon.png")
         pdf_image = Image.open(icon_path)
 
         pdf_icon = CTkImage(light_image=pdf_image,
@@ -223,20 +224,6 @@ class PriceCalc(CTk):
         else:
             section.frame.grid_forget()
 
-    @staticmethod
-    def resource_path(relative_path : str) -> str:
-        """
-        method used to get relative paths to resources, even after compiled for the end user
-        :param relative_path: relative path from the script to the requested resource
-        :return: real path to the resource
-        """
-        try:
-            base_path = sys._MEIPASS
-        except Exception:
-            base_path = os.path.dirname(os.path.abspath(__file__))
-
-        return os.path.join(base_path, relative_path)
-
     def export_pdf(self) -> None:
         """
         method used to export all the data within the calculator app into a PDF format
@@ -263,9 +250,9 @@ if __name__ == "__main__":
     app = PriceCalc()
     try:
         if sys.platform.startswith('win'):
-            app.iconbitmap(PriceCalc.resource_path("Assets/Icon/calculatorICO.ico"))
+            app.iconbitmap(ResourcePather.resource_path("Assets/Icon/calculatorICO.ico"))
         else:
-            img = tk.PhotoImage(file=PriceCalc.resource_path("Assets/Icon/calculatorICNS.icns"))
+            img = tk.PhotoImage(file=ResourcePather.resource_path("Assets/Icon/calculatorICNS.icns"))
             app.iconphoto(True, img)
     except Exception as e:
         print(f"Could not load icon {e}")

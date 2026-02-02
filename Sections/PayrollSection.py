@@ -1,4 +1,4 @@
-from Common.DefaultPriceEnum import DefaultPriceEnum
+from Common.Enums.DefaultPriceEnum import DefaultPriceEnum
 from Sections.Components.Row import Row
 from Sections.SectionBase import *
 from Widgets.ButtonBase import ButtonBase
