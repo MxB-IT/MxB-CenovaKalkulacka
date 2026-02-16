@@ -5,11 +5,12 @@ class Tooltip:
                  widget,
                  text,
                  delay=500):
-        self.widget = widget
-        self.text = text
-        self.delay = delay
-        self.tooltip_window = None
-        self.id = None
+        """
+        initializer for the Tooltip class, sets up all the private properties and binds the appropriate actions
+        :param widget: widget for which the tooltip will be shown
+        :param text: text the tooltip will display
+        :param delay: delay after which the tooltip will appear (in ms)
+        """
         self._widget = widget
         self._text = text
         self._delay = delay
@@ -20,15 +21,18 @@ class Tooltip:
         self._widget.bind("<Leave>", self._hide_tooltip)
         self._widget.bind("<ButtonPress>", self._hide_tooltip)
 
-    def schedule_tooltip(self, event=None):
-        self.id = self.widget.after(self.delay, self.show_tooltip)
     def _schedule_tooltip(self) -> None:
+        """
+        method used for scheduling a tooltip to show itself, called whenever a user mouses over the appropriate widget
+        :return: None
+        """
         self._id = self._widget.after(self._delay, self._show_tooltip)
 
-    def show_tooltip(self, event=None):
-        x = self.widget.winfo_rootx() + 20
-        y = self.widget.winfo_rooty() + self.widget.winfo_height() + 5
     def _show_tooltip(self) -> None:
+        """
+        method used to calculate the size of the tooltip and its position relative to the parent widget
+        :return: None
+        """
         x = self._widget.winfo_rootx() + 20
         y = self._widget.winfo_rooty() + self._widget.winfo_height() + 5
 
@@ -49,11 +53,11 @@ class Tooltip:
         )
         label.pack()
 
-    def hide_tooltip(self, event=None):
-        if self.id:
-            self.widget.after_cancel(self.id)
-            self.id = None
     def _hide_tooltip(self) -> None:
+        """
+        method used to hide the tooltip, called after user action or timeout
+        :return: None
+        """
         if self._id:
             self._widget.after_cancel(self._id)
             self._id = None
