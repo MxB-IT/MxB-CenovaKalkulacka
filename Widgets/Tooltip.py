@@ -1,6 +1,9 @@
 from customtkinter import CTkToplevel, CTkLabel
 
 class Tooltip:
+    """
+    class used for displaying tooltips to the user upon hovering over certain elements of the app
+    """
     def __init__(self,
                  widget,
                  text,
