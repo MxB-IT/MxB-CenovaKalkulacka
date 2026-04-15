@@ -24,14 +24,14 @@ class Tooltip:
         self._widget.bind("<Leave>", self._hide_tooltip)
         self._widget.bind("<ButtonPress>", self._hide_tooltip)
 
-    def _schedule_tooltip(self) -> None:
+    def _schedule_tooltip(self, event = None) -> None:
         """
         method used for scheduling a tooltip to show itself, called whenever a user mouses over the appropriate widget
         :return: None
         """
         self._id = self._widget.after(self._delay, self._show_tooltip)
 
-    def _show_tooltip(self) -> None:
+    def _show_tooltip(self, event = None) -> None:
         """
         method used to calculate the size of the tooltip and its position relative to the parent widget
         :return: None
@@ -56,7 +56,7 @@ class Tooltip:
         )
         label.pack()
 
-    def _hide_tooltip(self) -> None:
+    def _hide_tooltip(self, event = None) -> None:
         """
         method used to hide the tooltip, called after user action or timeout
         :return: None
