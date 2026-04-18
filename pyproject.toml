@@ -1,0 +1,45 @@
+[project]
+name = "calculator"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "customtkinter>=5.2.2",
+    "fpdf>=1.7.2",
+    "mypy>=1.20.1",
+    "pillow>=12.2.0",
+    "ruff>=0.15.11",
+]
+authors = [
+    {name = "Tadeas Topinka", email = "tadeas.topinka@gmail.com"}
+]
+maintainers = [
+    {name = "Tadeas Topinka", email = "tadeas.topinka@gmial.com"}
+]
+
+[project.urls]
+Repository = "https://github.com/Lander456/MxB_PriceCalc"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+
+[[tool.mypy.overrides]]
+module = "customtkinter.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "fpdf.*"
+ignore_missing_imports = true
+
+[tool.ruff]
+src = ["src"]
+line-length = 99
+target-version = "py312"
+show-fixes = true
+output-format = "full"
+
+[tool.ruff.lint]
+select = ["ALL"]
