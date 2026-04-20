@@ -1,6 +1,6 @@
 from src.Common.Enums.default_price_enum import DefaultPriceEnum
-from src.Sections.Components.Row import Row
-from src.Sections.SectionBase import *
+from src.Sections.Components.row import Row
+from src.Sections.section_base import *
 from src.Widgets.button_base import ButtonBase
 
 class PayrollSection(SectionBase):

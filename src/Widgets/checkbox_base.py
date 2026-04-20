@@ -3,7 +3,7 @@ from typing import Any
 
 from customtkinter import CTkCheckBox, CTkFrame
 
-from src.Widgets.widgets_base import MXB_RED
+from src.Common.Enums.colour_enum import ColourEnum
 
 
 class CheckBoxBase(CTkCheckBox):
@@ -12,11 +12,11 @@ class CheckBoxBase(CTkCheckBox):
     def __init__(self,
                  *args: tuple[Any, ...],
                  master: CTkFrame,
-                 fg_color: str = MXB_RED,
-                 border_color: str = MXB_RED,
-                 text_color: str = MXB_RED,
-                 hover_color: str = MXB_RED,
-                 **kwargs: dict[str, Any]) -> None:
+                 fg_color: ColourEnum = ColourEnum.MXB_RED,
+                 border_color: ColourEnum = ColourEnum.MXB_RED,
+                 text_color: ColourEnum = ColourEnum.MXB_RED,
+                 hover_color: ColourEnum = ColourEnum.MXB_RED,
+                 **kwargs: Any) -> None:
         """Initialise the Checkbox with the passed arguments.
 
         Initialises the Checkbox and modifies its appearance based on the arguments passed.
@@ -25,6 +25,7 @@ class CheckBoxBase(CTkCheckBox):
         :param border_color: Colour for the border of the checkbox, defaults to MXB_RED.
         :param text_color: Colour for the text displayed with the checkbox, defaults to MXB_RED.
         :param hover_color: Colour for the checkbox when hovered over, defaults to MXB_RED.
+        :return: None
         """
         super().__init__(*args,
                          master,

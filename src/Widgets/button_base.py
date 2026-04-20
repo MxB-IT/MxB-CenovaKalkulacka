@@ -3,8 +3,8 @@ from typing import Any
 
 from customtkinter import CTkButton, CTkFrame
 
+from src.Common.Enums.colour_enum import ColourEnum
 from src.Common.Enums.placeholder_texts import PlaceholderTexts
-from src.Widgets.widgets_base import MXB_RED
 
 
 class ButtonBase(CTkButton):
@@ -12,12 +12,12 @@ class ButtonBase(CTkButton):
 
     def __init__(self,
                  master: CTkFrame,
-                 fg_color: str=MXB_RED,
-                 border_color: str=MXB_RED,
-                 text_color: str="white",
-                 text: str=PlaceholderTexts.BUTTON_TEXT,
+                 fg_color: ColourEnum = ColourEnum.MXB_RED,
+                 border_color: ColourEnum = ColourEnum.MXB_RED,
+                 text_color: ColourEnum = ColourEnum.WHITE,
+                 text: PlaceholderTexts | str = PlaceholderTexts.BUTTON_TEXT,
                  *args: tuple[Any, ...],
-                 **kwargs: dict[str, Any]) -> None:
+                 **kwargs: Any) -> None:
         """Initialise the button.
 
         Initialises the button with the given arguments modifying its initial appearance
@@ -26,6 +26,7 @@ class ButtonBase(CTkButton):
         :param border_color: colour this button's border should have, defaults to MXB_RED
         :param text_color: colour this button's text should have, defaults to "white"
         :param text: text for the button, defaults to PlaceholderTexts.BUTTON_TEXT
+        :return: None
         """
         super().__init__(*args,
                          master=master,

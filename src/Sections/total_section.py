@@ -1,4 +1,4 @@
-from src.Sections.SectionBase import *
+from src.Sections.section_base import *
 
 
 class TotalSection(SectionBase):

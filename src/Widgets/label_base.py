@@ -3,7 +3,7 @@ from typing import Any
 
 from customtkinter import CTkFrame, CTkLabel, CTkToplevel
 
-from src.Widgets.widgets_base import MXB_RED
+from src.Common.Enums.colour_enum import ColourEnum
 
 
 class LabelBase(CTkLabel):
@@ -13,8 +13,8 @@ class LabelBase(CTkLabel):
             self,
             *args: tuple[Any, ...],
             master: CTkFrame | CTkToplevel,
-            text_color: str = MXB_RED,
-            **kwargs: dict[str, Any],
+            text_color: ColourEnum = ColourEnum.MXB_RED,
+            **kwargs: Any,
     ) -> None:
         """Initialise the Label.
 
@@ -23,6 +23,7 @@ class LabelBase(CTkLabel):
         :param master: Master widget.
         :param text_color: Colour for the text held by the label.
         :param kwargs: Keyword arguments for the parent CTkLabel class.
+        :return: None
         """
         super().__init__(
             *args,

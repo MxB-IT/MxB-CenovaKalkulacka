@@ -4,4 +4,9 @@
     <option name="sdkName" value="Python 3.12 (Calculator)" />
   </component>
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12 (Calculator)" project-jdk-type="Python SDK" />
+  <component name="RuffConfiguration">
+    <option name="enabled" value="true" />
+    <option name="executableDiscoveryMode" value="PATH" />
+    <option name="pathToExecutable" value="$USER_HOME$/IPP/2026/ipp26-project-templates/python/int/.venv/bin/ruff" />
+  </component>
 </project>

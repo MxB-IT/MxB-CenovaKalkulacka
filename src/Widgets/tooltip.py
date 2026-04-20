@@ -3,6 +3,7 @@ from typing import Any
 
 from customtkinter import CTkLabel, CTkToplevel
 
+from Common.Enums.err_no_enum import ErrNoEnum
 from Errors.gui_error import GUIError
 
 
@@ -54,7 +55,7 @@ class Tooltip:
 
         self._tooltip_window = CTkToplevel(master=self._widget)
         if not self._tooltip_window:
-            raise GUIError(error_code=,
+            raise GUIError(error_code= ErrNoEnum.ERR_TOOLTIP_INIT_FAIL,
                            error_message="Tooltip window failed to initialise.")
 
         self._tooltip_window.wm_overrideredirect(boolean=True)

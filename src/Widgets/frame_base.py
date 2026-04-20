@@ -4,7 +4,7 @@ from typing import Any
 
 from customtkinter import CTkFrame
 
-from src.Widgets.widgets_base import MXB_RED
+from src.Common.Enums.colour_enum import ColourEnum
 
 
 class FrameBase(CTkFrame):
@@ -14,8 +14,8 @@ class FrameBase(CTkFrame):
         self,
         *args: tuple[Any, ...],
         master: CTkFrame | Canvas,
-        fg_color: str = "white",
-        border_color: str = MXB_RED,
+        fg_color: ColourEnum = ColourEnum.WHITE,
+        border_color: str = ColourEnum.MXB_RED,
         border_width: int = 2,
         **kwargs: dict[str, Any],
     ) -> None:
@@ -27,7 +27,8 @@ class FrameBase(CTkFrame):
         :param fg_color: Colour of the Frame.
         :param border_color: Border colour of the Frame.
         :param border_width: Border width of the Frame.
-        :kwargs: Keyword arguments for the CTkFrame parent class.
+        :param kwargs: Keyword arguments for the CTkFrame parent class.
+        :return: None
         """
         super().__init__(
             *args,

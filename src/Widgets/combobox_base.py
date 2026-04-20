@@ -3,7 +3,7 @@ from typing import Any
 
 from customtkinter import CTkComboBox, CTkFrame
 
-from src.Widgets.widgets_base import MXB_RED
+from src.Common.Enums.colour_enum import ColourEnum
 
 
 class ComboBoxBase(CTkComboBox):
@@ -12,16 +12,16 @@ class ComboBoxBase(CTkComboBox):
     def __init__(self,  # noqa: PLR0913
                  *args: tuple[Any, ...],
                  master: CTkFrame,
-                 border_color: str = "#401c1b",
-                 fg_color: str = "white",
-                 dropdown_fg_color: str = "white",
-                 button_color: str = "#401c1b",
-                 text_color: str = MXB_RED,
-                 dropdown_text_color: str = MXB_RED,
-                 dropdown_hover_color: str = "#ffb3b3",
+                 border_color: ColourEnum = ColourEnum.DARK_MXB_RED,
+                 fg_color: ColourEnum = ColourEnum.WHITE,
+                 dropdown_fg_color: ColourEnum = ColourEnum.WHITE,
+                 button_color: ColourEnum = ColourEnum.DARK_MXB_RED,
+                 text_color: ColourEnum = ColourEnum.MXB_RED,
+                 dropdown_text_color: ColourEnum = ColourEnum.MXB_RED,
+                 dropdown_hover_color: ColourEnum = ColourEnum.LIGHT_MXB_RED,
                  border_width: int = 2,
-                 button_hover_color: str = "#ffb3b3",
-                 **kwargs: dict[str, Any]) -> None:
+                 button_hover_color: ColourEnum = ColourEnum.LIGHT_MXB_RED,
+                 **kwargs: Any) -> None:
         """Initialise the Combobox.
 
         Initialises the combobox based on the given parameters.
@@ -40,6 +40,7 @@ class ComboBoxBase(CTkComboBox):
         :param button_hover_color: Colour for the combobox buttons when hovered over, defaults to
         "ffb3b3".
         :param kwargs: Any additional keyword arguments applicable to CTkCombobox.
+        :return None
         """
         super().__init__(*args,
                          master,

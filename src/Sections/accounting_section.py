@@ -1,17 +1,25 @@
-import _tkinter
-from src.PdfUtils.Mappers.RowToPdfMapper import PDFDataClass
-from src.Sections.Components.Row import Row
-from src.Sections.SectionBase import *
+"""Defines bas class for the accounting section of the price calculator."""
+from tkinter import BooleanVar, DoubleVar, IntVar
+
 from src.Common.Enums.default_price_enum import DefaultPriceEnum
 from src.Common.Enums.mode_enum import ModeEnum
+from src.PdfUtils.Mappers.RowToPdfMapper import PDFDataClass
+from src.Sections.Components.row import Row
+from src.Sections.section_base import SectionBase
 from src.Widgets.button_base import ButtonBase
+from src.Widgets.checkbox_base import CheckBoxBase
+from src.Widgets.combobox_base import ComboBoxBase
+from src.Widgets.frame_base import FrameBase
+from src.Widgets.label_base import LabelBase
 from src.Widgets.tooltip import Tooltip
 
+
 class AccountingSection(SectionBase):
-    """
-    defines a section for the accounting widgets
-    """
-    def __init__(self, master, app: "PriceCalc") -> None:
+    """Defines a section for the accounting widgets."""
+
+    def __init__(self,
+                 master,
+                 app: "PriceCalc") -> None:
         self.frame = FrameBase(master=master)
 
         self.centers_price = 0
@@ -308,7 +316,7 @@ class AccountingSection(SectionBase):
 
         self.get_total()
 
-    def _define_row(self, text : str, evidence_price: Union[DefaultPriceEnum, float], ucto_price: Union[DefaultPriceEnum, float], dph_price: Union[DefaultPriceEnum, float], no_dph_price: Union[DefaultPriceEnum, float], amt_var: IntVar = None) -> None:
+    def _define_row(self, text : str, evidence_price: DefaultPriceEnum | float, ucto_price: DefaultPriceEnum | float, dph_price: DefaultPriceEnum | float, no_dph_price: DefaultPriceEnum | float, amt_var: IntVar = None) -> None:
         """
         method used to define each row with an interactible price and amount of items to be calculated
         :param text: text to be displayed in the textbox next to the row

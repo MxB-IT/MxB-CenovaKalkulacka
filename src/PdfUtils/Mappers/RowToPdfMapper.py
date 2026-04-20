@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from src.Sections.Components.Row import Row
+from src.Sections.Components.row import Row
 
 @dataclass
 class PDFDataClass:

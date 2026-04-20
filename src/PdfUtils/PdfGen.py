@@ -1,5 +1,5 @@
 from src.PdfUtils.PDF import PDF
-from src.Sections.Components.Row import Row
+from src.Sections.Components.row import Row
 from src.PdfUtils.Mappers.RowToPdfMapper import RowToPdfMapper, PDFDataClass
 import webbrowser
 

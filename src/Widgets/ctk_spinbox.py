@@ -4,8 +4,7 @@ from tkinter import DoubleVar, IntVar, StringVar
 from typing import Any
 
 from customtkinter import CTkButton, CTkEntry, CTkFrame
-
-from src.Widgets.widgets_base import MXB_RED
+from src.Common.Enums. colour_enum import ColourEnum
 
 
 class CTkSpinbox(CTkFrame):
@@ -33,6 +32,7 @@ class CTkSpinbox(CTkFrame):
         :param variable: Variable held inside the spinbox, defaults to None if no var is passed in.
         :param command: Callback command for when a button is pressed.
         :param kwargs: Any keyword arguments applicable to CTkFrame.
+        :return: None
         """
         super().__init__(*args, width=width, height=height, **kwargs)
 
@@ -49,7 +49,7 @@ class CTkSpinbox(CTkFrame):
         self.variable = variable or DoubleVar(value=0)
         self.variable.trace_add("write", self._on_var_change)
 
-        self.configure(fg_color=MXB_RED)
+        self.configure(fg_color=ColourEnum.MXB_RED)
         self.grid_columnconfigure((0, 2), weight=0)
         self.grid_columnconfigure(1, weight=1)
 
@@ -61,7 +61,7 @@ class CTkSpinbox(CTkFrame):
             command=self.subtract_button_callback,
             fg_color="white",
             hover_color="#ffbfbf",
-            text_color=MXB_RED,
+            text_color=ColourEnum.MXB_RED,
         )
         self.subtract_button.grid(row=0, column=0, padx=(3, 0), pady=3)
 
@@ -82,7 +82,7 @@ class CTkSpinbox(CTkFrame):
             command=self.add_button_callback,
             fg_color="white",
             hover_color="#bfffcc",
-            text_color=MXB_RED,
+            text_color=ColourEnum.MXB_RED,
         )
         self.add_button.grid(row=0, column=2, padx=(0, 3), pady=3)
 

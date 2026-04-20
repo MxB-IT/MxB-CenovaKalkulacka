@@ -3,7 +3,7 @@ from tkinter import LEFT, RIGHT
 
 from future.moves.tkinter import filedialog
 
-from src.Sections.Components.Row import Row
+from src.Sections.Components.row import Row
 from src.Scripts.ResourcePather import ResourcePather
 from src.PdfUtils.PdfGen import PdfGen
 import sys
@@ -12,10 +12,10 @@ from src.Widgets.frame_base import FrameBase
 from src.Widgets.tooltip import Tooltip
 from src.Widgets.button_base import ButtonBase
 from src.Widgets.label_base import LabelBase
-from src.Sections.BaseSection import BaseSection
-from src.Sections.AccountingSection import AccountingSection
-from src.Sections.PayrollSection import PayrollSection
-from src.Sections.TotalSection import TotalSection
+from src.Sections.base_section import BaseSection
+from src.Sections.accounting_section import AccountingSection
+from src.Sections.payroll_section import PayrollSection
+from src.Sections.total_section import TotalSection
 
 from PIL import Image
 import os
