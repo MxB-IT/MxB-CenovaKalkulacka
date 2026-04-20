@@ -1,21 +1,28 @@
-from src.Widgets.combobox_base import *
+from typing import Any
+
+from customtkinter import CTkFrame
+
+from src.sections.components.row import Row
+
 
 class SectionBase:
-    """
-    server as a base for all sections, containing common methods
-    """
+    """Defines the base for all sections."""
+
     @staticmethod
-    def arrange_widgets(master : CTkFrame, widgets : List[Tuple[Widget, Widget]]) -> None:
-        """
+    def arrange_widgets(master : CTkFrame, widgets : list[tuple[Any, ...] | Row]) -> None:
+        """Arrange all widgets into a grid.
+
         arranges widgets into a grid layout within the master parameter
         :param master: the master widget within which to arrange all the child widgets
-        :param widgets: list of all child widgets, expected to be arranged into a list of tuples, where each list item
-                        represents a row and each tuple item represents a column within the grid
+        :param widgets: list of all child widgets, expected to be arranged into a list of tuples,
+        where each list item represents a row and each tuple item represents a column within the
+        grid
         :return: None
         """
         for i, row in enumerate(widgets):
 
-            # if row does not contain multiple elements, make it a list in order to not break the rest of the logic
+            # if row does not contain multiple elements, make it a list in order to not break the
+            # rest of the logic
             if not isinstance(row, (list, tuple)):
                 row = [row]
 

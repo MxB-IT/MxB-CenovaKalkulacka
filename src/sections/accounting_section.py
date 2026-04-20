@@ -1,17 +1,21 @@
 """Defines bas class for the accounting section of the price calculator."""
+import _tkinter
 from tkinter import BooleanVar, DoubleVar, IntVar
+from typing import Any
 
-from src.Common.Enums.default_price_enum import DefaultPriceEnum
-from src.Common.Enums.mode_enum import ModeEnum
-from src.PdfUtils.Mappers.RowToPdfMapper import PDFDataClass
-from src.Sections.Components.row import Row
-from src.Sections.section_base import SectionBase
-from src.Widgets.button_base import ButtonBase
-from src.Widgets.checkbox_base import CheckBoxBase
-from src.Widgets.combobox_base import ComboBoxBase
-from src.Widgets.frame_base import FrameBase
-from src.Widgets.label_base import LabelBase
-from src.Widgets.tooltip import Tooltip
+from customtkinter import CTk
+
+from src.common.enums.default_price_enum import DefaultPriceEnum
+from src.common.enums.mode_enum import ModeEnum
+from src.pdf_utils.mappers.row_to_pdf_mapper import PDFDataClass
+from src.sections.components.row import Row
+from src.sections.section_base import SectionBase
+from src.widgets.button_base import ButtonBase
+from src.widgets.checkbox_base import CheckBoxBase
+from src.widgets.combobox_base import ComboBoxBase
+from src.widgets.frame_base import FrameBase
+from src.widgets.label_base import LabelBase
+from src.widgets.tooltip import Tooltip
 
 
 class AccountingSection(SectionBase):
@@ -19,36 +23,36 @@ class AccountingSection(SectionBase):
 
     def __init__(self,
                  master,
-                 app: "PriceCalc") -> None:
+                 app: CTk) -> None:
         self.frame = FrameBase(master=master)
 
-        self.centers_price = 0
-        self.orders_price = 0
-        self.analysis_price = 0
-        self.warehouses_price = 0
-        self.tax_check_price = 0
+        self.centers_price: int = 0
+        self.orders_price: int = 0
+        self.analysis_price: int = 0
+        self.warehouses_price: int = 0
+        self.tax_check_price: int = 0
 
-        self.total = DoubleVar(value=0.0)
+        self.total: DoubleVar = DoubleVar(value=0.0)
         self.total.trace_add("write", app.calculate_total)
 
         #wall of bools
-        self.import_only_bool = BooleanVar(value = False)
+        self.import_only_bool: BooleanVar = BooleanVar(value = False)
         self.import_only_bool.trace_add("write", self.get_total)
-        self.dph_pay_bool = BooleanVar(value = False)
-        self.evidence_bool = BooleanVar(value = False)
-        self.ucto_bool = BooleanVar(value = False)
-        self.centers_bool = BooleanVar(value = False)
-        self.orders_bool = BooleanVar(value = False)
-        self.analysis_bool = BooleanVar(value = False)
-        self.warehouses_bool = BooleanVar(value = False)
-        self.send_docs_bool = BooleanVar(value = False)
-        self.dppodpfo_bool = BooleanVar(value = False)
-        self.tax_check_bool = BooleanVar(value = False)
+        self.dph_pay_bool: BooleanVar = BooleanVar(value = False)
+        self.evidence_bool: BooleanVar = BooleanVar(value = False)
+        self.ucto_bool: BooleanVar = BooleanVar(value = False)
+        self.centers_bool: BooleanVar = BooleanVar(value = False)
+        self.orders_bool: BooleanVar = BooleanVar(value = False)
+        self.analysis_bool: BooleanVar = BooleanVar(value = False)
+        self.warehouses_bool: BooleanVar = BooleanVar(value = False)
+        self.send_docs_bool: BooleanVar = BooleanVar(value = False)
+        self.dppodpfo_bool: BooleanVar = BooleanVar(value = False)
+        self.tax_check_bool: BooleanVar = BooleanVar(value = False)
 
-        self.widgets = []
-        self.dph_widgets = []
-        self.no_dph_widgets = []
-        self.subtotals = []
+        self.widgets: list[tuple[Any, ...] | Row] = []
+        self.dph_widgets: list[tuple[Any, Any]] = []
+        self.no_dph_widgets: list[tuple[Any, Any]] = []
+        self.subtotals: list[Any] = []
         self.tax_check_amts = []
 
         self.checkboxes = (CheckBoxBase(master=self.frame,
@@ -63,7 +67,7 @@ class AccountingSection(SectionBase):
         self.dph_pay = (CheckBoxBase(master=self.frame,
                                      text="Plátce DPH",
                                      variable=self.dph_pay_bool,
-                                     command=lambda: self.toggle_dph()),
+                                     command=self.toggle_dph),
                         LabelBase(master=self.frame,
                                   text=""))
 
@@ -74,7 +78,11 @@ class AccountingSection(SectionBase):
                                          text="Import vystavených faktur",
                                          variable=self.import_only_bool),
                             ComboBoxBase(master=self.frame,
-                                         values=[str(800), str(1000), str(1200), str(1400), str(1600)],
+                                         values=[str(800),
+                                                 str(1000),
+                                                 str(1200),
+                                                 str(1400),
+                                                 str(1600)],
                                          variable=self.import_only_var))
 
         self.centers = (CheckBoxBase(master=self.frame,
@@ -130,41 +138,57 @@ class AccountingSection(SectionBase):
                         LabelBase(master=self.frame,
                                   text="Počet"),
                         LabelBase(master=self.frame,
-                                  text="Cena")
+                                  text="Cena"),
                         )
 
         self.setup_widgets()
 
         bank_amt = IntVar(value=0)
         self.tax_check_amts.append(bank_amt)
-        self._define_row(text="Počet položek na bance", evidence_price=DefaultPriceEnum.BANK,
-                         ucto_price=DefaultPriceEnum.BANK, dph_price=DefaultPriceEnum.BANK,
-                         no_dph_price=DefaultPriceEnum.BANK, amt_var=bank_amt)
+        self._define_row(text="Počet položek na bance",
+                         evidence_price=DefaultPriceEnum.BANK,
+                         ucto_price=DefaultPriceEnum.BANK,
+                         dph_price=DefaultPriceEnum.BANK,
+                         no_dph_price=DefaultPriceEnum.BANK,
+                         amt_var=bank_amt)
 
         by_hand_amt = IntVar(value=0)
         self.tax_check_amts.append(by_hand_amt)
-        self._define_row(text="Počet zaúčtovaných vystavených faktur", evidence_price=DefaultPriceEnum.BY_HAND_EVIDENCE,
-                         ucto_price=DefaultPriceEnum.BY_HAND_UCTO, dph_price=0.0,
-                         no_dph_price=DefaultPriceEnum.BY_HAND_NO_DPH, amt_var=by_hand_amt)
+        self._define_row(text="Počet zaúčtovaných vystavených faktur",
+                         evidence_price=DefaultPriceEnum.BY_HAND_EVIDENCE,
+                         ucto_price=DefaultPriceEnum.BY_HAND_UCTO,
+                         dph_price=0.0,
+                         no_dph_price=DefaultPriceEnum.BY_HAND_NO_DPH,
+                         amt_var=by_hand_amt)
 
         register_amt = IntVar(value=0)
         self.tax_check_amts.append(register_amt)
-        self._define_row(text="Počet pokladních dokladů", evidence_price=DefaultPriceEnum.REGISTER_EVIDENCE,
-                         ucto_price=DefaultPriceEnum.REGISTER_UCTO, dph_price=0.0,
-                         no_dph_price=DefaultPriceEnum.REGISTER_NO_DPH, amt_var=register_amt)
+        self._define_row(text="Počet pokladních dokladů",
+                         evidence_price=DefaultPriceEnum.REGISTER_EVIDENCE,
+                         ucto_price=DefaultPriceEnum.REGISTER_UCTO,
+                         dph_price=0.0,
+                         no_dph_price=DefaultPriceEnum.REGISTER_NO_DPH,
+                         amt_var=register_amt)
 
         self._define_row(text="Počet operací provedených platební kartou",
                          evidence_price=DefaultPriceEnum.CREDIT_CARD_EVIDENCE,
-                         ucto_price=DefaultPriceEnum.CREDIT_CARD_UCTO, dph_price=0.0,
+                         ucto_price=DefaultPriceEnum.CREDIT_CARD_UCTO,
+                         dph_price=0.0,
                          no_dph_price=DefaultPriceEnum.CREDIT_CARD_NO_DPH)
 
-        self._define_row(text="Počet přijatých faktur", evidence_price=DefaultPriceEnum.CREATE_PFA_EVIDENCE,
-                         ucto_price=DefaultPriceEnum.CREATE_PFA_UCTO, dph_price=0.0, no_dph_price=0.0)
+        self._define_row(text="Počet přijatých faktur",
+                         evidence_price=DefaultPriceEnum.CREATE_PFA_EVIDENCE,
+                         ucto_price=DefaultPriceEnum.CREATE_PFA_UCTO,
+                         dph_price=0.0,
+                         no_dph_price=0.0)
 
         vfa_amt = IntVar(value=0)
         self.tax_check_amts.append(vfa_amt)
-        self._define_row(text="Počet vystavovaných faktur za klienta", evidence_price=0.0, ucto_price=0.0,
-                         dph_price=DefaultPriceEnum.CREATE_VFA_DPH, no_dph_price=DefaultPriceEnum.CREATE_VFA_NO_DPH,
+        self._define_row(text="Počet vystavovaných faktur za klienta",
+                         evidence_price=0.0,
+                         ucto_price=0.0,
+                         dph_price=DefaultPriceEnum.CREATE_VFA_DPH,
+                         no_dph_price=DefaultPriceEnum.CREATE_VFA_NO_DPH,
                          amt_var=vfa_amt)
 
         self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
@@ -184,8 +208,9 @@ class AccountingSection(SectionBase):
                                  pady=10)
 
     def setup_widgets(self) -> None:
-        """
-        sets up all widgets into default states with default values
+        """Set up all the widgets with default values and into default states.
+
+        Sets up all widgets into default states with default values.
         :return: None
         """
         self.widgets.append(self.checkboxes)
@@ -202,8 +227,9 @@ class AccountingSection(SectionBase):
         self.widgets.append(self.headers)
 
     def toggle_dph(self) -> None:
-        """
-        toggles all widgets to do with dph
+        """Toggle all widgets that have anything to do with DPH.
+
+        Toggles all the widget that have something to do with DPH either on or off.
         :return: None
         """
         self.add_row_button.grid_forget()
@@ -213,10 +239,12 @@ class AccountingSection(SectionBase):
 
         if self.dph_pay_bool.get():
             #disgusting hack
-            self.arrange_widgets(self.frame, self.widgets[:2] + self.dph_widgets + self.widgets[2:])
+            self.arrange_widgets(self.frame,
+                                 self.widgets[:2] + self.dph_widgets + self.widgets[2:])
         else:
             #disgusting hack
-            self.arrange_widgets(self.frame, self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
+            self.arrange_widgets(self.frame,
+                                 self.widgets[:2] + self.no_dph_widgets + self.widgets[2:])
 
         self.add_row_button.grid(row=self.frame.grid_size()[1] + 1,
                                  column=0,
@@ -227,12 +255,19 @@ class AccountingSection(SectionBase):
 
         self.get_total()
 
-    def get_total(self, *args) -> None:
-        """
-        gets the total of all the widgets within the section
+    def get_total(self,
+                  name: str | None = None,
+                  index: str | None = None,
+                  value: str | None = None) -> None:
+        """Get the total price for services from all of the widgets in the section.
+
+        Gets the total of all the widgets within the section.
+        :param name: Param shoehorned in, so ruff does not scream at me.
+        :param index: Param shoehorned in, so ruff does not scream at me.
+        :param value: Param shoehorned in, so ruff does not scream at me.
         :return: None, updates an internal section total
         """
-        total = 0.0
+        total: float = 0.0
         try:
             for subtotal in self.subtotals:
                 try:
@@ -267,40 +302,39 @@ class AccountingSection(SectionBase):
                 if self.dph_pay_bool.get():
                     total *= 7/6
 
-            else:
-                if self.dppodpfo_bool.get():
-                    total += DefaultPriceEnum.DPPO_DPFO
+            elif self.dppodpfo_bool.get():
+                total += DefaultPriceEnum.DPPO_DPFO
 
             if self.centers_bool.get():
-                old_total = total
+                old_total: float = total
                 total *= 1.1
-                self.centers_price = total - old_total
+                self.centers_price = int(total - old_total)
             if self.orders_bool.get():
                 old_total = total
                 total *= 1.1
-                self.orders_price = total - old_total
+                self.orders_price = int(total - old_total)
             if self.analysis_bool.get():
                 old_total = total
                 total *= 1.1
-                self.analysis_price = total - old_total
+                self.analysis_price = int(total - old_total)
             if self.warehouses_bool.get():
                 old_total = total
                 total *= 1.2
-                self.warehouses_price = total - old_total
+                self.warehouses_price = int(total - old_total)
 
-        except ValueError as e:
+        except ValueError:
             total = 0.0
-            print(e)
 
-        except TypeError as e:
+        except TypeError:
             total = 0.0
-            print(e)
 
         self.total.set(total)
 
     def base_checkbox_tick(self, kind: ModeEnum) -> None:
-        """
-        tracks the 2 base checkboxes and ensures that only one can ever be selected, making them mutually exclusive
+        """Ensure only one of the two base checkboxes is ever ticked, unticking the other.
+
+        Tracks the 2 base checkboxes and ensures that only one can ever be selected, making them
+        mutually exclusive, it does this by unticking the other when one is ticked
         :param kind: which checkbox has been ticked
         :return: None
         """
@@ -316,17 +350,28 @@ class AccountingSection(SectionBase):
 
         self.get_total()
 
-    def _define_row(self, text : str, evidence_price: DefaultPriceEnum | float, ucto_price: DefaultPriceEnum | float, dph_price: DefaultPriceEnum | float, no_dph_price: DefaultPriceEnum | float, amt_var: IntVar = None) -> None:
-        """
-        method used to define each row with an interactible price and amount of items to be calculated
-        :param text: text to be displayed in the textbox next to the row
-        :param evidence_price: price for evidence (optional, if left out, defaults to 0)
-        :param ucto_price: price for ucto (optional, if left out, defaults to 0)
-        :param dph_price: price for dph payers (optional, if left out, defaults to 0)
-        :param no_dph_price: price for no pay of dph (optional, if left out, defaults to 0)
-        :param amt_var: optional variable to let the section track the amount in this row (optional, if left out, defaults to 0)
+    def _define_row(self,  # noqa: PLR0913
+                    text : str,
+                    evidence_price: DefaultPriceEnum | float,
+                    ucto_price: DefaultPriceEnum | float,
+                    dph_price: DefaultPriceEnum | float,
+                    no_dph_price: DefaultPriceEnum | float,
+                    amt_var: IntVar | None = None) -> None:
+        """Define each row with an interactible price and amount.
+
+        Defines each row with an interactible price and amount of items to be calculated.
+        :param text: Text to be displayed in the textbox next to the row.
+        :param evidence_price: Price for evidence (optional, if left out, defaults to 0).
+        :param ucto_price: Price for ucto (optional, if left out, defaults to 0).
+        :param dph_price: Price for dph payers (optional, if left out, defaults to 0).
+        :param no_dph_price: Price for no pay of dph (optional, if left out, defaults to 0).
+        :param amt_var: Optional variable to let the section track the amount in this row.
+        (optional, if left out, defaults to 0).
         :return: None
         """
+        if amt_var is None:
+            amt_var = IntVar()
+
         row = Row(master=self.frame,
                   text=text,
                   ucto_price=ucto_price,
@@ -344,8 +389,9 @@ class AccountingSection(SectionBase):
         self.subtotals.append(row.subtotal_var)
 
     def _add_row(self) -> None:
-        """
-        method used for creating new rows during runtime when the user wants to add them
+        """Add a new row at the user's request.
+
+        Method used for creating new rows during runtime when the user wants to add them.
         :return: None
         """
         self.add_row_button.grid_forget()
@@ -372,12 +418,13 @@ class AccountingSection(SectionBase):
                                  pady=10)
 
     def row_delete_callback(self, deleted_row: Row) -> None:
-        """
-        callback used when the user deletes a row, ensuring frame forgetting the row and the button for adding a new row
+        """Delete a row upon the user's request.
+
+        Callback used when the user deletes a row, ensuring frame forgetting the row and the button
+        for adding a new row.
         :param deleted_row: an instance of the row class that is about to be deleted
         :return: None
         """
-
         if deleted_row.subtotal_var in self.subtotals:
             self.subtotals.remove(deleted_row.subtotal_var)
 
@@ -409,8 +456,10 @@ class AccountingSection(SectionBase):
                             pady=10)
 
     def export_non_row_items_for_pdf(self) -> list[PDFDataClass]:
-        """
-        method used to get all the non-Row object items and export them into a list PDFDataClass objects, which the PDF class knows how to handle
+        """Get all non-Row widgets and export them into a PDF.
+
+        Method used to get all the non-Row object items and export them into a list PDFDataClass
+        objects, which the PDF class knows how to handle.
         :return: list of the pdfDataClass objects
         """
         output = []
@@ -419,13 +468,16 @@ class AccountingSection(SectionBase):
             output.append(PDFDataClass(name=self.tax_check[0].cget("text"),
                                        price=float(self.tax_check_price)))
             output.append(PDFDataClass(name=self.send_docs[0].cget("text"),
-                                       price=DefaultPriceEnum.SEND_DOCS.value if self.send_docs_bool.get() else 0.0))
+                                       price=DefaultPriceEnum.SEND_DOCS.value if
+                                       self.send_docs_bool.get() else 0.0))
         else:
             output.append(PDFDataClass(name=self.create_dppodpfo[0].cget("text"),
-                                       price=DefaultPriceEnum.DPPO_DPFO.value if self.dppodpfo_bool.get() else 0.0))
+                                       price=DefaultPriceEnum.DPPO_DPFO.value if
+                                       self.dppodpfo_bool.get() else 0.0))
 
         output.append(PDFDataClass(name=self.import_only[0].cget("text"),
-                                   price=self.import_only_var.get() if self.import_only_bool.get() else 0.0))
+                                   price=self.import_only_var.get() if
+                                   self.import_only_bool.get() else 0.0))
         output.append(PDFDataClass(name=self.centers[0].cget("text"),
                                    price=self.orders_price))
         output.append(PDFDataClass(name=self.orders[0].cget("text"),

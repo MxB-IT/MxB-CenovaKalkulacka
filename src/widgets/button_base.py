@@ -3,8 +3,8 @@ from typing import Any
 
 from customtkinter import CTkButton, CTkFrame
 
-from src.Common.Enums.colour_enum import ColourEnum
-from src.Common.Enums.placeholder_texts import PlaceholderTexts
+from src.common.enums.colour_enum import ColourEnum
+from src.common.enums.placeholder_texts import PlaceholderTexts
 
 
 class ButtonBase(CTkButton):

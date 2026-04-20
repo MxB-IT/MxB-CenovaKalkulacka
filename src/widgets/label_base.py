@@ -3,7 +3,7 @@ from typing import Any
 
 from customtkinter import CTkFrame, CTkLabel, CTkToplevel
 
-from src.Common.Enums.colour_enum import ColourEnum
+from src.common.enums.colour_enum import ColourEnum
 
 
 class LabelBase(CTkLabel):

@@ -1,6 +1,6 @@
 from enum import Enum
-from src.Common.Enums.piece_names_enum import PieceNamesEnum
-from src.Common.Enums.mode_enum import ModeEnum
+from src.common.enums.piece_names_enum import PieceNamesEnum
+from src.common.enums.mode_enum import ModeEnum
 
 class DefaultPriceEnum(float, Enum):
     """

@@ -3,7 +3,7 @@ from typing import Any
 
 from customtkinter import CTkComboBox, CTkFrame
 
-from src.Common.Enums.colour_enum import ColourEnum
+from src.common.enums.colour_enum import ColourEnum
 
 
 class ComboBoxBase(CTkComboBox):

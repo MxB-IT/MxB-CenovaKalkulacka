@@ -1,34 +1,36 @@
+
 import tkinter as tk
-from tkinter import LEFT, RIGHT
+from pathlib import Path
+from tkinter import LEFT, RIGHT, Event
+from typing import Any
 
+from customtkinter import CTk, CTkFrame, CTkImage, CTkScrollbar
 from future.moves.tkinter import filedialog
-
-from src.Sections.Components.row import Row
-from src.Scripts.ResourcePather import ResourcePather
-from src.PdfUtils.PdfGen import PdfGen
-import sys
-from customtkinter import CTkScrollbar, CTkFrame, CTkImage, CTk
-from src.Widgets.frame_base import FrameBase
-from src.Widgets.tooltip import Tooltip
-from src.Widgets.button_base import ButtonBase
-from src.Widgets.label_base import LabelBase
-from src.Sections.base_section import BaseSection
-from src.Sections.accounting_section import AccountingSection
-from src.Sections.payroll_section import PayrollSection
-from src.Sections.total_section import TotalSection
-
 from PIL import Image
-import os
+
+from src.pdf_utils.pdf_gen import PdfGen
+from src.scripts.resource_pather import ResourcePather
+from src.sections.accounting_section import AccountingSection
+from src.sections.base_section import BaseSection
+from src.sections.components.row import Row
+from src.sections.payroll_section import PayrollSection
+from src.sections.total_section import TotalSection
+from src.widgets.button_base import ButtonBase
+from src.widgets.frame_base import FrameBase
+from src.widgets.label_base import LabelBase
+from src.widgets.tooltip import Tooltip
 
 NUMBER_FORMAT = "%.0f"
-MXB_RED = "#703230"
 
 class PriceCalc(CTk):
-    """
-    price calculator app class
-    handles the entire app operations
-    """
-    def __init__(self):
+    """Price calculator app class, handles mainly GUI operations."""
+
+    def __init__(self) -> None:
+        """Initialise the PriceCalc class.
+
+        Initialises the PriceCalc class, which includes setting up all the sections and pdf
+        generation.
+        """
         super().__init__()
         self.geometry("400x600")
         self.title("Cenová kalkulačka")
@@ -96,7 +98,7 @@ class PriceCalc(CTk):
                          columnspan=self.scrollable_frame.grid_size()[0],
                          sticky="ew")
 
-        icon_path = ResourcePather.resource_path("../Assets/Images/PDF_file_icon.png")
+        icon_path = ResourcePather.resource_path("assets/Images/PDF_file_icon.png")
         pdf_image = Image.open(icon_path)
 
         pdf_icon = CTkImage(light_image=pdf_image,
@@ -121,11 +123,11 @@ class PriceCalc(CTk):
         self.export_to_pdf_button.pack(side=RIGHT)
 
     def _setup_sections(self) -> None:
-        """
-        sets up all the sections into default positions
+        """Set up all sections.
+
+        Sets up all the sections into default positions.
         :return: None
         """
-
         self.base_section.frame.grid(row = 1,
                                      column = 0,
                                      columnspan = 3,
@@ -139,38 +141,49 @@ class PriceCalc(CTk):
         self.scrollable_frame.rowconfigure((0,4), weight = 1)
         self.scrollable_frame.columnconfigure(0, weight = 1)
 
-    def _bind_mouse_scroll(self, event) -> None:
-        """
-        method used to bind the mouse scrollwheel to scrolling through the app
-        :param event: unused
+    def _bind_mouse_scroll(self,
+                           event: Event) -> None:
+        """Bind mouse scroll to scrolling in the app.
+
+        Method used to bind the mouse scrollwheel to scrolling through the app.
+        :param event: Unused.
         :return: None
         """
         self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
         self.canvas.bind_all("<Button-4>", self._on_mousewheel)
         self.canvas.bind_all("<Button-5>", self._on_mousewheel)
 
-    def _unbind_mouse_scroll(self, event) -> None:
-        """
-        method used to unbind the mouse scrollwheel from scrolling through the app, used when the user's mouse pointer exits the app
-        :param event: unused
+    def _unbind_mouse_scroll(self,
+                             event: Event) -> None:
+        """Unbind mouse scroll from scrolling in the app.
+
+        method used to unbind the mouse scrollwheel from scrolling through the app, used when the
+        user's mouse pointer exits the app.
+        :param event: Unused.
         :return: None
         """
         self.canvas.unbind_all("<MouseWheel>")
         self.canvas.unbind_all("<Button-4>")
         self.canvas.unbind_all("<Button-5>")
 
-    def _on_frame_configure(self, event=None) -> None:
-        """
-        method used to redefine the scrollregion whenever the app is resized to have it actually correspond with where the app is visually
-        :param event: unused
+    def _on_frame_configure(self,
+                            event: Event) -> None:
+        """Respond to the resize of the app window.
+
+        Method used to redefine the scrollregion whenever the app is resized to have it actually
+        correspond with where the app is visually.
+        :param event: Unused.
         :return: None
         """
         self.canvas.configure(scrollregion = self.canvas.bbox("all"))
 
-    def _on_canvas_configure(self, event) -> None:
-        """
-        method used to delay recalculating the widget and GUI elements sizes and parameters until the user has stopped resizing the app, helps with lag significantly
-        :param event: event descriptor, containing information about the user's action
+    def _on_canvas_configure(self,
+                             event: Event) -> None:
+        """Respon to resuze of the app window.
+
+        Method used to delay recalculating the widget and GUI elements sizes and parameters
+        until the user has stopped resizing the app, helps with lag significantly.
+        :param event: Event descriptor, containing information about the user's action.
         :return: None
         """
         if self._resize_timer:
@@ -179,8 +192,9 @@ class PriceCalc(CTk):
         self._resize_timer = self.after(150, self._perform_resize, event.width)
 
     def _perform_resize(self, new_width: int) -> None:
-        """
-        method used to manually resize the app, after the user is done modifying the window size
+        """Resize app.
+
+        Method used to manually resize the app, after the user is done modifying the window size.
         :param new_width: new width of the app
         :return: None
         """
@@ -190,10 +204,12 @@ class PriceCalc(CTk):
         self.canvas.configure(scrollregion = self.canvas.bbox("all"))
         self._resize_timer = None
 
-    def _on_mousewheel(self, event) -> None:
-        """
-        method used to catch the movement of the mousewheel and react accordingly
-        :param event: event descriptor, containing information about the user's action
+    def _on_mousewheel(self,
+                       event: Event) -> None:
+        """Respond to scrolling the mousewheel.
+
+        Method used to catch the movement of the mousewheel and react accordingly.
+        :param event: Event descriptor, containing information about the user's action.
         :return: None
         """
         if event.delta:
@@ -203,9 +219,11 @@ class PriceCalc(CTk):
         elif event.num == 5:
             self.canvas.yview_scroll(1, "units")
 
-    def calculate_total(self, *args) -> None:
-        """
-        calculates the totals based on all the input data, called upon changes in totals
+    def calculate_total(self,
+                        *args: tuple[Any, ...]) -> None:
+        """Calculate the grand total for the service prices.
+
+        Calculates the totals based on all the input data, called upon changes in totals.
         :return: None
         """
         try:
@@ -220,12 +238,15 @@ class PriceCalc(CTk):
             pass
 
     @staticmethod
-    def toggle_relevant(toggle_bool, section, offset) -> None:
-        """
-        toggles relevant sections of the app based on user input
-        :param toggle_bool: toggle deciding whether to turn a widget on or off
-        :param section: section to toggle
-        :param offset: offset at which to toggle said section
+    def toggle_relevant(toggle_bool: bool,
+                        section: AccountingSection | PayrollSection | TotalSection | BaseSection,
+                        offset: int) -> None:
+        """Toggle the relevant section.
+
+        Toggles relevant sections of the app based on user input (clicking base checkboxes).
+        :param toggle_bool: Toggle deciding whether to turn a widget on or off.
+        :param section: Section to toggle.
+        :param offset: Offset at which to toggle said section.
         :return: None
         """
         if toggle_bool:
@@ -237,23 +258,20 @@ class PriceCalc(CTk):
             section.frame.grid_forget()
 
     def export_pdf(self) -> None:
-        """
-        method used to export all the data within the calculator app into a PDF format
+        """Export data in the app into a PDF file.
+
+        Method used to export all the data within the calculator app into a PDF format.
         :return: None
         """
-        rows = []
+        rows = [w for w in self.payrolls_section.widgets if isinstance(w, Row)]
+        rows.extend([w for w in self.accounting_section.widgets if isinstance(w, Row)])
 
-        for widget in self.payrolls_section.widgets:
-            if isinstance(widget, Row):
-                rows.append(widget)
+        output_folder: Path = Path(filedialog.askdirectory(initialdir=Path.cwd()))
 
-        for widget in self.accounting_section.widgets:
-            if isinstance(widget, Row):
-                rows.append(widget)
+        if output_folder == "":
+            output_folder = Path.cwd()
 
-        output_folder = filedialog.askdirectory(initialdir=os.getcwd())
-
-        if output_folder == '':
-            output_folder = os.getcwd()
-
-        PdfGen.create_pdf(rows, self.accounting_section.export_non_row_items_for_pdf(), float(self.total_section.total_price[1].cget("text")), output_folder)
+        PdfGen.create_pdf(rows,
+                          self.accounting_section.export_non_row_items_for_pdf(),
+                          float(self.total_section.total_price[1].cget("text")),
+                          output_folder)

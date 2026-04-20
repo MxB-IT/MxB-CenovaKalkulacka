@@ -7,9 +7,9 @@ block_cipher = None
 sep = ';' if sys.platform.startswith('win') else ':'
 
 added_files = [
-    ("Assets/Fonts/", "Assets/Fonts"),
-    ("Assets/Images/", "Assets/Images"),
-    ("Assets/Icon/", "Assets/Icon")
+    ("assets/Fonts/", "assets/Fonts"),
+    ("assets/Images/", "assets/Images"),
+    ("assets/Icon/", "assets/Icon")
 ]
 
 a = Analysis(
@@ -29,7 +29,7 @@ a = Analysis(
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
-icon_path = 'Assets/Icon/calculatorICO.ico' if sys.platform.startswith('win') else 'Assets/Icon/calculatorICNS.icns'
+icon_path = 'assets/Icon/calculatorICO.ico' if sys.platform.startswith('win') else 'assets/Icon/calculatorICNS.icns'
 
 exe = EXE(
     pyz,

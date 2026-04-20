@@ -1,16 +1,38 @@
-from src.Sections.section_base import *
+"""Class for the base section in the app."""
+from __future__ import annotations
+
+from tkinter import BooleanVar
+from typing import TYPE_CHECKING, Any
+
+from src.sections.section_base import SectionBase
+from src.widgets.checkbox_base import CheckBoxBase
+from src.widgets.frame_base import FrameBase
+
+if TYPE_CHECKING:
+    from src.PriceCalc import PriceCalc
 
 class BaseSection(SectionBase):
+    """Define the base section in the app, containing basic checks.
+
+    Section defining space for all the base widgets (base decisions visible on startup)
     """
-    section defining space for all the base widgets (base decisions visible on startup)
-    """
-    def __init__(self, master, app):
+
+    def __init__(self,
+                 master,
+                 app: PriceCalc) -> None:
+        """Initialise BaseSection class.
+
+        Initialises the BaseSection class with all its widgets prepped and variables set.
+        :param master: Master widget for the BaseSection class.
+        :param app: The PriceCalc app wrapper.
+        :return: None
+        """
         self.frame = FrameBase(master=master)
 
         self.accounting_bool = BooleanVar(value = False)
         self.payrolls_bool = BooleanVar(value = False)
 
-        self.widgets = []
+        self.widgets: list[tuple[Any, Any]] = []
 
         self.checkboxes = (CheckBoxBase(master=self.frame,
                                         text="Mzdy",
@@ -27,8 +49,9 @@ class BaseSection(SectionBase):
         self.arrange_widgets(self.frame, self.widgets)
 
     def setup_widgets(self) -> None:
-        """
-        sets up widgets into default states with their default values
+        """Set up all the widgets in the base section.
+
+        Sets up widgets into default states with their default values
         :return: None
         """
         self.widgets.append(self.checkboxes)

@@ -3,15 +3,15 @@ from typing import Any
 
 from customtkinter import CTkFrame, CTkTextbox
 
-from Common.Enums.scrollbar_activation import ScrollbarActivation
-from src.Common.Enums.colour_enum import ColourEnum
-from src.Common.Enums.placeholder_texts import PlaceholderTexts
+from src.common.enums.colour_enum import ColourEnum
+from src.common.enums.placeholder_texts import PlaceholderTexts
+from src.common.enums.scrollbar_activation import ScrollbarActivation
 
 
 class TextBoxBase(CTkTextbox):
     """Base class for all textboxes within the project."""
 
-    def __init__(self,
+    def __init__(self,  # noqa: PLR0913
                  master: CTkFrame,
                  border_color: ColourEnum = ColourEnum.DARK_MXB_RED,
                  fg_color: str = "transparent",
@@ -20,7 +20,7 @@ class TextBoxBase(CTkTextbox):
                  height: int = 35,
                  activate_scrollbars: ScrollbarActivation = ScrollbarActivation.ACTIVE,
                  border_width: int = 0,
-                 text: PlaceholderTexts = PlaceholderTexts.DESCRIPTION,
+                 text: PlaceholderTexts | str = PlaceholderTexts.DESCRIPTION,
                  *args: tuple[Any, ...],
                  **kwargs: dict[str, Any]) -> None:
         """Initialise the textbox widget.
@@ -91,7 +91,7 @@ class TextBoxBase(CTkTextbox):
                        border_width=0,
                        fg_color="white")
 
-    def add_newline(self, event = None) -> None:
+    def add_newline(self, event: Any = None) -> None:
         #TODO
         pass
 

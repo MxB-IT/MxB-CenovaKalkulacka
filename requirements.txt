@@ -8,3 +8,5 @@ packaging==25.0
 pillow==12.1.0
 pyglet==2.1.6
 reportlab==4.4.7
+
+future

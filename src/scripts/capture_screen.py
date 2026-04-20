@@ -1,6 +1,8 @@
+"""Used to capture a screenshot, used in GitHub builds to ensure the app built successfully."""
 import sys
-from PIL import ImageGrab
 import time
+
+from PIL import ImageGrab
 
 time.sleep(15)
 
@@ -11,7 +13,5 @@ try:
         screenshot = screenshot.convert("RGB")
 
     screenshot.save("screenshot.jpg", "JPEG")
-    print("Screenshot captured successfully.")
-except Exception as e:
-    print(f"Failed to capture screenshot: {e}")
+except Exception:
     sys.exit(1)
