@@ -22,7 +22,7 @@ class TextBoxBase(CTkTextbox):
                  border_width: int = 0,
                  text: PlaceholderTexts | str = PlaceholderTexts.DESCRIPTION,
                  *args: tuple[Any, ...],
-                 **kwargs: dict[str, Any]) -> None:
+                 **kwargs: Any) -> None:
         """Initialise the textbox widget.
 
         Initialises a textbox widget with the passed arguments forming its behaviour.
@@ -51,6 +51,8 @@ class TextBoxBase(CTkTextbox):
                          activate_scrollbars=bool(activate_scrollbars),
                          border_width=border_width,
                          **kwargs)
+        self.colour: ColourEnum | str = fg_color
+
         self._resize_timer = None
 
         self.insert(0.0, text)
@@ -89,7 +91,7 @@ class TextBoxBase(CTkTextbox):
         """
         self.configure(state="disabled",
                        border_width=0,
-                       fg_color="white")
+                       fg_color=self.colour)
 
     def add_newline(self, event: Any = None) -> None:
         #TODO

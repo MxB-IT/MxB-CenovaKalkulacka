@@ -4,10 +4,11 @@ from pathlib import Path
 from tkinter import LEFT, RIGHT, Event
 from typing import Any
 
-from customtkinter import CTk, CTkFrame, CTkImage, CTkScrollbar
+from customtkinter import CTk, CTkFont, CTkFrame, CTkImage, CTkScrollbar
 from future.moves.tkinter import filedialog
 from PIL import Image
 
+from src.common.enums.colour_enum import ColourEnum
 from src.pdf_utils.pdf_gen import PdfGen
 from src.scripts.resource_pather import ResourcePather
 from src.sections.accounting_section import AccountingSection
@@ -17,7 +18,7 @@ from src.sections.payroll_section import PayrollSection
 from src.sections.total_section import TotalSection
 from src.widgets.button_base import ButtonBase
 from src.widgets.frame_base import FrameBase
-from src.widgets.label_base import LabelBase
+from src.widgets.textbox_base import TextBoxBase
 from src.widgets.tooltip import Tooltip
 
 NUMBER_FORMAT = "%.0f"
@@ -83,13 +84,14 @@ class PriceCalc(CTk):
         self.topbar = CTkFrame(master=self.scrollable_frame,
                                height=60,
                                corner_radius=0,
-                               fg_color="#dddddd")
+                               fg_color=ColourEnum.SLIGHT_GRAY)
 
-        self.app_title = LabelBase(master=self.topbar,
-                                   text="Cenová kalkulačka",
-                                   font=("Arial", 20, "bold"))
+        self.client_name = TextBoxBase(master=self.topbar,
+                                       text="Jméno klienta",
+                                       font=CTkFont("Arial", 20, "bold"),
+                                       fg_color=ColourEnum.SLIGHT_GRAY)
 
-        self.app_title.pack(side=LEFT)
+        self.client_name.pack(side=LEFT)
 
         self.topbar.grid(row=0,
                          column=0,
@@ -272,6 +274,7 @@ class PriceCalc(CTk):
             output_folder = Path.cwd()
 
         PdfGen.create_pdf(rows,
+                          self.client_name.get("1.0", "end-1c"),
                           self.accounting_section.export_non_row_items_for_pdf(),
                           float(self.total_section.total_price[1].cget("text")),
                           output_folder)

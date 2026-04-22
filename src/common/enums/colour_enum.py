@@ -9,11 +9,13 @@ class ColourEnum(StrEnum):
     DARK_MXB_RED = "#401c1b"
     WHITE = "#FFFFFF"
     LIGHT_MXB_RED = "#ffb3b3"
+    SLIGHT_GRAY = "#dddddd"
 
-    def to_hex(self) -> int:
+    def to_hex(self) -> tuple[int, ...]:
         """Convert enum value to hex code.
 
         Converts the enum value held in the enum to a hex code of the colour.
         :return: Hex representation of the colour.
         """
-        return int(self.value.lstrip("#"), 16)
+        hex_val: str = self.value.lstrip("#")
+        return tuple(int(hex_val[i:i + 2], 16) for i in (0, 2, 4))

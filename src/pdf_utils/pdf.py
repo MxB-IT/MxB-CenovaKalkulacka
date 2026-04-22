@@ -10,14 +10,15 @@ from src.scripts.resource_pather import ResourcePather
 class PDF(FPDF):
     """Container for the PDF file, contains styling and data layout definitions."""
 
-    def __init__(self) -> None:
+    def __init__(self, client_name: str) -> None:
         """Initialise the PDF class.
 
         Initialises the PDF class, defining its fonts and the header.
         """
         super().__init__()
-        font_path = ResourcePather.resource_path("./assets/fonts/DejaVuSans.ttf")
-        bold_font_path = ResourcePather.resource_path("./assets/fonts/DejaVuSans-Bold.ttf")
+        font_path: str = ResourcePather.resource_path("./assets/fonts/DejaVuSans.ttf")
+        bold_font_path: str = ResourcePather.resource_path("./assets/fonts/DejaVuSans-Bold.ttf")
+        self.client_name: str = client_name
         try:
             self.add_font("DejaVuSans", "", font_path, uni=True)
             self.add_font("DejaVuSans", "B", bold_font_path, uni=True)
@@ -36,7 +37,7 @@ class PDF(FPDF):
         self.set_font("DejaVuSans", "B", 25)
         self.cell(w=0,
                   h=33,
-                  text="Souhrn ceny služeb",
+                  text=self.client_name,
                   border=False,
                   align="C")
 
