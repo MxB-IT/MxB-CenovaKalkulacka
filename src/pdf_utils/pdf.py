@@ -33,12 +33,12 @@ class PDF(FPDF):
         """
         img_path = ResourcePather.resource_path("./assets/Images/mxbLogo.png")
         self.image(img_path, 10, 8, 33)
-        self.set_font('DejaVuSans', 'B', 25)
+        self.set_font("DejaVuSans", "B", 25)
         self.cell(w=0,
                   h=33,
                   text="Souhrn ceny služeb",
                   border=False,
-                  align='C')
+                  align="C")
 
         self.set_y(50)
 
