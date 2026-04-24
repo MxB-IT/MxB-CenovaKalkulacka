@@ -139,6 +139,9 @@ class AccountingSection(SectionBase):
                                   text="Počet"),
                         LabelBase(master=self.frame,
                                   text="Cena"),
+                        LabelBase(master=self.frame,
+                                  text="",
+                                  width=30),
                         )
 
         self.setup_widgets()
@@ -208,7 +211,7 @@ class AccountingSection(SectionBase):
                                  pady=10)
 
     def setup_widgets(self) -> None:
-        """Set up all the widgets with default values and into default states.
+        """Set up all the widgets with default values and default states.
 
         Sets up all widgets into default states with default values.
         :return: None
@@ -487,4 +490,4 @@ class AccountingSection(SectionBase):
         output.append(PDFDataClass(name=self.warehouses[0].cget("text"),
                                    price=self.warehouses_price))
 
-        return output
+        return [p for p in output if p.price > 0]

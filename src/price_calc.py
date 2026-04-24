@@ -1,13 +1,15 @@
-
+"""Defines the main app class servicing GUI and running background scripts."""
 import tkinter as tk
 from pathlib import Path
 from tkinter import LEFT, RIGHT, Event
-from typing import Any
+from typing import Any, cast
 
-from customtkinter import CTk, CTkFrame, CTkImage, CTkScrollbar
+from customtkinter import CTk, CTkFont, CTkFrame, CTkImage, CTkScrollbar
 from future.moves.tkinter import filedialog
 from PIL import Image
 
+from src.common.enums.colour_enum import ColourEnum
+from src.common.enums.event_enum import EventEnum
 from src.pdf_utils.pdf_gen import PdfGen
 from src.scripts.resource_pather import ResourcePather
 from src.sections.accounting_section import AccountingSection
@@ -17,7 +19,7 @@ from src.sections.payroll_section import PayrollSection
 from src.sections.total_section import TotalSection
 from src.widgets.button_base import ButtonBase
 from src.widgets.frame_base import FrameBase
-from src.widgets.label_base import LabelBase
+from src.widgets.textbox_base import TextBoxBase
 from src.widgets.tooltip import Tooltip
 
 NUMBER_FORMAT = "%.0f"
@@ -46,6 +48,7 @@ class PriceCalc(CTk):
                                 borderwidth=0,
                                 highlightthickness=0,
                                 bg="white")
+
         self.canvas.grid(row=0,
                          column=0,
                          sticky="nsew")
@@ -60,7 +63,7 @@ class PriceCalc(CTk):
 
         self.scrollable_frame = FrameBase(master=self.canvas,
                                           border_width = 2,
-                                          border_color = "white")
+                                          border_color = ColourEnum.WHITE)
 
         self.canvas_window = self.canvas.create_window((0, 0),
                                                        window=self.scrollable_frame,
@@ -83,20 +86,21 @@ class PriceCalc(CTk):
         self.topbar = CTkFrame(master=self.scrollable_frame,
                                height=60,
                                corner_radius=0,
-                               fg_color="#dddddd")
+                               fg_color=ColourEnum.SLIGHT_GRAY)
 
-        self.app_title = LabelBase(master=self.topbar,
-                                   text="Cenová kalkulačka",
-                                   font=("Arial", 20, "bold"))
+        self.client_name = TextBoxBase(master=self.topbar,
+                                       text="Jméno klienta",
+                                       font=CTkFont("Arial", 20, "bold"),
+                                       fg_color=ColourEnum.SLIGHT_GRAY)
 
-        self.app_title.pack(side=LEFT)
+        self.client_name.pack(side=LEFT)
 
         self.topbar.grid(row=0,
                          column=0,
                          padx=0,
                          pady=0,
                          columnspan=self.scrollable_frame.grid_size()[0],
-                         sticky="ew")
+                         sticky="new")
 
         icon_path = ResourcePather.resource_path("assets/Images/PDF_file_icon.png")
         pdf_image = Image.open(icon_path)
@@ -109,16 +113,16 @@ class PriceCalc(CTk):
                                                command=self.export_pdf,
                                                text="",
                                                image=pdf_icon,
-                                               bg_color="white",
-                                               hover_color="#4d2422",
+                                               bg_color=ColourEnum.WHITE,
+                                               hover_color=ColourEnum.MXB_BROWN,
                                                border_width=0,
                                                corner_radius=0)
 
         Tooltip(widget=self.export_to_pdf_button,
                 text="Export do PDF")
 
-        self.export_to_pdf_button.configure(width=30,
-                                            height=30)
+        self.export_to_pdf_button.configure(width=40,
+                                            height=40)
 
         self.export_to_pdf_button.pack(side=RIGHT)
 
@@ -136,9 +140,7 @@ class PriceCalc(CTk):
                                       column = 0,
                                       columnspan = 3,
                                       sticky = "ew")
-        self.scrollable_frame.configure(width = self.winfo_width() - 40,
-                                        height = self.winfo_height() - 40)
-        self.scrollable_frame.rowconfigure((0,4), weight = 1)
+        self.scrollable_frame.configure(width = self.winfo_width() - 40)
         self.scrollable_frame.columnconfigure(0, weight = 1)
 
     def _bind_mouse_scroll(self,
@@ -175,7 +177,10 @@ class PriceCalc(CTk):
         :param event: Unused.
         :return: None
         """
-        self.canvas.configure(scrollregion = self.canvas.bbox("all"))
+        bbox: tuple[int, int, int, int] = self.canvas.bbox("all")
+
+        if bbox:
+            self.canvas.configure(scrollregion=(0, 0, bbox[2], bbox[3]))
 
     def _on_canvas_configure(self,
                              event: Event) -> None:
@@ -201,7 +206,11 @@ class PriceCalc(CTk):
         self.canvas.itemconfig(self.canvas_window,
                                width=new_width)
 
-        self.canvas.configure(scrollregion = self.canvas.bbox("all"))
+        bbox: tuple[int, int, int, int] = self.canvas.bbox("all")
+
+        if bbox:
+            self.canvas.configure(scrollregion = (0, 0, bbox[2], bbox[3]))
+
         self._resize_timer = None
 
     def _on_mousewheel(self,
@@ -212,11 +221,15 @@ class PriceCalc(CTk):
         :param event: Event descriptor, containing information about the user's action.
         :return: None
         """
+        if (self.canvas.yview()[0] <= 0 and
+                (event.delta > 0 or event.num == EventEnum.MOUSEWHEEL_UP)):
+            return
+
         if event.delta:
             self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
-        elif event.num == 4:
+        elif event.num == EventEnum.MOUSEWHEEL_UP:
             self.canvas.yview_scroll(-1, "units")
-        elif event.num == 5:
+        elif event.num == EventEnum.MOUSEWHEEL_DOWN:
             self.canvas.yview_scroll(1, "units")
 
     def calculate_total(self,
@@ -263,8 +276,10 @@ class PriceCalc(CTk):
         Method used to export all the data within the calculator app into a PDF format.
         :return: None
         """
-        rows = [w for w in self.payrolls_section.widgets if isinstance(w, Row)]
-        rows.extend([w for w in self.accounting_section.widgets if isinstance(w, Row)])
+        rows: list[Row] = cast("list[Row]", [w for w in self.payrolls_section.widgets
+                if isinstance(w, Row) and w.subtotal_var.get() > 0])
+        rows.extend(cast("list[Row]", [w for w in self.accounting_section.widgets
+                     if isinstance(w, Row) and w.subtotal_var.get() > 0]))
 
         output_folder: Path = Path(filedialog.askdirectory(initialdir=Path.cwd()))
 
@@ -272,6 +287,7 @@ class PriceCalc(CTk):
             output_folder = Path.cwd()
 
         PdfGen.create_pdf(rows,
+                          self.client_name.get("1.0", "end-1c"),
                           self.accounting_section.export_non_row_items_for_pdf(),
                           float(self.total_section.total_price[1].cget("text")),
                           output_folder)

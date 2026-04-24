@@ -66,7 +66,7 @@ class Row(CTkFrame):
             corner_radius=14,
             fg_color="#FF6F56",
             hover_color="#FF4040",
-            text_color="white",
+            text_color=ColourEnum.WHITE,
             font=("Arial", 14, "bold"),
             command=self.delete_row,
         )

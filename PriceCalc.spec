@@ -13,7 +13,7 @@ added_files = [
 ]
 
 a = Analysis(
-    ['PriceCalc.py'],
+    ['price_calc.py'],
     pathex=[],
     binaries=[],
     datas=added_files,
