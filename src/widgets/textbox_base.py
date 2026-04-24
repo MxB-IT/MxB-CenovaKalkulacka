@@ -57,7 +57,7 @@ class TextBoxBase(CTkTextbox):
 
         self.insert(0.0, text)
 
-        self.after(100, self.update_height)
+        self.after(10, self.update_height)
 
         self.configure(state = "disabled")
         self.editing = False

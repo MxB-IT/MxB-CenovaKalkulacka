@@ -1,19 +1,18 @@
 # -*- mode: python ; coding: utf-8 -*-
 import sys
-import os
 
 block_cipher = None
 
-sep = ';' if sys.platform.startswith('win') else ':'
+sep = ";" if sys.platform.startswith("win") else ":"
 
 added_files = [
-    ("assets/Fonts/", "assets/Fonts"),
-    ("assets/Images/", "assets/Images"),
-    ("assets/Icon/", "assets/Icon")
+    ("src/assets/Fonts/", "assets/Fonts"),
+    ("src/assets/Images/", "assets/Images"),
+    ("src/assets/Icon/", "assets/Icon"),
 ]
 
 a = Analysis(
-    ['price_calc.py'],
+    ["./main.py"],
     pathex=[],
     binaries=[],
     datas=added_files,
@@ -25,11 +24,12 @@ a = Analysis(
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
-    noarchive=False
+    noarchive=False,
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
-icon_path = 'assets/Icon/calculatorICO.ico' if sys.platform.startswith('win') else 'assets/Icon/calculatorICNS.icns'
+icon_path = "src/assets/Icon/calculatorICO.ico" if sys.platform.startswith("win") \
+    else "src/assets/Icon/calculatorICNS.icns"
 
 exe = EXE(
     pyz,
@@ -38,7 +38,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='Kalkulacka',
+    name="Cenova_Kalkulacka",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -56,7 +56,7 @@ exe = EXE(
 
 app = BUNDLE(
     exe,
-    name='Kalkulacka.app',
+    name="Kalkulacka.app",
     icon=icon_path,
-    bundle_identifier='com.Lander.Kalkulacka'
+    bundle_identifier="com.Lander.Kalkulacka"
 )

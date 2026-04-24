@@ -93,7 +93,12 @@ class PriceCalc(CTk):
                                        font=CTkFont("Arial", 20, "bold"),
                                        fg_color=ColourEnum.SLIGHT_GRAY)
 
-        self.client_name.pack(side=LEFT)
+        self.client_name.grid(row = 0,
+                              column = 0,
+                              sticky = "ew")
+
+        self.topbar.columnconfigure(0, weight = 4)
+        self.topbar.columnconfigure(1, weight = 1)
 
         self.topbar.grid(row=0,
                          column=0,
@@ -107,7 +112,7 @@ class PriceCalc(CTk):
 
         pdf_icon = CTkImage(light_image=pdf_image,
                             dark_image=pdf_image,
-                            size=(15,20))
+                            size=(21,28))
 
         self.export_to_pdf_button = ButtonBase(master=self.topbar,
                                                command=self.export_pdf,
@@ -124,7 +129,9 @@ class PriceCalc(CTk):
         self.export_to_pdf_button.configure(width=40,
                                             height=40)
 
-        self.export_to_pdf_button.pack(side=RIGHT)
+        self.export_to_pdf_button.grid(row=0,
+                                       column=1,
+                                       sticky="ew")
 
     def _setup_sections(self) -> None:
         """Set up all sections.
