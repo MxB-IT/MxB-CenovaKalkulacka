@@ -14,7 +14,7 @@ from src.widgets.button_base import ButtonBase
 from src.widgets.label_base import LabelBase
 
 if TYPE_CHECKING:
-    from src.PriceCalc import PriceCalc
+    from src.price_calc import PriceCalc
 
 class PayrollSection(SectionBase):
     """Defines a section for widgets pertaining to the payroll prices."""

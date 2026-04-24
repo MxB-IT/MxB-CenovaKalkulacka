@@ -28,7 +28,8 @@ class PdfGen:
         :param output_path: Where to save the file.
         :return: None
         """
-        pdf: PDF = PDF(client_name)
+        clean_client_name: str = client_name.replace("\n", " ")
+        pdf: PDF = PDF(clean_client_name)
         pdf.add_page()
 
         table_data: list[PDFDataClass] = non_row_items
@@ -36,5 +37,5 @@ class PdfGen:
 
         pdf.construct_table(table_data, total_price)
 
-        pdf.output(f"{output_path}/output.pdf")
-        webbrowser.open(f"{output_path}/output.pdf")
+        pdf.output(f"{output_path}/{clean_client_name}.pdf")
+        webbrowser.open(f"{output_path}/{clean_client_name}.pdf")

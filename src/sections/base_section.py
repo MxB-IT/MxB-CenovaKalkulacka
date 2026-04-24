@@ -9,7 +9,7 @@ from src.widgets.checkbox_base import CheckBoxBase
 from src.widgets.frame_base import FrameBase
 
 if TYPE_CHECKING:
-    from src.PriceCalc import PriceCalc
+    from src.price_calc import PriceCalc
 
 class BaseSection(SectionBase):
     """Define the base section in the app, containing basic checks.

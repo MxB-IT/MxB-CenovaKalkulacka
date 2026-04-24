@@ -10,6 +10,7 @@ class ColourEnum(StrEnum):
     WHITE = "#FFFFFF"
     LIGHT_MXB_RED = "#ffb3b3"
     SLIGHT_GRAY = "#dddddd"
+    MXB_BROWN = "#4d2422"
 
     def to_hex(self) -> tuple[int, ...]:
         """Convert enum value to hex code.

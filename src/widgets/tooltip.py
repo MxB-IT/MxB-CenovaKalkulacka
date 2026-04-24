@@ -3,8 +3,8 @@ from typing import Any
 
 from customtkinter import CTkLabel, CTkToplevel
 
-from common.enums.err_no_enum import ErrNoEnum
-from errors.app_error import AppError
+from src.common.enums.err_no_enum import ErrNoEnum
+from src.errors.app_error import AppError
 
 
 class Tooltip:

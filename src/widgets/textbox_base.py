@@ -1,7 +1,7 @@
 """Defines the base class for all textboxes within the project."""
 from typing import Any
 
-from customtkinter import CTkFrame, CTkTextbox
+from customtkinter import CTkFont, CTkFrame, CTkTextbox
 
 from src.common.enums.colour_enum import ColourEnum
 from src.common.enums.placeholder_texts import PlaceholderTexts
@@ -67,6 +67,7 @@ class TextBoxBase(CTkTextbox):
         self.bind("<FocusOut>", self.stop_edit)
         self.bind("<Shift-Return>", self.add_newline)
         self.bind("<Configure>", self.on_resize)
+        self.bind("<KeyRelease>", self.on_resize)
 
     def start_edit(self, event: Any = None) -> None:
         """Set the textbox into editable mode.
@@ -94,6 +95,13 @@ class TextBoxBase(CTkTextbox):
                        fg_color=self.colour)
 
     def add_newline(self, event: Any = None) -> None:
+        """Handle adding a new line, exapnding textbox to fit.
+
+        Handles the user adding a new line into the textbox, ensuring the textbox expands to fit the
+        text instead of showing a scrollbar.
+        :param event: Arg shoehorned in, so customtkinter doesn't complain.
+        :return: None.
+        """
         #TODO
         pass
 
@@ -102,12 +110,9 @@ class TextBoxBase(CTkTextbox):
 
         Updates the height of the widget based on how many lines of text are contained within it.
         """
-        num_lines = self._textbox.count("1.0", "end", "displaylines")[0]
+        num_lines: int = self._textbox.count("1.0", "end", "displaylines")[0]
 
-        new_height = num_lines
-
-        if self.cget("height") != new_height:
-            self.configure(height=new_height)
+        self._textbox.configure(height=num_lines)
 
     def on_resize(self, event: Any) -> None:
         """Set up a timer for resizing the widget.
